@@ -36,3 +36,9 @@ body{font-family:Heebo,system-ui,sans-serif}
 .dashboard-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.dashboard-actions .outline-btn{padding:9px 12px;font-size:11px}.quiet-danger{border:0;background:none;color:#b63831;font-size:11px;font-weight:900}
 @media(max-width:600px){.skill-row{grid-template-columns:1fr}.level-adjust{justify-content:flex-start}.difficulty-panel{padding:18px}}
 @media(max-width:520px){.dashboard-actions{grid-column:2;justify-content:flex-start}.hero:after{z-index:0}}
+
+/* Keep hero copy readable while the forest is dimmed. */
+.hero-copy{top:58px;max-width:520px;padding:22px 26px;border:1px solid rgba(255,255,255,.76);border-radius:25px;background:rgba(239,249,255,.76);box-shadow:0 12px 32px rgba(15,47,73,.14);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.hero p{color:#29465e;font-weight:800;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+@media(max-width:800px){.hero-copy{top:42px;background:rgba(239,249,255,.82)}}
+@media(max-width:520px){.hero-copy{left:14px;right:14px;top:30px;padding:20px 18px}.hero p{max-width:none;color:#213d56}}
