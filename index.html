@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#185abd">
+  <title>ההרפתקה ביער הזוהר</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=3">
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <button class="brand" data-go="home" aria-label="חזרה לבית">
+        <span class="brand-mark">ז</span>
+        <span>יער <b>הזוהר</b></span>
+      </button>
+      <div class="top-actions">
+        <div class="streak-chip" title="רצף הרפתקאות"><span>🔥</span><b id="streakCount">0</b><small>ימים ברצף</small></div>
+        <div class="star-chip"><span>★</span><b id="starCount">0</b></div>
+        <button class="icon-btn sound-toggle" aria-label="הפעלת או השתקת צלילים">🔊</button>
+        <button class="profile-pill" id="profileButton">
+          <span class="mini-avatar" id="miniAvatar">🦊</span>
+          <span><small>הרפתקן/ית</small><b id="profileName">שחקן חדש</b></span>
+          <i>⌄</i>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section id="homeScreen" class="screen active">
+        <div class="hero">
+          <div class="hero-copy">
+            <span class="eyebrow">ההרפתקה של היום</span>
+            <h1>מוכנים לעשות<br><em>קסמים</em> עם הראש?</h1>
+            <p>בוחרים שביל, פותרים חידות ועוזרים לפיפ להאיר את יער הזוהר!</p>
+            <div class="hero-actions">
+              <button class="primary-btn" id="continueButton">ממשיכים בהרפתקה <span>←</span></button>
+              <button class="round-btn" id="randomButton" aria-label="הפתיעו אותי">✦</button>
+            </div>
+          </div>
+          <div class="speech-bubble">היי, הרפתקנים!<br><b>בואו נמצא 3 כוכבים!</b></div>
+        </div>
+
+        <div class="content-wrap">
+          <div class="section-heading">
+            <div><span class="eyebrow blue">בוחרים שביל</span><h2>מה נגלה היום?</h2></div>
+            <button class="text-btn" id="customizeSubjects">בחירת נושאים ⚙</button>
+          </div>
+          <div class="subject-grid" id="subjectGrid"></div>
+
+          <div class="lower-grid">
+            <article class="daily-card">
+              <div class="daily-icon">🎁</div>
+              <div><span class="eyebrow">המשימה היומית</span><h3>אוספי הכוכבים</h3><p>משלימים היום 3 פעילויות</p></div>
+              <div class="daily-progress"><b id="dailyDone">0 / 3</b><div class="bar"><i id="dailyBar"></i></div></div>
+            </article>
+            <button class="grownups-card" id="dashboardButton">
+              <span class="grownups-icon">📊</span>
+              <span><small>למבוגרים</small><b>צפייה בהתקדמות והגדרות</b></span>
+              <i>←</i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="gameScreen" class="screen game-screen">
+        <div class="game-shell">
+          <div class="game-header">
+            <button class="back-btn" data-go="home">→</button>
+            <div class="level-meta"><span id="gameSubject">שביל החשבון</span><b id="gameLevel">שלב 1 · אחו המספרים</b></div>
+            <div class="question-progress"><span id="questionLabel">1 מתוך 5</span><div class="bar"><i id="questionBar"></i></div></div>
+          </div>
+          <div class="game-card">
+            <div class="pip-corner">🦊<span id="pipPrompt">קטן עליכם!</span></div>
+            <span class="eyebrow blue" id="questionType">סופרים ובוחרים</span>
+            <h2 id="questionText">כמה כוכבים אתם רואים?</h2>
+            <button class="listen-btn" id="listenAgain">🔊 לשמוע שוב</button>
+            <div id="questionVisual" class="question-visual"></div>
+            <div id="answerGrid" class="answer-grid"></div>
+            <div id="feedback" class="feedback"></div>
+            <div id="explanation" class="explanation"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="dashboardScreen" class="screen dashboard-screen">
+        <div class="dashboard-wrap">
+          <div class="dashboard-head">
+            <button class="back-btn" data-go="home">→</button>
+            <div><span class="eyebrow blue">האזור של המבוגרים</span><h1>מסע הלמידה</h1><p id="dashboardSubtitle">תמונה נעימה של ההתקדמות האחרונה.</p></div>
+            <div class="dashboard-actions">
+              <button class="outline-btn" id="printReport">הדפסת דוח</button>
+              <button class="outline-btn" id="exportReport">ייצוא נתונים</button>
+              <button class="quiet-danger" id="resetProgress">איפוס התקדמות</button>
+            </div>
+          </div>
+          <div class="stat-grid">
+            <article><span>⭐</span><small>כוכבים שנאספו</small><b id="dashStars">0</b></article>
+            <article><span>🎯</span><small>שאלות שנענו</small><b id="dashQuestions">0</b></article>
+            <article><span>🌱</span><small>דיוק</small><b id="dashAccuracy">—</b></article>
+            <article><span>⏱️</span><small>זמן למידה</small><b id="dashTime">0 דקות</b></article>
+          </div>
+          <div class="dashboard-grid">
+            <article class="panel"><div class="panel-title"><div><span class="eyebrow blue">מקצועות</span><h2>התקדמות לפי שביל</h2></div><span>השבוע</span></div><div id="subjectProgress"></div></article>
+            <article class="panel"><div class="panel-title"><div><span class="eyebrow blue">רגעים אחרונים</span><h2>יומן ההרפתקאות</h2></div></div><div id="activityLog"></div></article>
+          </div>
+          <article class="panel difficulty-panel">
+            <div class="panel-title"><div><span class="eyebrow blue">התאמת אתגרים</span><h2>איך הרמה מרגישה?</h2><p>אפשר להתאים כל סוג פעילות בנפרד.</p></div></div>
+            <div id="difficultyControls"></div>
+          </article>
+          <article class="panel insight-panel"><div class="insight-icon">💡</div><div><span class="eyebrow">הפתק של פיפ</span><h3 id="insightTitle">מוכנים להרפתקה הראשונה</h3><p id="insightText">השלימו שביל ופיפ ישתף כאן תובנה על הלמידה.</p></div></article>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal-backdrop" id="profileModal">
+      <div class="modal profile-modal">
+        <button class="modal-close" data-close="profileModal">×</button>
+        <span class="eyebrow blue">מי יוצא להרפתקה?</span>
+        <h2>בוחרים הרפתקן או הרפתקנית</h2>
+        <div id="profilesList" class="profiles-list"></div>
+        <button class="add-profile" id="addProfileButton">＋ הוספת פרופיל לילד/ה</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="createModal">
+      <form class="modal create-modal" id="createForm">
+        <button type="button" class="modal-close" data-close="createModal">×</button>
+        <span class="eyebrow blue" id="profileFormEyebrow">הרפתקן חדש!</span>
+        <h2 id="profileFormTitle">יוצרים פרופיל לילד/ה</h2>
+        <label>שם:<input id="childName" maxlength="16" placeholder="למשל: מאיה" required></label>
+        <label>גיל:<div class="age-options" id="ageOptions"></div></label>
+        <label>בוחרים חבר למסע<div class="buddy-options" id="buddyOptions"></div></label>
+        <button class="primary-btn full" id="profileSubmit" type="submit">יוצאים לדרך <span>←</span></button>
+        <button class="danger-btn hidden" id="deleteProfile" type="button">מחיקת הפרופיל</button>
+      </form>
+    </div>
+
+    <div class="modal-backdrop" id="subjectModal">
+      <div class="modal subject-modal">
+        <button class="modal-close" data-close="subjectModal">×</button>
+        <span class="eyebrow blue">הנושאים שלי</span>
+        <h2>בוחרים נושאים אהובים</h2>
+        <p>בחרו לפחות נושא אחד. אפשר לשנות בכל זמן.</p>
+        <div id="subjectToggles" class="subject-toggles"></div>
+        <button class="primary-btn full" id="saveSubjects">שמירת הנושאים שלי</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="celebrationModal">
+      <div class="modal celebration-modal">
+        <div class="confetti">★ ✦ ● ★ ✦</div>
+        <div class="celebrate-buddy" id="celebrateBuddy">🦊</div>
+        <span class="eyebrow">השביל הושלם!</span>
+        <h2>איזו הרפתקה נהדרת!</h2>
+        <p>אספתם <b><span id="earnedStars">3</span> כוכבים</b> והארתם עוד חלק מיער הזוהר.</p>
+        <button class="primary-btn full" data-go="home" data-close="celebrationModal">חזרה למפה <span>←</span></button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="adultGateModal">
+      <form class="modal adult-gate" id="adultGateForm">
+        <button type="button" class="modal-close" data-close="adultGateModal">×</button>
+        <span class="eyebrow blue">כניסת מבוגרים</span>
+        <h2>בדיקה קטנה</h2>
+        <p>כמה הם 17 כפול 6, פחות 9?</p>
+        <input id="adultAnswer" inputmode="numeric" maxlength="3" placeholder="התשובה" required>
+        <p class="gate-error" id="gateError"></p>
+        <button class="primary-btn full" type="submit">כניסה ללוח ההתקדמות</button>
+      </form>
+    </div>
+  </div>
+  <script src="app.js?v=6"></script>
+</body>
+</html>
