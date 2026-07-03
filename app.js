@@ -217,8 +217,6 @@ let session = null;
 let selectedAge = 5;
 let selectedBuddy = "🦊";
 let editingId = null;
-let adultChallengeAnswer = 93;
-let lastAdultChallenge = "";
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
@@ -257,6 +255,7 @@ function showScreen(id){
   $("#"+id).classList.add("active");
   window.scrollTo({top:0,behavior:"smooth"});
   if(id==="dashboardScreen") renderDashboard();
+  if(id==="settingsScreen") renderSettings();
 }
 
 function init(){
@@ -289,6 +288,7 @@ function renderAll(){
   renderSubjectToggles();
   renderAdventureChoices();
   if($("#dashboardScreen").classList.contains("active")) renderDashboard();
+  if($("#settingsScreen").classList.contains("active")) renderSettings();
 }
 
 function renderHero(){
@@ -462,7 +462,6 @@ function renderDashboard(){
     return `<div class="progress-row"><span class="trail-icon">${s.icon}</span><b>${subjectName(p,k)}</b><div class="bar"><i style="width:${pct}%"></i></div><small>${x?.completed||0}/10</small></div>`;
   }).join("");
   $("#activityLog").innerHTML=p.log.length?p.log.map(x=>`<div class="log-row"><span class="log-icon">${SUBJECTS[x.subject].icon}</span><div><b>${SUBJECTS[x.subject].trail}</b><small>${x.correct} מתוך ${x.total} תשובות נכונות · ${x.date}</small></div></div>`).join(""):`<div class="empty-state">עוד אין הרפתקאות. בחרו שביל והסיפור מתחיל!</div>`;
-  renderDifficulty(p);
   const skills=[];
   Object.entries(p.skillLevels).forEach(([subject,map])=>Object.entries(map).forEach(([skill,level])=>skills.push({subject,skill,level})));
   if(p.answered&&skills.length){
@@ -474,6 +473,15 @@ function renderDashboard(){
     $("#insightTitle").textContent="מוכנים להרפתקה הראשונה";
     $("#insightText").textContent="השלימו שביל ופיפ ישתף כאן תובנה על הלמידה.";
   }
+}
+
+function renderSettings(){
+  const p=activeProfile(); if(!p)return;
+  $("#settingsSubtitle").textContent=`ההגדרות של ${p.name}.`;
+  $("#settingsProfile span").textContent=p.buddy;
+  $("#settingsSound span").textContent=state.sound?"🔊":"🔇";
+  $("#settingsSoundLabel").textContent=state.sound?"הצלילים פעילים":"הצלילים כבויים";
+  renderDifficulty(p);
 }
 
 function renderDifficulty(p){
@@ -493,7 +501,7 @@ function adjustDifficulty(data){
     if(choice==="down")p.skillLevels[subject][skill]=clamp(current-1,1,5);
   });
   p.recentQuestions[subject]=[];
-  save(); renderDashboard(); renderSubjects();
+  save(); renderSettings(); renderSubjects();
 }
 
 function exportProgress(){
@@ -513,29 +521,9 @@ function resetProgress(){
   const p=activeProfile(); if(!p)return;
   if(!confirm(`לאפס את כל ההתקדמות של ${p.name}? הפעולה אינה ניתנת לביטול.`))return;
   Object.assign(p,{stars:0,streak:0,progress:{},log:[],correct:0,answered:0,minutes:0,daily:0,dailyDate:"",skillLevels:{},skillFeedback:{},recentQuestions:{}});
-  prepareProfile(p); save(); renderAll(); renderDashboard();
-}
-
-function createAdultChallenge(){
-  let text;
-  do {
-    const template=Math.floor(Math.random()*3);
-    const a=12+Math.floor(Math.random()*13);
-    const b=4+Math.floor(Math.random()*6);
-    const c=3+Math.floor(Math.random()*17);
-    if(template===0){
-      adultChallengeAnswer=a*b-c;
-      text=`כמה הם ${a} כפול ${b}, פחות ${c}?`;
-    } else if(template===1){
-      adultChallengeAnswer=a*b+c;
-      text=`כמה הם ${a} כפול ${b}, ועוד ${c}?`;
-    } else {
-      adultChallengeAnswer=(a+b)*c;
-      text=`כמה הם הסכום של ${a} ו־${b}, כפול ${c}?`;
-    }
-  } while(text===lastAdultChallenge);
-  lastAdultChallenge=text;
-  $("#adultQuestion").textContent=text;
+  prepareProfile(p); save(); renderAll();
+  if($("#dashboardScreen").classList.contains("active"))renderDashboard();
+  if($("#settingsScreen").classList.contains("active"))renderSettings();
 }
 
 function chime(success){
@@ -566,8 +554,11 @@ function bindEvents(){
   $("#deleteProfile").onclick=deleteCurrentProfile;
   $("#customizeSubjects").onclick=()=>activeProfile()?openModal("subjectModal"):openCreate();
   $("#saveSubjects").onclick=()=>{const chosen=$$(".subject-toggle.selected").map(x=>x.dataset.toggleSubject);if(!chosen.length)return;activeProfile().subjects=chosen;save();closeModal("subjectModal");renderAll()};
-  $("#dashboardButton").onclick=()=>{if(!activeProfile())return openCreate();createAdultChallenge();$("#adultAnswer").value="";$("#gateError").textContent="";openModal("adultGateModal")};
-  $("#adultGateForm").onsubmit=e=>{e.preventDefault();if(Number($("#adultAnswer").value.trim())===adultChallengeAnswer){closeModal("adultGateModal");showScreen("dashboardScreen")}else $("#gateError").textContent="התשובה אינה נכונה. נסו שוב."};
+  $("#progressButton").onclick=()=>activeProfile()?showScreen("dashboardScreen"):openCreate();
+  $("#settingsButton").onclick=()=>activeProfile()?showScreen("settingsScreen"):openCreate();
+  $("#settingsSubjects").onclick=()=>openModal("subjectModal");
+  $("#settingsProfile").onclick=()=>openEdit(activeProfile().id);
+  $("#settingsSound").onclick=()=>{$(".sound-toggle").click();renderSettings()};
   $("#printReport").onclick=()=>window.print();
   $("#exportReport").onclick=exportProgress;
   $("#resetProgress").onclick=resetProgress;

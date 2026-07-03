@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=14">
+  <link rel="stylesheet" href="styles.css?v=15">
 </head>
 <body>
   <div id="app">
@@ -57,15 +57,20 @@
           </div>
           <div class="subject-grid" id="subjectGrid"></div>
 
-          <div class="lower-grid">
+          <div class="lower-grid home-tools-grid">
             <article class="daily-card">
               <div class="daily-icon">🎁</div>
               <div><span class="eyebrow">המשימה היומית</span><h3>אוספי הכוכבים</h3><p>משלימים היום 3 פעילויות</p></div>
               <div class="daily-progress"><b id="dailyDone">0 / 3</b><div class="bar"><i id="dailyBar"></i></div></div>
             </article>
-            <button class="grownups-card" id="dashboardButton">
+            <button class="grownups-card" id="progressButton">
               <span class="grownups-icon">📊</span>
-              <span><b>צפייה בהתקדמות והגדרות</b></span>
+              <span><b>צפייה בהתקדמות</b><small>נתונים ותובנות למידה</small></span>
+              <i>←</i>
+            </button>
+            <button class="grownups-card settings-card" id="settingsButton">
+              <span class="grownups-icon">⚙️</span>
+              <span><b>הגדרות</b><small>נושאים, פרופיל ורמת קושי</small></span>
               <i>←</i>
             </button>
           </div>
@@ -95,11 +100,9 @@
         <div class="dashboard-wrap">
           <div class="dashboard-head">
             <button class="back-btn" data-go="home">→</button>
-            <div><span class="eyebrow blue">צפייה בהתקדמות והגדרות</span><h1>מסע הלמידה</h1><p id="dashboardSubtitle">תמונה נעימה של ההתקדמות האחרונה.</p></div>
+            <div><span class="eyebrow blue">התקדמות</span><h1>מסע הלמידה</h1><p id="dashboardSubtitle">תמונה נעימה של ההתקדמות האחרונה.</p></div>
             <div class="dashboard-actions">
               <button class="outline-btn" id="printReport">הדפסת דוח</button>
-              <button class="outline-btn" id="exportReport">ייצוא נתונים</button>
-              <button class="quiet-danger" id="resetProgress">איפוס התקדמות</button>
             </div>
           </div>
           <div class="stat-grid">
@@ -112,11 +115,35 @@
             <article class="panel"><div class="panel-title"><div><span class="eyebrow blue">מקצועות</span><h2>התקדמות לפי שביל</h2></div><span>השבוע</span></div><div id="subjectProgress"></div></article>
             <article class="panel"><div class="panel-title"><div><span class="eyebrow blue">רגעים אחרונים</span><h2>יומן ההרפתקאות</h2></div></div><div id="activityLog"></div></article>
           </div>
+          <article class="panel insight-panel"><div class="insight-icon">💡</div><div><span class="eyebrow">הפתק של פיפ</span><h3 id="insightTitle">מוכנים להרפתקה הראשונה</h3><p id="insightText">השלימו שביל ופיפ ישתף כאן תובנה על הלמידה.</p></div></article>
+        </div>
+      </section>
+
+      <section id="settingsScreen" class="screen dashboard-screen">
+        <div class="dashboard-wrap">
+          <div class="dashboard-head settings-head">
+            <button class="back-btn" data-go="home">→</button>
+            <div><span class="eyebrow blue">הגדרות</span><h1>מתאימים את המסע</h1><p id="settingsSubtitle">ההגדרות של ההרפתקן או ההרפתקנית.</p></div>
+          </div>
+
+          <div class="settings-shortcuts">
+            <button class="settings-shortcut" id="settingsSubjects"><span>🧭</span><b>בחירת נושאים</b><small>בוחרים במה משחקים ולומדים</small></button>
+            <button class="settings-shortcut" id="settingsProfile"><span>🦊</span><b>פרטי ההרפתקן</b><small>שם, גיל וחבר למסע</small></button>
+            <button class="settings-shortcut" id="settingsSound"><span>🔊</span><b>צלילים</b><small id="settingsSoundLabel">הצלילים פעילים</small></button>
+          </div>
+
           <article class="panel difficulty-panel">
             <div class="panel-title"><div><span class="eyebrow blue">התאמת אתגרים</span><h2>איך הרמה מרגישה?</h2><p>אפשר להתאים כל נושא בנפרד.</p></div></div>
             <div id="difficultyControls"></div>
           </article>
-          <article class="panel insight-panel"><div class="insight-icon">💡</div><div><span class="eyebrow">הפתק של פיפ</span><h3 id="insightTitle">מוכנים להרפתקה הראשונה</h3><p id="insightText">השלימו שביל ופיפ ישתף כאן תובנה על הלמידה.</p></div></article>
+
+          <article class="panel data-settings-panel">
+            <div><span class="eyebrow blue">נתוני הלמידה</span><h2>שמירה וניהול</h2><p>אפשר לשמור עותק של ההתקדמות או להתחיל מחדש.</p></div>
+            <div class="settings-data-actions">
+              <button class="outline-btn" id="exportReport">ייצוא נתונים</button>
+              <button class="quiet-danger" id="resetProgress">איפוס התקדמות</button>
+            </div>
+          </article>
         </div>
       </section>
     </main>
@@ -176,18 +203,7 @@
       </div>
     </div>
 
-    <div class="modal-backdrop" id="adultGateModal">
-      <form class="modal adult-gate" id="adultGateForm">
-        <button type="button" class="modal-close" data-close="adultGateModal">×</button>
-        <span class="eyebrow blue">כניסה לצפייה בהתקדמות והגדרות</span>
-        <h2>בדיקה קטנה</h2>
-        <p id="adultQuestion">כמה הם 17 כפול 6, פחות 9?</p>
-        <input id="adultAnswer" inputmode="numeric" maxlength="3" placeholder="התשובה" required>
-        <p class="gate-error" id="gateError"></p>
-        <button class="primary-btn full" type="submit">כניסה ללוח ההתקדמות</button>
-      </form>
-    </div>
   </div>
-  <script src="app.js?v=14"></script>
+  <script src="app.js?v=15"></script>
 </body>
 </html>
