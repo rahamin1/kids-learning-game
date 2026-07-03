@@ -6,6 +6,9 @@ const SUBJECTS = {
 };
 
 const BUDDIES = ["🦊", "🐼", "🐰", "🦁"];
+const STAR_GOAL = 100;
+const MOSAIC_TILES = 20;
+const MOSAIC_REVEAL_ORDER = [6,13,2,17,9,0,15,4,11,19,7,1,14,5,18,10,3,16,8,12];
 const BUDDY_IMAGES = {
   "🦊": "assets/brightwood-fox.png",
   "🐼": "assets/brightwood-panda.png",
@@ -225,6 +228,9 @@ function activeProfile(){ return state.profiles.find(p => p.id === state.activeI
 function ageLevel(age){ return age <= 4 ? 1 : age === 5 ? 2 : age === 6 ? 3 : 4; }
 function subjectName(p,key){ return key==="math"&&p?.age<=4?"מספרים":SUBJECTS[key].name; }
 function subjectDescription(p,key){ return key==="math"&&p?.age<=4?"סופרים עצמים ומשחקים במספרים":SUBJECTS[key].desc; }
+function trophyCount(p){ return Math.floor((p?.stars||0)/STAR_GOAL); }
+function nextStarGoal(p){ return (trophyCount(p)+1)*STAR_GOAL; }
+function goalCycleProgress(p){ return (p?.stars||0)%STAR_GOAL; }
 function prepareProfile(p){
   p.subjects ||= ["math","english"];
   p.progress ||= {};
@@ -281,6 +287,10 @@ function renderAll(){
   const today=p?.dailyDate===new Date().toDateString()?p.daily||0:0;
   $("#dailyDone").textContent=`${Math.min(today,3)} / 3`;
   $("#dailyBar").style.width=`${Math.min(today/3*100,100)}%`;
+  const nextGoal=nextStarGoal(p),cycleStars=goalCycleProgress(p);
+  $("#homeGoalLabel").textContent=`${nextGoal} כוכבים`;
+  $("#homeGoalCount").textContent=`${cycleStars} / ${STAR_GOAL}`;
+  $("#homeGoalBar").style.width=`${cycleStars}%`;
   $("#continueButton").innerHTML=p?.answered ? `ממשיכים בהרפתקה <span>←</span>` : `מתחילים בהרפתקה <span>←</span>`;
   renderHero();
   renderSubjects();
@@ -294,7 +304,8 @@ function renderAll(){
 function renderHero(){
   const p=activeProfile();
   const stars=p?.stars||0;
-  const darkness=.48*(1-Math.min(stars,40)/40);
+  const firstGoalProgress=Math.min(stars,STAR_GOAL)/STAR_GOAL;
+  const darkness=.62*(1-firstGoalProgress)+.06;
   const age=p?.age||3;
   const set=age>=6?BUDDY_IMAGES_OLDER:BUDDY_IMAGES;
   const image=set[p?.buddy]||set["🦊"];
@@ -302,6 +313,8 @@ function renderHero(){
   $(".hero").style.backgroundImage=`linear-gradient(90deg,rgba(224,249,255,.94) 0%,rgba(224,249,255,.76) 35%,rgba(224,249,255,0) 63%),linear-gradient(${ageTint},${ageTint}),url("${image}")`;
   $(".hero").style.setProperty("--forest-darkness",darkness.toFixed(2));
   $(".hero").dataset.ageWorld=age===3?"preschool":age<=5?"middle":"older";
+  const revealed=Math.min(MOSAIC_TILES,Math.max(2,Math.ceil(firstGoalProgress*MOSAIC_TILES)));
+  $("#forestMosaic").innerHTML=Array.from({length:MOSAIC_TILES},(_,index)=>`<span class="${MOSAIC_REVEAL_ORDER.indexOf(index)<revealed?"revealed":""}"></span>`).join("");
   $(".speech-bubble").innerHTML=stars
     ? `היער כבר זוהר יותר!<br><b>אספנו ${stars} ${stars===1?"כוכב":"כוכבים"}</b>`
     : `אני החבר שלך למסע!<br><b>בואו נאיר את היער!</b>`;
@@ -433,7 +446,9 @@ function answer(value,button){
 
 function finishGame(){
   const p=activeProfile(), key=session.subject, now=new Date().toDateString(), earned=Math.max(1,session.correct);
+  const previousTrophies=trophyCount(p);
   p.stars+=earned; p.progress[key] ||= {completed:0,level:1,correct:0,total:0};
+  const newTrophies=trophyCount(p);
   const prog=p.progress[key]; prog.completed++; prog.correct+=session.correct; prog.total+=session.questions.length;
   Object.entries(session.results).forEach(([skill,r])=>{
     const current=p.skillLevels[key][skill]||ageLevel(p.age);
@@ -448,7 +463,14 @@ function finishGame(){
   p.log=p.log.slice(0,8); save();
   $("#celebrateBuddy").textContent=p.buddy; $("#earnedStars").textContent=earned;
   $("#earnedStars").parentElement.innerHTML=`<span id="earnedStars">${earned}</span> ${earned===1?"כוכב":"כוכבים"}`;
-  openModal("celebrationModal"); renderAll();
+  if(newTrophies>previousTrophies){
+    $("#milestoneTrophyNumber").textContent=newTrophies;
+    openModal("milestoneModal");
+    playMilestoneMelody();
+  } else {
+    openModal("celebrationModal");
+  }
+  renderAll();
 }
 
 function renderDashboard(){
@@ -457,6 +479,11 @@ function renderDashboard(){
   $("#dashStars").textContent=p.stars; $("#dashQuestions").textContent=p.answered;
   $("#dashAccuracy").textContent=p.answered?Math.round(p.correct/p.answered*100)+"%":"—";
   $("#dashTime").textContent=p.minutes+" דקות";
+  const trophies=trophyCount(p),cycleStars=goalCycleProgress(p),remaining=STAR_GOAL-cycleStars;
+  $("#trophyCount").textContent=trophies;
+  $("#trophyTitle").textContent=trophies?`${trophies} ${trophies===1?"גביע הושג":"גביעים הושגו"}!`:"בדרך לגביע הראשון";
+  $("#trophyText").textContent=`עוד ${remaining} ${remaining===1?"כוכב":"כוכבים"} לגביע הבא.`;
+  $("#trophyBar").style.width=`${cycleStars}%`;
   $("#subjectProgress").innerHTML=Object.entries(SUBJECTS).map(([k,s])=>{
     const x=p.progress[k],pct=x?Math.min(x.completed/10*100,100):0;
     return `<div class="progress-row"><span class="trail-icon">${s.icon}</span><b>${subjectName(p,k)}</b><div class="bar"><i style="width:${pct}%"></i></div><small>${x?.completed||0}/10</small></div>`;
@@ -508,7 +535,7 @@ function exportProgress(){
   const p=activeProfile(); if(!p)return;
   const report={
     child:{name:p.name,age:p.age,buddy:p.buddy},
-    summary:{stars:p.stars,answered:p.answered,correct:p.correct,minutes:p.minutes},
+    summary:{stars:p.stars,trophies:trophyCount(p),answered:p.answered,correct:p.correct,minutes:p.minutes},
     topics:p.subjects.map(key=>({topic:subjectName(p,key),level:subjectLevel(p,key),completed:p.progress[key]?.completed||0,skills:p.skillLevels[key]})),
     recent:p.log
   };
@@ -524,6 +551,20 @@ function resetProgress(){
   prepareProfile(p); save(); renderAll();
   if($("#dashboardScreen").classList.contains("active"))renderDashboard();
   if($("#settingsScreen").classList.contains("active"))renderSettings();
+}
+
+function playMilestoneMelody(){
+  if(!state.sound)return;
+  const C=window.AudioContext||window.webkitAudioContext,ctx=new C();
+  const notes=[523,659,784,1047,784,880,988,1175,1047,1319];
+  notes.forEach((freq,index)=>{
+    const start=ctx.currentTime+index*.13,o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=index<4?"triangle":"sine";o.frequency.value=freq;
+    g.gain.setValueAtTime(.001,start);
+    g.gain.exponentialRampToValueAtTime(.2,start+.025);
+    g.gain.exponentialRampToValueAtTime(.001,start+.24);
+    o.connect(g);g.connect(ctx.destination);o.start(start);o.stop(start+.26);
+  });
 }
 
 function chime(success){

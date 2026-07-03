@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=16">
 </head>
 <body>
   <div id="app">
@@ -38,6 +38,7 @@
     <main>
       <section id="homeScreen" class="screen active">
         <div class="hero">
+          <div class="forest-mosaic" id="forestMosaic" aria-hidden="true"></div>
           <div class="hero-copy">
             <span class="eyebrow">ההרפתקה של היום</span>
             <h1>מוכנים לעשות<br><em>קסמים</em> עם הראש?</h1>
@@ -45,6 +46,11 @@
             <div class="hero-actions">
               <button class="primary-btn" id="continueButton">ממשיכים בהרפתקה <span>←</span></button>
               <button class="round-btn" id="randomButton" aria-label="הפתיעו אותי">✦</button>
+            </div>
+            <div class="goal-progress">
+              <div><span>🏆 היעד הבא</span><b id="homeGoalLabel">100 כוכבים</b></div>
+              <strong id="homeGoalCount">0 / 100</strong>
+              <div class="bar"><i id="homeGoalBar"></i></div>
             </div>
           </div>
           <div class="speech-bubble">היי, הרפתקנים!<br><b>בואו נמצא 3 כוכבים!</b></div>
@@ -111,6 +117,10 @@
             <article><span>🌱</span><small>דיוק</small><b id="dashAccuracy">—</b></article>
             <article><span>⏱️</span><small>זמן למידה</small><b id="dashTime">0 דקות</b></article>
           </div>
+          <article class="panel trophy-panel">
+            <div class="trophy-stack"><b id="trophyCount">0</b><span>🏆</span></div>
+            <div class="trophy-copy"><span class="eyebrow blue">יעד הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 100 כוכבים והגביע הראשון שלכם!</p><div class="bar"><i id="trophyBar"></i></div></div>
+          </article>
           <div class="dashboard-grid">
             <article class="panel"><div class="panel-title"><div><span class="eyebrow blue">מקצועות</span><h2>התקדמות לפי שביל</h2></div><span>השבוע</span></div><div id="subjectProgress"></div></article>
             <article class="panel"><div class="panel-title"><div><span class="eyebrow blue">רגעים אחרונים</span><h2>יומן ההרפתקאות</h2></div></div><div id="activityLog"></div></article>
@@ -203,7 +213,18 @@
       </div>
     </div>
 
+    <div class="modal-backdrop" id="milestoneModal">
+      <div class="modal milestone-modal">
+        <div class="milestone-rays">✦ ★ ✦ ★ ✦</div>
+        <div class="milestone-trophy"><b id="milestoneTrophyNumber">1</b><span>🏆</span></div>
+        <span class="eyebrow">הגעת ליעד!</span>
+        <h2>היער כולו זוהר!</h2>
+        <p>אספתם עוד 100 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
+        <button class="primary-btn full" data-go="home" data-close="milestoneModal">ממשיכים ליעד הבא <span>←</span></button>
+      </div>
+    </div>
+
   </div>
-  <script src="app.js?v=15"></script>
+  <script src="app.js?v=16"></script>
 </body>
 </html>
