@@ -80,6 +80,7 @@ body{font-family:Heebo,system-ui,sans-serif}
 .data-settings-panel{margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:20px}
 .data-settings-panel p{margin:5px 0 0;color:var(--muted);font-size:12px}
 .settings-data-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.app-version{margin:18px 0 0;text-align:center;color:var(--muted);font-size:12px;font-weight:700}
 @media(max-width:800px){
   .home-tools-grid,.settings-shortcuts{grid-template-columns:1fr}
 }

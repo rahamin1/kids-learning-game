@@ -1,3 +1,5 @@
+const APP_VERSION = "0.1.1";
+
 const SUBJECTS = {
   math: { name: "חשבון", icon: "🔢", class: "math", desc: "סופרים, משווים ופותרים", trail: "אחו המספרים" },
   english: { name: "אנגלית", icon: "🔤", class: "english", desc: "אותיות, צלילים ומילים", trail: "יער המילים" },
@@ -151,6 +153,65 @@ function generatedReading(level){
   return stories.map(([q,correct,wrong,skill,visual],i)=>({id:`reading-${level}-${i}`,skill,type:skill,q,visual,a:shuffled([correct,...wrong]),correct,explain:`התשובה נמצאת ברמזים שבסיפור: ${correct}.`}));
 }
 
+const ADDED_ICON_ITEMS = [
+  ["🐂","שור","בעלי חיים",true],
+  ["🐐","עז","בעלי חיים",true],
+  ["🦙","למה","בעלי חיים",true],
+  ["🦏","קרנף","בעלי חיים",true],
+  ["🦛","היפופוטם","בעלי חיים",true],
+  ["🐆","נמר","בעלי חיים",true],
+  ["🦍","גורילה","בעלי חיים",true],
+  ["🦔","קיפוד","בעלי חיים",true],
+  ["🦨","בואש","בעלי חיים",false],
+  ["🦡","גירית","בעלי חיים",false],
+  ["🐚","צדף","ים",true],
+  ["🐋","לווייתן","ים",true],
+  ["🐜","נמלה","חרקים",true],
+  ["🦑","דיונון","ים",false],
+  ["🐛","זחל","חרקים",true],
+  ["🐞","פרת משה רבנו","חרקים",true],
+  ["🦂","עקרב","בעלי חיים",false],
+  ["🍐","אגס","מזון",true],
+  ["🍑","אפרסק","מזון",true],
+  ["🥭","מנגו","מזון",true],
+  ["🥥","קוקוס","מזון",true],
+  ["🌶️","פלפל חריף","מזון",true],
+  ["🥜","בוטן","מזון",true],
+  ["🧀","גבינה צהובה","מזון",true],
+  ["🎲","קובייה","משחקים",true],
+  ["🎸","גיטרה","מוזיקה",true],
+  ["🥁","תוף","מוזיקה",true],
+  ["🧩","פאזל","משחקים",true],
+  ["🏀","כדורסל","ספורט",true],
+  ["🔭","טלסקופ","מדע",false],
+  ["🔬","מיקרוסקופ","מדע",false],
+  ["🧲","מגנט","מדע",false],
+  ["💎","יהלום","טבע",false],
+  ["🏐","כדורעף","ספורט",true],
+  ["⛲","מזרקה","מקומות",true],
+  ["🌉","גשר","מקומות",true]
+];
+
+function generatedIconQuestions(level,{imageOnly=false,youngOnly=false}={}){
+  const items=youngOnly?ADDED_ICON_ITEMS.filter(item=>item[3]):ADDED_ICON_ITEMS;
+  return items.map(([icon,label,category],i)=>{
+    const sameCategory=items.filter(item=>item[2]===category&&item[0]!==icon);
+    const fallback=items.filter(item=>item[0]!==icon&&!sameCategory.includes(item));
+    const distractors=shuffled([...sameCategory,...fallback]).slice(0,3);
+    const answer=other=>imageOnly?other[0]:`${other[0]} ${other[1]}`;
+    return {
+      id:`nature-icon-${level}-${i}`,
+      skill:"זיהוי תמונות",
+      type:"מזהים ובוחרים",
+      q:imageOnly?`איפה ${label}?`:`איזו תמונה מציגה ${label}?`,
+      visual:"",
+      a:shuffled([[icon,label,category],...distractors].map(answer)),
+      correct:answer([icon,label,category]),
+      explain:`זהו ${label}.`
+    };
+  });
+}
+
 function generatedNature(level){
   const facts=[
     ["איזו חיה חיה בים?","🐬 דולפין",["🐫 גמל","🐓 תרנגול","🐿️ סנאי"],"בעלי חיים","🌊"],
@@ -177,7 +238,8 @@ function generatedNature(level){
     ["איזה איבר עוזר לדג לנשום במים?","זימים",["כנפיים","פרווה","קרניים"],"בעלי חיים","🐟"]
   ];
   const count=Math.min(facts.length,12+level*2);
-  return facts.slice(0,count).map(([q,correct,wrong,skill,visual],i)=>({id:`nature-${level}-${i}`,skill,type:skill,q,visual,a:shuffled([correct,...wrong]),correct,explain:`התשובה הנכונה היא ${correct}.`}));
+  const factQuestions=facts.slice(0,count).map(([q,correct,wrong,skill,visual],i)=>({id:`nature-${level}-${i}`,skill,type:skill,q,visual,a:shuffled([correct,...wrong]),correct,explain:`התשובה הנכונה היא ${correct}.`}));
+  return [...factQuestions,...generatedIconQuestions(level)];
 }
 
 function generatedNaturePreschool(){
@@ -203,7 +265,8 @@ function generatedNaturePreschool(){
     ["איזו חיה חיה ליד מים?","🐸",["🦒","🐪","🐓"],"בעלי חיים","💦"],
     ["מה שומרים בתוך כוורת?","🍯",["🧊","🪨","🧦"],"חי וצומח","🐝"]
   ];
-  return questions.map(([q,correct,wrong,skill,visual],i)=>({id:`nature-preschool-${i}`,skill,type:skill,q,visual,a:shuffled([correct,...wrong]),correct,explain:`התשובה הנכונה היא ${correct}.`}));
+  const preschoolQuestions=questions.map(([q,correct,wrong,skill,visual],i)=>({id:`nature-preschool-${i}`,skill,type:skill,q,visual,a:shuffled([correct,...wrong]),correct,explain:`התשובה הנכונה היא ${correct}.`}));
+  return [...preschoolQuestions,...generatedIconQuestions(1,{imageOnly:true,youngOnly:true})];
 }
 
 function buildQuestionPool(subject,level,p){
@@ -265,6 +328,8 @@ function showScreen(id){
 }
 
 function init(){
+  $("#appVersion").textContent=APP_VERSION;
+  document.documentElement.dataset.appVersion=APP_VERSION;
   renderChoiceButtons();
   bindEvents();
   if(!activeProfile()) openCreate();
