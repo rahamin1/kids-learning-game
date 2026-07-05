@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.2";
+const APP_VERSION = "0.1.3";
 
 const SUBJECTS = {
   math: { name: "חשבון", icon: "🔢", class: "math", desc: "סופרים, משווים ופותרים", trail: "אחו המספרים" },
@@ -281,6 +281,7 @@ function buildQuestionPool(subject,level,p){
 const storeKey = "brightwood-quest-v1";
 let state = JSON.parse(localStorage.getItem(storeKey) || '{"profiles":[],"activeId":null,"sound":true}');
 let session = null;
+let deferredInstallPrompt = null;
 let selectedAge = 5;
 let selectedBuddy = "🦊";
 let editingId = null;
@@ -307,6 +308,7 @@ function prepareProfile(p){
   p.gameFeedback ||= {};
   p.recentGames ||= {};
   p.gameProgress ||= {};
+  p.hiddenGames ||= [];
   if(p.gameLevelAge!==p.age){
     KIDS_GAMES.catalog.forEach(game=>p.gameLevels[game.id]=ageLevel(p.age));
     p.gameLevelAge=p.age;
@@ -333,6 +335,46 @@ state.profiles.forEach(prepareProfile);
 function save(){ localStorage.setItem(storeKey, JSON.stringify(state)); }
 function openModal(id){ $("#"+id).classList.add("open"); }
 function closeModal(id){ $("#"+id).classList.remove("open"); }
+function isAppInstalled(){
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+function updateInstallUI(){
+  const installed=isAppInstalled();
+  $$("[data-install-app]").forEach(button=>{
+    const label=button.querySelector("[data-install-label]");
+    const hint=button.querySelector("[data-install-hint]");
+    if(label)label.textContent=installed?"האפליקציה מותקנת":deferredInstallPrompt?"התקנת האפליקציה":"הוספה למסך הבית";
+    if(hint)hint.textContent=installed?"אפשר לפתוח אותה ממסך הבית":deferredInstallPrompt?"התקנה בלחיצה אחת":"הצגת הוראות התקנה";
+    button.disabled=installed;
+    button.classList.toggle("installed",installed);
+  });
+}
+async function requestAppInstall(){
+  if(isAppInstalled())return;
+  if(!deferredInstallPrompt){
+    openModal("installModal");
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt=null;
+  updateInstallUI();
+}
+function setupPWA(){
+  window.addEventListener("beforeinstallprompt",event=>{
+    event.preventDefault();
+    deferredInstallPrompt=event;
+    updateInstallUI();
+  });
+  window.addEventListener("appinstalled",()=>{
+    deferredInstallPrompt=null;
+    updateInstallUI();
+  });
+  if("serviceWorker" in navigator){
+    window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+  }
+  updateInstallUI();
+}
 function showScreen(id){
   $$(".screen").forEach(x=>x.classList.remove("active"));
   $("#"+id).classList.add("active");
@@ -346,6 +388,7 @@ function init(){
   document.documentElement.dataset.appVersion=APP_VERSION;
   renderChoiceButtons();
   bindEvents();
+  setupPWA();
   if(!activeProfile()) openCreate();
   renderAll();
 }
@@ -408,15 +451,17 @@ function subjectLevel(p,key){
   return levels.length ? Math.round(levels.reduce((a,b)=>a+b,0)/levels.length) : ageLevel(p.age);
 }
 
-function availableGames(p,subject){
-  return KIDS_GAMES.catalog.filter(game=>game.subject===subject&&game.minAge<=p.age);
+function availableGames(p,subject,includeHidden=false){
+  return KIDS_GAMES.catalog.filter(game=>game.subject===subject&&game.minAge<=p.age&&(includeHidden||!p.hiddenGames.includes(game.id)));
 }
 
 function renderGameChoices(subject){
   const p=activeProfile(),games=availableGames(p,subject);
   $("#gamePickerTitle").textContent=subjectName(p,subject);
   $("#gamePickerSubtitle").textContent=`בחרו משחק המתאים לגיל ${p.age}`;
-  $("#gameChoices").innerHTML=games.map(game=>`<button class="game-choice" data-game="${game.id}"><span>${game.icon}</span><b>${game.name}</b><small>${game.desc}</small><i>רמה ${p.gameLevels[game.id]}</i></button>`).join("");
+  $("#gameChoices").innerHTML=games.length
+    ? games.map(game=>`<button class="game-choice" data-game="${game.id}"><span>${game.icon}</span><b>${game.name}</b><small>${game.desc}</small><i>רמה ${p.gameLevels[game.id]}</i></button>`).join("")
+    : `<div class="empty-state game-picker-empty">כל המשחקים בנושא הזה מוסתרים כרגע. אפשר להחזיר אותם במסך ההגדרות.</div>`;
 }
 
 function openGamePicker(subject){
@@ -443,7 +488,7 @@ function renderSubjectToggles(){
 
 function renderAdventureChoices(){
   const p=activeProfile();
-  $("#adventureChoices").innerHTML=(p?.subjects||[]).map(key=>`<button class="adventure-choice" data-play-subject="${key}"><span>${SUBJECTS[key].icon}</span>${subjectName(p,key)}<small>${subjectDescription(p,key)}</small></button>`).join("");
+  $("#adventureChoices").innerHTML=(p?.subjects||[]).filter(key=>availableGames(p,key).length).map(key=>`<button class="adventure-choice" data-play-subject="${key}"><span>${SUBJECTS[key].icon}</span>${subjectName(p,key)}<small>${subjectDescription(p,key)}</small></button>`).join("");
 }
 
 function openCreate(){
@@ -663,12 +708,23 @@ function renderSettings(){
 
 function renderDifficulty(p){
   $("#difficultyControls").innerHTML=p.subjects.map(key=>{
-    const games=availableGames(p,key);
+    const games=availableGames(p,key,true);
     return `<section class="difficulty-subject"><h3>${SUBJECTS[key].icon} ${subjectName(p,key)}</h3>${games.map(game=>{
-      const feedback=p.gameFeedback[game.id]||"ok",level=p.gameLevels[game.id]||ageLevel(p.age);
-      return `<div class="skill-row game-level-row"><span><b>${game.icon} ${game.name}</b><small class="level-badge">רמה ${level} מתוך 9</small><small class="question-count">${game.desc}</small></span><div class="level-adjust"><button ${level<=1?"disabled":""} class="${feedback==="down"?"selected":""}" data-adjust="${game.id}|down">קל יותר</button><button class="${feedback==="ok"?"selected":""}" data-adjust="${game.id}|ok">מתאים</button><button ${level>=9?"disabled":""} class="${feedback==="up"?"selected":""}" data-adjust="${game.id}|up">קשה יותר</button></div></div>`;
+      const feedback=p.gameFeedback[game.id]||"ok",level=p.gameLevels[game.id]||ageLevel(p.age),hidden=p.hiddenGames.includes(game.id);
+      return `<div class="skill-row game-level-row ${hidden?"game-is-hidden":""}"><span><b>${game.icon} ${game.name}</b><small class="level-badge">רמה ${level} מתוך 9</small><small class="question-count">${game.desc}</small>${hidden?`<small class="hidden-game-note">המשחק מוסתר מבחירת המשחקים</small>`:""}</span><div class="game-level-actions"><div class="level-adjust"><button ${level<=1||hidden?"disabled":""} class="${feedback==="down"?"selected":""}" data-adjust="${game.id}|down">קל יותר</button><button ${hidden?"disabled":""} class="${feedback==="ok"?"selected":""}" data-adjust="${game.id}|ok">מתאים</button><button ${level>=9||hidden?"disabled":""} class="${feedback==="up"?"selected":""}" data-adjust="${game.id}|up">קשה יותר</button></div><button class="game-visibility-button ${hidden?"restore":""}" data-game-visibility="${game.id}">${hidden?"החזרת המשחק":"הסתרת המשחק"}</button></div></div>`;
     }).join("")}</section>`;
   }).join("");
+}
+
+function toggleGameVisibility(gameId){
+  const p=activeProfile(); if(!p)return;
+  p.hiddenGames.includes(gameId)
+    ? p.hiddenGames=p.hiddenGames.filter(id=>id!==gameId)
+    : p.hiddenGames.push(gameId);
+  save();
+  renderSettings();
+  renderSubjects();
+  renderAdventureChoices();
 }
 
 function adjustDifficulty(data){
@@ -788,6 +844,8 @@ function bindEvents(){
     const buddy=e.target.closest("[data-buddy]"); if(buddy){selectedBuddy=buddy.dataset.buddy;renderChoiceButtons()}
     const tog=e.target.closest("[data-toggle-subject]"); if(tog)tog.classList.toggle("selected");
     const adjust=e.target.closest("[data-adjust]"); if(adjust)adjustDifficulty(adjust.dataset.adjust);
+    const gameVisibility=e.target.closest("[data-game-visibility]"); if(gameVisibility)toggleGameVisibility(gameVisibility.dataset.gameVisibility);
+    const install=e.target.closest("[data-install-app]"); if(install)requestAppInstall();
   });
   document.addEventListener("dragstart",e=>{const source=e.target.closest("[data-drag-source]");if(source)e.dataTransfer.setData("text/plain",source.dataset.dragSource)});
   document.addEventListener("dragover",e=>{if(e.target.closest(".drag-target"))e.preventDefault()});

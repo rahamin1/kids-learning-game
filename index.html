@@ -10,11 +10,11 @@
   <title>ההרפתקה ביער הזוהר</title>
   <link rel="icon" type="image/png" href="assets/app-icon-star-forest.png">
   <link rel="apple-touch-icon" href="assets/app-icon-star-forest.png">
-  <link rel="manifest" href="manifest.webmanifest?v=2">
+  <link rel="manifest" href="manifest.webmanifest?v=0.1.3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=17">
+  <link rel="stylesheet" href="styles.css?v=0.1.3">
 </head>
 <body>
   <div id="app">
@@ -147,10 +147,11 @@
             <button class="settings-shortcut" id="settingsProfile"><span>🦊</span><b>פרטי ההרפתקן</b><small>שם, גיל וחבר למסע</small></button>
             <button class="settings-shortcut" id="settingsSound"><span>🔊</span><b>צלילים</b><small id="settingsSoundLabel">הצלילים פעילים</small></button>
             <button class="settings-shortcut" id="settingsHelp"><span>❓</span><b>עזרה ומידע</b><small>איך משחקים, מתקדמים וזוכים</small></button>
+            <button class="settings-shortcut install-shortcut" data-install-app><span>📲</span><b data-install-label>התקנת האפליקציה</b><small data-install-hint>הוספה למסך הבית</small></button>
           </div>
 
           <article class="panel difficulty-panel">
-            <div class="panel-title"><div><span class="eyebrow blue">התאמת אתגרים</span><h2>איך הרמה מרגישה?</h2><p>אפשר להתאים כל משחק בנפרד.</p></div></div>
+            <div class="panel-title"><div><span class="eyebrow blue">התאמת משחקים</span><h2>מה מתאים לילד?</h2><p>אפשר להתאים רמה, להסתיר משחק או להחזיר אותו בכל זמן.</p></div></div>
             <div id="difficultyControls"></div>
           </article>
 
@@ -186,11 +187,15 @@
 
             <article class="panel help-card"><span class="help-icon">📊</span><div><h2>צפייה בהתקדמות</h2><p>כאן אפשר לראות כמה כוכבים וגביעים נאספו, באילו נושאים שיחקו, אילו משחקים הושלמו ומהי הרמה הנוכחית.</p></div></article>
 
-            <article class="panel help-card"><span class="help-icon">⚙️</span><div><h2>הגדרות</h2><p>אפשר לבחור נושאי לימוד, להתאים את רמת הקושי בכל משחק, לערוך שם, גיל וחבר למסע, ולהוסיף או למחוק משתמשים.</p></div></article>
+            <article class="panel help-card"><span class="help-icon">⚙️</span><div><h2>הגדרות</h2><p>אפשר לבחור נושאי לימוד, להתאים את רמת הקושי, להסתיר משחקים ולהחזיר אותם, לערוך שם, גיל וחבר למסע, ולהוסיף או למחוק משתמשים.</p></div></article>
+
+            <article class="panel help-card"><span class="help-icon">👁️</span><div><h2>הסתרה והחזרה של משחקים</h2><p>במסך ההגדרות אפשר לבחור „הסתרת המשחק”. המשחק לא יופיע בבחירת המשחקים או ב„הפתיעו אותי”, אך הוא אינו נמחק וההתקדמות בו נשמרת.</p><p>כדי להציג אותו שוב, לחצו על „החזרת המשחק”. ההסתרה וההחזרה נשמרות בנפרד לכל ילד.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">🔊</span><div><h2>צלילים</h2><p>אפשר להפעיל או להשתיק את צלילי המשחק באמצעות סמל הרמקול. במשחקי אנגלית מסוימים אפשר ללחוץ על סמל השמע כדי לשמוע מילה או צליל באנגלית.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">💾</span><div><h2>שמירת ההתקדמות</h2><p>המשתמשים וההתקדמות נשמרים בדפדפן ובמכשיר שבו משחקים. במכשיר או בדפדפן אחר יהיה צורך ליצור את המשתמשים מחדש, משום שכרגע אין סנכרון בין מכשירים.</p></div></article>
+
+            <article class="panel help-card install-help-card"><span class="help-icon">📲</span><div><h2>התקנת האפליקציה</h2><p>אפשר להתקין את היער הזוהר במסך הבית ולפתוח אותו כמו אפליקציה רגילה.</p><button class="outline-btn install-help-button" data-install-app><span data-install-label>התקנת האפליקציה</span></button></div></article>
           </div>
         </div>
       </section>
@@ -272,8 +277,21 @@
       </div>
     </div>
 
+    <div class="modal-backdrop" id="installModal">
+      <div class="modal install-modal">
+        <button class="modal-close" data-close="installModal">×</button>
+        <span class="eyebrow blue">התקנת האפליקציה</span>
+        <h2>מוסיפים למסך הבית</h2>
+        <div class="install-instructions">
+          <section><span>🤖</span><div><b>ב־Chrome באנדרואיד</b><p>פתחו את תפריט שלוש הנקודות ⋮ ובחרו „התקנת האפליקציה” או „הוספה למסך הבית”.</p></div></section>
+          <section><span>🍎</span><div><b>ב־Safari באייפון</b><p>לחצו על כפתור השיתוף ובחרו „הוספה למסך הבית”.</p></div></section>
+        </div>
+        <button class="primary-btn full" data-close="installModal">הבנתי</button>
+      </div>
+    </div>
+
   </div>
-  <script src="games.js?v=0.1.2"></script>
-  <script src="app.js?v=0.1.2"></script>
+  <script src="games.js?v=0.1.3"></script>
+  <script src="app.js?v=0.1.3"></script>
 </body>
 </html>
