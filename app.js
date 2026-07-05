@@ -1,16 +1,17 @@
-const APP_VERSION = "0.1.1";
+const APP_VERSION = "0.1.2";
 
 const SUBJECTS = {
   math: { name: "חשבון", icon: "🔢", class: "math", desc: "סופרים, משווים ופותרים", trail: "אחו המספרים" },
   english: { name: "אנגלית", icon: "🔤", class: "english", desc: "אותיות, צלילים ומילים", trail: "יער המילים" },
-  reading: { name: "קריאה", icon: "📖", class: "reading", desc: "סיפורים והבנת הנקרא", trail: "מפרץ הסיפורים" },
-  nature: { name: "טבע", icon: "🌿", class: "nature", desc: "חיות, מזג אוויר והעולם", trail: "גן התגליות" }
+  reading: { name: "עברית", icon: "📖", class: "reading", desc: "אותיות, מילים והבנת הנקרא", trail: "מפרץ הסיפורים" },
+  nature: { name: "טבע", icon: "🌿", class: "nature", desc: "חיות, מזג אוויר והעולם", trail: "גן התגליות" },
+  thinking: { name: "חשיבה", icon: "🧠", class: "thinking", desc: "זיכרון, התאמה והבחנה חזותית", trail: "שביל החשיבה" }
 };
 
 const BUDDIES = ["🦊", "🐼", "🐰", "🦁"];
 const STAR_GOAL = 100;
-const MOSAIC_TILES = 20;
-const MOSAIC_REVEAL_ORDER = [6,13,2,17,9,0,15,4,11,19,7,1,14,5,18,10,3,16,8,12];
+const MOSAIC_TILES = 48;
+const MOSAIC_REVEAL_ORDER = Array.from({length:MOSAIC_TILES},(_,index)=>(index*17+11)%MOSAIC_TILES);
 const BUDDY_IMAGES = {
   "🦊": "assets/brightwood-fox.png",
   "🐼": "assets/brightwood-panda.png",
@@ -288,7 +289,7 @@ const $$ = s => [...document.querySelectorAll(s)];
 const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
 
 function activeProfile(){ return state.profiles.find(p => p.id === state.activeId); }
-function ageLevel(age){ return age <= 4 ? 1 : age === 5 ? 2 : age === 6 ? 3 : 4; }
+function ageLevel(age){ return clamp(Number(age)||3,1,9); }
 function subjectName(p,key){ return key==="math"&&p?.age<=4?"מספרים":SUBJECTS[key].name; }
 function subjectDescription(p,key){ return key==="math"&&p?.age<=4?"סופרים עצמים ומשחקים במספרים":SUBJECTS[key].desc; }
 function trophyCount(p){ return Math.floor((p?.stars||0)/STAR_GOAL); }
@@ -302,11 +303,24 @@ function prepareProfile(p){
   p.skillLevels ||= {};
   p.skillFeedback ||= {};
   p.recentQuestions ||= {};
+  p.gameLevels ||= {};
+  p.gameFeedback ||= {};
+  p.recentGames ||= {};
+  p.gameProgress ||= {};
+  if(p.gameLevelAge!==p.age){
+    KIDS_GAMES.catalog.forEach(game=>p.gameLevels[game.id]=ageLevel(p.age));
+    p.gameLevelAge=p.age;
+  }
+  KIDS_GAMES.catalog.forEach(game=>{
+    p.gameLevels[game.id] ||= ageLevel(p.age);
+    p.recentGames[game.id] ||= [];
+    p.gameProgress[game.id] ||= {completed:0,correct:0,total:0};
+  });
   Object.keys(SUBJECTS).forEach(key => {
     p.skillLevels[key] ||= {};
     p.skillFeedback[key] ||= {};
     p.recentQuestions[key] ||= [];
-    [...new Set(BANK[key].map(q=>q.skill))].forEach(skill => p.skillLevels[key][skill] ||= ageLevel(p.age));
+    [...new Set((BANK[key]||[]).map(q=>q.skill))].forEach(skill => p.skillLevels[key][skill] ||= ageLevel(p.age));
   });
   if(!p.mathBoostVersion){
     Object.keys(p.skillLevels.math).forEach(skill=>p.skillLevels.math[skill]=clamp(p.skillLevels.math[skill]+1,1,5));
@@ -346,6 +360,10 @@ function renderAll(){
   $("#profileName").textContent=p?.name||"שחקן חדש";
   $("#miniAvatar").textContent=p?.buddy||"🦊";
   $("#starCount").textContent=p?.stars||0;
+  const trophies=trophyCount(p);
+  $("#headerTrophyCount").textContent=trophies;
+  $(".star-chip").classList.toggle("has-trophies",trophies>0);
+  $(".star-chip").title=trophies?`${p.name} זכה ב־${trophies} ${trophies===1?"גביע":"גביעים"}`:"עוד לא הושג גביע";
   const streak=p?.streak||0;
   $("#streakText").textContent=streak===1?"יום תרגול אחד":`${streak} ימים ברצף`;
   $(".sound-toggle").textContent=state.sound?"🔊":"🔇";
@@ -386,15 +404,31 @@ function renderHero(){
 }
 
 function subjectLevel(p,key){
-  const levels=Object.values(p.skillLevels?.[key]||{});
+  const levels=KIDS_GAMES.catalog.filter(game=>game.subject===key&&game.minAge<=p.age).map(game=>p.gameLevels?.[game.id]||ageLevel(p.age));
   return levels.length ? Math.round(levels.reduce((a,b)=>a+b,0)/levels.length) : ageLevel(p.age);
+}
+
+function availableGames(p,subject){
+  return KIDS_GAMES.catalog.filter(game=>game.subject===subject&&game.minAge<=p.age);
+}
+
+function renderGameChoices(subject){
+  const p=activeProfile(),games=availableGames(p,subject);
+  $("#gamePickerTitle").textContent=subjectName(p,subject);
+  $("#gamePickerSubtitle").textContent=`בחרו משחק המתאים לגיל ${p.age}`;
+  $("#gameChoices").innerHTML=games.map(game=>`<button class="game-choice" data-game="${game.id}"><span>${game.icon}</span><b>${game.name}</b><small>${game.desc}</small><i>רמה ${p.gameLevels[game.id]}</i></button>`).join("");
+}
+
+function openGamePicker(subject){
+  const p=activeProfile(); if(!p)return openCreate();
+  renderGameChoices(subject); openModal("gamePickerModal");
 }
 
 function renderSubjects(){
   const p=activeProfile(), chosen=p?.subjects||["math","english","reading","nature"];
   $("#subjectGrid").innerHTML=chosen.map(key=>{
     const s=SUBJECTS[key], level=p?subjectLevel(p,key):1;
-    return `<button class="subject-card ${s.class}" data-subject="${key}"><span class="level-chip">שלב ${level}</span><span class="icon">${s.icon}</span><h3>${subjectName(p,key)}</h3><p>${subjectDescription(p,key)}</p><span class="go">←</span></button>`;
+    return `<button class="subject-card ${s.class}" data-subject="${key}"><span class="level-chip">רמה ${level}</span><span class="icon">${s.icon}</span><h3>${subjectName(p,key)}</h3><p>${subjectDescription(p,key)}</p><span class="go">←</span></button>`;
   }).join("");
 }
 
@@ -458,36 +492,92 @@ function adaptedQuestion(q,p,subject){
   return level>=4&&q.hard ? {...q,...q.hard} : {...q};
 }
 
-function startGame(subject){
+function startGame(gameId){
   const p=activeProfile(); if(!p){openCreate();return}
-  const level=subjectLevel(p,subject);
-  const pool=buildQuestionPool(subject,level,p);
-  const recent=new Set(p.recentQuestions[subject]||[]);
+  const game=KIDS_GAMES.catalog.find(item=>item.id===gameId); if(!game||game.minAge>p.age)return;
+  const subject=game.subject,level=p.gameLevels[gameId]||ageLevel(p.age);
+  const pool=KIDS_GAMES.build(gameId,level,p);
+  const recent=new Set(p.recentGames[gameId]||[]);
   let available=pool.filter(q=>!recent.has(q.id));
   if(available.length<5)available=pool;
-  const questions=shuffled(available).slice(0,5).map(q=>({...q,a:shuffled(q.a)}));
-  p.recentQuestions[subject]=[...(p.recentQuestions[subject]||[]),...questions.map(q=>q.id)].slice(-Math.min(30,Math.max(10,pool.length-5)));
+  const questions=shuffled(available).slice(0,5).map(q=>({...q,a:Array.isArray(q.a)?shuffled(q.a):[]}));
+  p.recentGames[gameId]=[...(p.recentGames[gameId]||[]),...questions.map(q=>q.id)].slice(-Math.min(40,Math.max(12,pool.length-5)));
   save();
-  session={subject,questions,index:0,correct:0,start:Date.now(),locked:false,results:{}};
+  session={subject,gameId,game,level,questions,index:0,correct:0,start:Date.now(),locked:false,results:{}};
   showScreen("gameScreen"); renderQuestion();
 }
 
 function renderQuestion(){
-  const q=session.questions[session.index], s=SUBJECTS[session.subject], p=activeProfile();
-  $("#gameSubject").textContent="שביל "+subjectName(p,session.subject);
-  $("#gameLevel").textContent=`שלב ${subjectLevel(p,session.subject)} · ${s.trail}`;
+  const q=session.questions[session.index], p=activeProfile();
+  $("#gameSubject").textContent=subjectName(p,session.subject);
+  $("#gameLevel").textContent=`${session.game.name} · רמה ${session.level}`;
   $("#questionLabel").textContent=`${session.index+1} מתוך ${session.questions.length}`;
   $("#questionBar").style.width=`${session.index/session.questions.length*100}%`;
   $("#questionType").textContent=q.type; $("#questionText").textContent=q.q;
   $("#questionVisual").textContent=q.visual||"";
   $("#questionVisual").className="question-visual"+(q.word?" word":"");
+  if(q.audio){
+    const listen=document.createElement("button");
+    listen.type="button"; listen.className="question-audio"; listen.dataset.playAudio="true"; listen.textContent="🔊 לשמוע";
+    $("#questionVisual").appendChild(listen);
+  }
   $("#feedback").className="feedback"; $("#feedback").textContent="";
   $("#explanation").className="explanation"; $("#explanation").textContent="";
   $(".pip-corner").firstChild.textContent=p.buddy;
   $("#pipPrompt").textContent=["יש לכם זמן!","קטן עליכם!","חשיבה מצוינת!"][session.index%3];
-  $("#answerGrid").innerHTML=q.a.map(a=>`<button class="answer-btn" data-answer="${escapeHtml(a)}">${a}</button>`).join("");
-  $("#answerGrid").classList.toggle("image-answers",session.subject==="nature"&&p.age<=4);
+  renderQuestionInteraction(q);
   session.locked=false;
+}
+
+function renderQuestionInteraction(q){
+  const grid=$("#answerGrid");
+  grid.className="answer-grid";
+  session.composed=[]; session.memoryOpen=[]; session.memoryMatched=new Set(); session.gridSelection=[];
+  if(q.mode==="drag"){
+    grid.classList.add("drag-answer-grid");
+    grid.innerHTML=`<div class="drag-source" draggable="true" data-drag-source="${escapeHtml(q.dragSource||q.visual||"")}">${escapeHtml(q.dragSource||q.visual||"")}</div><div class="drag-targets">${q.a.map(a=>`<button class="answer-btn drag-target" data-answer="${escapeHtml(a)}">${a}</button>`).join("")}</div>`;
+    return;
+  }
+  if(q.mode==="build"){
+    grid.classList.add("build-answer-grid");
+    grid.innerHTML=`<div class="build-result" id="buildResult">בחרו לפי הסדר</div><div class="token-bank">${q.tokens.map((token,index)=>`<button class="token-btn" data-token-index="${index}">${escapeHtml(token)}</button>`).join("")}</div><div class="build-actions"><button class="outline-btn" data-build-undo>מחיקה</button><button class="primary-btn compact" data-build-check>בדיקה</button></div>`;
+    return;
+  }
+  if(q.mode==="memory"){
+    grid.classList.add("memory-grid");
+    const cards=shuffled(q.pairs.flatMap(([picture,word],pair)=>[{text:picture,key:String(pair)},{text:word,key:String(pair)}]));
+    session.memoryCards=cards;
+    grid.innerHTML=cards.map((card,index)=>`<button class="memory-card" data-memory-index="${index}" data-memory-key="${card.key}"><span>?</span><b>${escapeHtml(card.text)}</b></button>`).join("");
+    return;
+  }
+  if(q.mode==="wordsearch"){
+    grid.classList.add("word-search-wrap");
+    grid.innerHTML=`<div class="word-selection" id="wordSelection">בחרו אותיות לפי הסדר</div><div class="word-search-grid" style="--grid-size:${q.size}">${q.grid.map((letter,index)=>`<button data-grid-index="${index}">${letter}</button>`).join("")}</div><div class="build-actions"><button class="outline-btn" data-grid-clear>ניקוי</button><button class="primary-btn compact" data-grid-check>בדיקה</button></div>`;
+    return;
+  }
+  grid.innerHTML=q.a.map(a=>`<button class="answer-btn" data-answer="${escapeHtml(a)}">${a}</button>`).join("");
+  grid.classList.toggle("image-answers",session.subject==="nature"&&activeProfile().age<=4);
+}
+
+function updateBuildResult(){
+  const q=session.questions[session.index],joinWith=q.joinWith??"";
+  $("#buildResult").textContent=session.composed.length?session.composed.map(x=>x.token).join(joinWith):"בחרו לפי הסדר";
+}
+
+function playQuestionAudio(){
+  const q=session?.questions?.[session.index]; if(!q?.audio||!state.sound)return;
+  if(q.audio.kind==="speech"){
+    speechSynthesis.cancel();
+    const utterance=new SpeechSynthesisUtterance(q.audio.text);
+    utterance.lang="en-US"; utterance.rate=.82; utterance.pitch=1.05; speechSynthesis.speak(utterance);
+    return;
+  }
+  const C=window.AudioContext||window.webkitAudioContext,ctx=new C(),patterns={
+    woof:[180,125,180],meow:[420,600,480],moo:[120,95,110],baa:[280,220,280],neigh:[500,380,620],
+    cluck:[650,420,700],roar:[90,75,110],trumpet:[360,520,700],grunt:[115,90,120],squawk:[700,420,760],
+    click:[900,1200,950],croak:[130,100,130],buzz:[190,205,195,210],hoot:[260,210,260],whale:[180,260,340]
+  },notes=patterns[q.audio.key]||[300,420,300];
+  notes.forEach((freq,index)=>{const o=ctx.createOscillator(),g=ctx.createGain(),start=ctx.currentTime+index*.18;o.type=index%2?"triangle":"sine";o.frequency.setValueAtTime(freq,start);g.gain.setValueAtTime(.001,start);g.gain.exponentialRampToValueAtTime(.18,start+.03);g.gain.exponentialRampToValueAtTime(.001,start+.16);o.connect(g);g.connect(ctx.destination);o.start(start);o.stop(start+.18);});
 }
 
 function answer(value,button){
@@ -515,16 +605,13 @@ function finishGame(){
   p.stars+=earned; p.progress[key] ||= {completed:0,level:1,correct:0,total:0};
   const newTrophies=trophyCount(p);
   const prog=p.progress[key]; prog.completed++; prog.correct+=session.correct; prog.total+=session.questions.length;
-  Object.entries(session.results).forEach(([skill,r])=>{
-    const current=p.skillLevels[key][skill]||ageLevel(p.age);
-    if(r.total>=1&&r.correct/r.total>=.85)p.skillLevels[key][skill]=clamp(current+1,1,5);
-    if(r.total>=2&&r.correct/r.total<=.45)p.skillLevels[key][skill]=clamp(current-1,1,5);
-  });
+  const gameProg=p.gameProgress[session.gameId]||={completed:0,correct:0,total:0};
+  gameProg.completed++; gameProg.correct+=session.correct; gameProg.total+=session.questions.length;
   prog.level=subjectLevel(p,key);
   if(p.dailyDate!==now){p.dailyDate=now;p.daily=0} p.daily++;
   p.streak=Math.max(1,p.streak||0);
   p.minutes+=Math.max(1,Math.round((Date.now()-session.start)/60000));
-  p.log.unshift({subject:key,correct:session.correct,total:session.questions.length,earned,date:new Date().toLocaleDateString("he-IL",{month:"short",day:"numeric"})});
+  p.log.unshift({subject:key,gameId:session.gameId,gameName:session.game.name,correct:session.correct,total:session.questions.length,earned,date:new Date().toLocaleDateString("he-IL",{month:"short",day:"numeric"})});
   p.log=p.log.slice(0,8); save();
   $("#celebrateBuddy").textContent=p.buddy; $("#earnedStars").textContent=earned;
   $("#earnedStars").parentElement.innerHTML=`<span id="earnedStars">${earned}</span> ${earned===1?"כוכב":"כוכבים"}`;
@@ -553,14 +640,12 @@ function renderDashboard(){
     const x=p.progress[k],pct=x?Math.min(x.completed/10*100,100):0;
     return `<div class="progress-row"><span class="trail-icon">${s.icon}</span><b>${subjectName(p,k)}</b><div class="bar"><i style="width:${pct}%"></i></div><small>${x?.completed||0}/10</small></div>`;
   }).join("");
-  $("#activityLog").innerHTML=p.log.length?p.log.map(x=>`<div class="log-row"><span class="log-icon">${SUBJECTS[x.subject].icon}</span><div><b>${SUBJECTS[x.subject].trail}</b><small>${x.correct} מתוך ${x.total} תשובות נכונות · ${x.date}</small></div></div>`).join(""):`<div class="empty-state">עוד אין הרפתקאות. בחרו שביל והסיפור מתחיל!</div>`;
-  const skills=[];
-  Object.entries(p.skillLevels).forEach(([subject,map])=>Object.entries(map).forEach(([skill,level])=>skills.push({subject,skill,level})));
-  if(p.answered&&skills.length){
-    const weak=[...skills].sort((a,b)=>a.level-b.level)[0];
-    $("#insightTitle").textContent=`כדאי לתרגל: ${weak.skill}`;
-    const skillInSentence=weak.skill==="צלילי אותיות"?"צלילי האותיות":weak.skill;
-    $("#insightText").textContent=`אפשר לחזק את ${skillInSentence} בנושא ${subjectName(p,weak.subject)}. המשחק יתאים את השאלות בהדרגה, בקצב נעים וללא לחץ.`;
+  $("#activityLog").innerHTML=p.log.length?p.log.map(x=>`<div class="log-row"><span class="log-icon">${SUBJECTS[x.subject].icon}</span><div><b>${x.gameName||SUBJECTS[x.subject].trail}</b><small>${x.correct} מתוך ${x.total} תשובות נכונות · ${x.date}</small></div></div>`).join(""):`<div class="empty-state">עוד אין הרפתקאות. בחרו שביל והסיפור מתחיל!</div>`;
+  const played=Object.entries(p.gameProgress||{}).filter(([,value])=>value.total).map(([gameId,value])=>({game:KIDS_GAMES.catalog.find(item=>item.id===gameId),...value}));
+  if(p.answered&&played.length){
+    const weak=[...played].sort((a,b)=>(a.correct/a.total)-(b.correct/b.total))[0];
+    $("#insightTitle").textContent=`כדאי לתרגל: ${weak.game?.name||"משחק נוסף"}`;
+    $("#insightText").textContent=`אפשר לבחור רמה קלה יותר בהגדרות, או להמשיך לתרגל בקצב נעים וללא לחץ.`;
   } else {
     $("#insightTitle").textContent="מוכנים להרפתקה הראשונה";
     $("#insightText").textContent="השלימו שביל ופיפ ישתף כאן תובנה על הלמידה.";
@@ -578,21 +663,21 @@ function renderSettings(){
 
 function renderDifficulty(p){
   $("#difficultyControls").innerHTML=p.subjects.map(key=>{
-    const feedback=p.skillFeedback[key]._subject||"ok", level=subjectLevel(p,key);
-    return `<section class="difficulty-subject"><div class="skill-row"><span><b>${SUBJECTS[key].icon} ${subjectName(p,key)}</b><small class="level-badge">שלב ${level}</small><small class="question-count">מאגר שאלות רחב ברמה זו</small></span><div class="level-adjust"><button class="${feedback==="up"?"selected":""}" data-adjust="${key}|up">קל מדי</button><button class="${feedback==="ok"?"selected":""}" data-adjust="${key}|ok">מתאים</button><button class="${feedback==="down"?"selected":""}" data-adjust="${key}|down">קשה מדי</button></div></div></section>`;
+    const games=availableGames(p,key);
+    return `<section class="difficulty-subject"><h3>${SUBJECTS[key].icon} ${subjectName(p,key)}</h3>${games.map(game=>{
+      const feedback=p.gameFeedback[game.id]||"ok",level=p.gameLevels[game.id]||ageLevel(p.age);
+      return `<div class="skill-row game-level-row"><span><b>${game.icon} ${game.name}</b><small class="level-badge">רמה ${level} מתוך 9</small><small class="question-count">${game.desc}</small></span><div class="level-adjust"><button ${level<=1?"disabled":""} class="${feedback==="down"?"selected":""}" data-adjust="${game.id}|down">קל יותר</button><button class="${feedback==="ok"?"selected":""}" data-adjust="${game.id}|ok">מתאים</button><button ${level>=9?"disabled":""} class="${feedback==="up"?"selected":""}" data-adjust="${game.id}|up">קשה יותר</button></div></div>`;
+    }).join("")}</section>`;
   }).join("");
 }
 
 function adjustDifficulty(data){
-  const [subject,choice]=data.split("|"),p=activeProfile();
-  const skills=Object.keys(p.skillLevels[subject]);
-  p.skillFeedback[subject]._subject=choice;
-  skills.forEach(skill=>{
-    const current=p.skillLevels[subject][skill]||ageLevel(p.age);
-    if(choice==="up")p.skillLevels[subject][skill]=clamp(current+1,1,5);
-    if(choice==="down")p.skillLevels[subject][skill]=clamp(current-1,1,5);
-  });
-  p.recentQuestions[subject]=[];
+  const [gameId,choice]=data.split("|"),p=activeProfile(),current=p.gameLevels[gameId]||ageLevel(p.age);
+  p.gameFeedback[gameId]=choice;
+  if(choice==="up")p.gameLevels[gameId]=clamp(current+1,1,9);
+  if(choice==="down")p.gameLevels[gameId]=clamp(current-1,1,9);
+  if(choice==="ok")p.gameLevels[gameId]=ageLevel(p.age);
+  p.recentGames[gameId]=[];
   save(); renderSettings(); renderSubjects();
 }
 
@@ -601,7 +686,7 @@ function exportProgress(){
   const report={
     child:{name:p.name,age:p.age,buddy:p.buddy},
     summary:{stars:p.stars,trophies:trophyCount(p),answered:p.answered,correct:p.correct,minutes:p.minutes},
-    topics:p.subjects.map(key=>({topic:subjectName(p,key),level:subjectLevel(p,key),completed:p.progress[key]?.completed||0,skills:p.skillLevels[key]})),
+    topics:p.subjects.map(key=>({topic:subjectName(p,key),level:subjectLevel(p,key),completed:p.progress[key]?.completed||0,games:availableGames(p,key).map(game=>({name:game.name,level:p.gameLevels[game.id],progress:p.gameProgress[game.id]}))})),
     recent:p.log
   };
   const blob=new Blob([JSON.stringify(report,null,2)],{type:"application/json;charset=utf-8"});
@@ -612,7 +697,7 @@ function exportProgress(){
 function resetProgress(){
   const p=activeProfile(); if(!p)return;
   if(!confirm(`לאפס את כל ההתקדמות של ${p.name}? הפעולה אינה ניתנת לביטול.`))return;
-  Object.assign(p,{stars:0,streak:0,progress:{},log:[],correct:0,answered:0,minutes:0,daily:0,dailyDate:"",skillLevels:{},skillFeedback:{},recentQuestions:{}});
+  Object.assign(p,{stars:0,streak:0,progress:{},log:[],correct:0,answered:0,minutes:0,daily:0,dailyDate:"",skillLevels:{},skillFeedback:{},recentQuestions:{},gameLevels:{},gameFeedback:{},recentGames:{},gameProgress:{},gameLevelAge:null});
   prepareProfile(p); save(); renderAll();
   if($("#dashboardScreen").classList.contains("active"))renderDashboard();
   if($("#settingsScreen").classList.contains("active"))renderSettings();
@@ -640,20 +725,73 @@ function chime(success){
 
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 
+function chooseBuildToken(button){
+  if(session.locked||button.disabled)return;
+  const index=Number(button.dataset.tokenIndex),q=session.questions[session.index];
+  session.composed.push({index,token:q.tokens[index]}); button.disabled=true; updateBuildResult();
+}
+
+function undoBuildToken(){
+  const item=session.composed.pop(); if(!item)return;
+  $(`[data-token-index="${item.index}"]`).disabled=false; updateBuildResult();
+}
+
+function checkBuild(button){
+  const q=session.questions[session.index],value=session.composed.map(x=>x.token).join(q.joinWith??"");
+  answer(value,button);
+}
+
+function chooseMemoryCard(button){
+  if(session.locked||button.classList.contains("matched")||button.classList.contains("open")||session.memoryOpen.length>=2)return;
+  const index=Number(button.dataset.memoryIndex),card=session.memoryCards[index];
+  button.classList.add("open"); session.memoryOpen.push({button,index,key:card.key});
+  if(session.memoryOpen.length<2)return;
+  const [a,b]=session.memoryOpen;
+  if(a.key===b.key){
+    a.button.classList.add("matched");b.button.classList.add("matched");session.memoryMatched.add(a.key);session.memoryOpen=[];
+    if(session.memoryMatched.size===session.questions[session.index].pairs.length)answer("הושלם",button);
+  }else{
+    setTimeout(()=>{a.button.classList.remove("open");b.button.classList.remove("open");session.memoryOpen=[]},700);
+  }
+}
+
+function chooseGridLetter(button){
+  if(session.locked||button.classList.contains("selected"))return;
+  const index=Number(button.dataset.gridIndex),q=session.questions[session.index];
+  button.classList.add("selected");session.gridSelection.push({index,letter:q.grid[index]});
+  $("#wordSelection").textContent=session.gridSelection.map(x=>x.letter).join("");
+}
+
+function clearGridSelection(){
+  session.gridSelection=[];$$("[data-grid-index]").forEach(button=>button.classList.remove("selected"));$("#wordSelection").textContent="בחרו אותיות לפי הסדר";
+}
+
 function bindEvents(){
   document.addEventListener("click",e=>{
     const go=e.target.closest("[data-go]"); if(go)showScreen(go.dataset.go==="home"?"homeScreen":go.dataset.go);
     const close=e.target.closest("[data-close]"); if(close)closeModal(close.dataset.close);
-    const sub=e.target.closest("[data-subject]"); if(sub)startGame(sub.dataset.subject);
-    const playSub=e.target.closest("[data-play-subject]"); if(playSub){closeModal("adventureModal");startGame(playSub.dataset.playSubject)}
+    const sub=e.target.closest("[data-subject]"); if(sub)openGamePicker(sub.dataset.subject);
+    const playSub=e.target.closest("[data-play-subject]"); if(playSub){closeModal("adventureModal");openGamePicker(playSub.dataset.playSubject)}
+    const game=e.target.closest("[data-game]"); if(game){closeModal("gamePickerModal");startGame(game.dataset.game)}
     const ans=e.target.closest("[data-answer]"); if(ans)answer(ans.dataset.answer,ans);
-    const prof=e.target.closest("[data-profile]"); if(prof){state.activeId=prof.dataset.profile;prepareProfile(activeProfile());save();closeModal("profileModal");renderAll();showScreen("homeScreen")}
+    const audio=e.target.closest("[data-play-audio]"); if(audio)playQuestionAudio();
+    const token=e.target.closest("[data-token-index]"); if(token)chooseBuildToken(token);
+    const undo=e.target.closest("[data-build-undo]"); if(undo)undoBuildToken();
+    const buildCheck=e.target.closest("[data-build-check]"); if(buildCheck)checkBuild(buildCheck);
+    const memory=e.target.closest("[data-memory-index]"); if(memory)chooseMemoryCard(memory);
+    const grid=e.target.closest("[data-grid-index]"); if(grid)chooseGridLetter(grid);
+    const gridClear=e.target.closest("[data-grid-clear]"); if(gridClear)clearGridSelection();
+    const gridCheck=e.target.closest("[data-grid-check]"); if(gridCheck)answer(session.gridSelection.map(x=>x.letter).join(""),gridCheck);
+    const prof=e.target.closest("[data-profile]"); if(prof){const changed=state.activeId!==prof.dataset.profile;state.activeId=prof.dataset.profile;prepareProfile(activeProfile());save();closeModal("profileModal");renderAll();if(changed)showScreen("homeScreen")}
     const edit=e.target.closest("[data-edit-profile]"); if(edit)openEdit(edit.dataset.editProfile);
     const age=e.target.closest("[data-age]"); if(age){selectedAge=+age.dataset.age;renderChoiceButtons()}
     const buddy=e.target.closest("[data-buddy]"); if(buddy){selectedBuddy=buddy.dataset.buddy;renderChoiceButtons()}
     const tog=e.target.closest("[data-toggle-subject]"); if(tog)tog.classList.toggle("selected");
     const adjust=e.target.closest("[data-adjust]"); if(adjust)adjustDifficulty(adjust.dataset.adjust);
   });
+  document.addEventListener("dragstart",e=>{const source=e.target.closest("[data-drag-source]");if(source)e.dataTransfer.setData("text/plain",source.dataset.dragSource)});
+  document.addEventListener("dragover",e=>{if(e.target.closest(".drag-target"))e.preventDefault()});
+  document.addEventListener("drop",e=>{const target=e.target.closest(".drag-target");if(target){e.preventDefault();answer(target.dataset.answer,target)}});
   $("#profileButton").onclick=()=>openModal("profileModal");
   $("#addProfileButton").onclick=()=>{closeModal("profileModal");openCreate()};
   $("#createForm").onsubmit=e=>{e.preventDefault();submitProfile($("#childName").value)};
@@ -662,15 +800,19 @@ function bindEvents(){
   $("#saveSubjects").onclick=()=>{const chosen=$$(".subject-toggle.selected").map(x=>x.dataset.toggleSubject);if(!chosen.length)return;activeProfile().subjects=chosen;save();closeModal("subjectModal");renderAll()};
   $("#progressButton").onclick=()=>activeProfile()?showScreen("dashboardScreen"):openCreate();
   $("#settingsButton").onclick=()=>activeProfile()?showScreen("settingsScreen"):openCreate();
+  $("#headerProgressButton").onclick=()=>activeProfile()?showScreen("dashboardScreen"):openCreate();
+  $("#headerSettingsButton").onclick=()=>activeProfile()?showScreen("settingsScreen"):openCreate();
+  $("#headerHelpButton").onclick=()=>showScreen("helpScreen");
   $("#settingsSubjects").onclick=()=>openModal("subjectModal");
   $("#settingsProfile").onclick=()=>openEdit(activeProfile().id);
   $("#settingsSound").onclick=()=>{$(".sound-toggle").click();renderSettings()};
+  $("#settingsHelp").onclick=()=>showScreen("helpScreen");
   $("#printReport").onclick=()=>window.print();
   $("#exportReport").onclick=exportProgress;
   $("#resetProgress").onclick=resetProgress;
   $(".sound-toggle").onclick=e=>{state.sound=!state.sound;e.currentTarget.textContent=state.sound?"🔊":"🔇";save();if(state.sound)chime(true)};
   $("#continueButton").onclick=()=>{const p=activeProfile();if(!p)return openCreate();renderAdventureChoices();openModal("adventureModal")};
-  $("#randomButton").onclick=()=>{const p=activeProfile();if(!p)return openCreate();startGame(p.subjects[Math.floor(Math.random()*p.subjects.length)])};
+  $("#randomButton").onclick=()=>{const p=activeProfile();if(!p)return openCreate();const games=p.subjects.flatMap(subject=>availableGames(p,subject));if(games.length)startGame(games[Math.floor(Math.random()*games.length)].id)};
   $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
 }
 

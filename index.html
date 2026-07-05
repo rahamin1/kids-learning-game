@@ -14,19 +14,25 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=16">
+  <link rel="stylesheet" href="styles.css?v=17">
 </head>
 <body>
   <div id="app">
     <header class="topbar">
-      <button class="brand" data-go="home" aria-label="חזרה לבית">
-        <span class="brand-mark"><img src="assets/app-icon-star-forest.png" alt=""></span>
-        <span>היער <b>הזוהר</b></span>
-      </button>
+      <div class="brand-group">
+        <button class="brand" data-go="home" aria-label="חזרה לבית">
+          <span class="brand-mark"><img src="assets/app-icon-star-forest.png" alt=""></span>
+          <span>היער <b>הזוהר</b></span>
+        </button>
+        <span class="header-version"><span class="version-label">גרסה </span><span id="appVersion"></span></span>
+      </div>
       <div class="top-actions">
         <div class="streak-chip" title="רצף הרפתקאות"><span>🔥</span><b class="streak-text" id="streakText">0 ימים ברצף</b></div>
-        <div class="star-chip"><span>★</span><b id="starCount">0</b></div>
+        <div class="star-chip" title="כוכבים וגביעים"><span>★</span><b id="starCount">0</b><span class="reward-divider"></span><span class="trophy-symbol">🏆</span><b id="headerTrophyCount">0</b></div>
         <button class="icon-btn sound-toggle" aria-label="הפעלת או השתקת צלילים">🔊</button>
+        <button class="icon-btn header-tool" id="headerProgressButton" aria-label="צפייה בהתקדמות" title="צפייה בהתקדמות">📊</button>
+        <button class="icon-btn header-tool" id="headerSettingsButton" aria-label="הגדרות" title="הגדרות">⚙️</button>
+        <button class="icon-btn header-tool" id="headerHelpButton" aria-label="עזרה ומידע" title="עזרה ומידע">❓</button>
         <button class="profile-pill" id="profileButton">
           <span class="mini-avatar" id="miniAvatar">🦊</span>
           <span><small>הרפתקן/ית</small><b id="profileName">שחקן חדש</b></span>
@@ -140,10 +146,11 @@
             <button class="settings-shortcut" id="settingsSubjects"><span>🧭</span><b>בחירת נושאים</b><small>בוחרים במה משחקים ולומדים</small></button>
             <button class="settings-shortcut" id="settingsProfile"><span>🦊</span><b>פרטי ההרפתקן</b><small>שם, גיל וחבר למסע</small></button>
             <button class="settings-shortcut" id="settingsSound"><span>🔊</span><b>צלילים</b><small id="settingsSoundLabel">הצלילים פעילים</small></button>
+            <button class="settings-shortcut" id="settingsHelp"><span>❓</span><b>עזרה ומידע</b><small>איך משחקים, מתקדמים וזוכים</small></button>
           </div>
 
           <article class="panel difficulty-panel">
-            <div class="panel-title"><div><span class="eyebrow blue">התאמת אתגרים</span><h2>איך הרמה מרגישה?</h2><p>אפשר להתאים כל נושא בנפרד.</p></div></div>
+            <div class="panel-title"><div><span class="eyebrow blue">התאמת אתגרים</span><h2>איך הרמה מרגישה?</h2><p>אפשר להתאים כל משחק בנפרד.</p></div></div>
             <div id="difficultyControls"></div>
           </article>
 
@@ -154,7 +161,37 @@
               <button class="quiet-danger" id="resetProgress">איפוס התקדמות</button>
             </div>
           </article>
-          <p class="app-version">גרסה <span id="appVersion"></span></p>
+        </div>
+      </section>
+
+      <section id="helpScreen" class="screen dashboard-screen help-screen">
+        <div class="dashboard-wrap">
+          <div class="dashboard-head">
+            <button class="back-btn" data-go="home">→</button>
+            <div><span class="eyebrow blue">עזרה ומידע</span><h1>איך ההרפתקה עובדת?</h1><p>כל מה שצריך לדעת כדי ללמוד, לשחק ולהאיר את היער.</p></div>
+          </div>
+
+          <div class="help-grid">
+            <article class="panel help-card"><span class="help-icon">👤</span><div><h2>משתמשים</h2><p>לכל ילד וילדה אפשר ליצור משתמש נפרד עם שם, גיל וחבר למסע. ההתקדמות, הכוכבים ורמות הקושי נשמרים בנפרד לכל משתמש.</p><p>בחירה במשתמש אחר תעביר לדף הבית שלו. בחירה מחדש במשתמש הפעיל תשאיר אתכם במסך הנוכחי.</p></div></article>
+
+            <article class="panel help-card"><span class="help-icon">🧭</span><div><h2>בחירת נושאים</h2><p>אפשר לבחור מספרים או חשבון, אנגלית, עברית, טבע וחשיבה. המשחקים מותאמים לגיל, ומשחקים חדשים נפתחים ככל שעולים בגיל.</p></div></article>
+
+            <article class="panel help-card"><span class="help-icon">🎮</span><div><h2>משחקים ורמות</h2><p>לכל משחק יש תשע רמות קושי. נקודת ההתחלה נקבעת לפי גיל הילד.</p><p>במסך ההגדרות אפשר לבחור לכל משחק <b>קל יותר</b>, <b>מתאים</b> או <b>קשה יותר</b>. ברמה הראשונה או התשיעית האפשרות שאינה זמינה תופיע מעומעמת.</p></div></article>
+
+            <article class="panel help-card reward-help-card"><span class="help-icon">⭐</span><div><h2>כוכבים וגביעים</h2><p>המטרה במשחק היא לאסוף 100 כוכבים. כשמגיעים ל־100 כוכבים זוכים בגביע!</p><p>אפשר להמשיך ל־200 כוכבים כדי לזכות בגביע נוסף, וכן הלאה. בראש המסך מוצגים מספר הכוכבים ומספר הגביעים של הילד.</p><div class="help-reward-example"><span>★</span><b>140</b><i></i><span>🏆</span><b>1</b></div></div></article>
+
+            <article class="panel help-card"><span class="help-icon">🏆</span><div><h2>הדרך לגביע הבא</h2><p>במסך ההתקדמות מוצג כמה כוכבים חסרים עד לגביע הבא. לדוגמה: לאחר איסוף 140 כוכבים יוצגו גביע אחד והתקדמות של 40 מתוך 100 לקראת הגביע השני.</p></div></article>
+
+            <article class="panel help-card"><span class="help-icon">🔥</span><div><h2>רצף ימי תרגול</h2><p>סמל האש מציג כמה ימים ברצף תרגל הילד באפליקציה. תרגול קצר בכל יום עוזר לשמור על הרצף ולחזק את מה שנלמד.</p></div></article>
+
+            <article class="panel help-card"><span class="help-icon">📊</span><div><h2>צפייה בהתקדמות</h2><p>כאן אפשר לראות כמה כוכבים וגביעים נאספו, באילו נושאים שיחקו, אילו משחקים הושלמו ומהי הרמה הנוכחית.</p></div></article>
+
+            <article class="panel help-card"><span class="help-icon">⚙️</span><div><h2>הגדרות</h2><p>אפשר לבחור נושאי לימוד, להתאים את רמת הקושי בכל משחק, לערוך שם, גיל וחבר למסע, ולהוסיף או למחוק משתמשים.</p></div></article>
+
+            <article class="panel help-card"><span class="help-icon">🔊</span><div><h2>צלילים</h2><p>אפשר להפעיל או להשתיק את צלילי המשחק באמצעות סמל הרמקול. במשחקי אנגלית מסוימים אפשר ללחוץ על סמל השמע כדי לשמוע מילה או צליל באנגלית.</p></div></article>
+
+            <article class="panel help-card"><span class="help-icon">💾</span><div><h2>שמירת ההתקדמות</h2><p>המשתמשים וההתקדמות נשמרים בדפדפן ובמכשיר שבו משחקים. במכשיר או בדפדפן אחר יהיה צורך ליצור את המשתמשים מחדש, משום שכרגע אין סנכרון בין מכשירים.</p></div></article>
+          </div>
         </div>
       </section>
     </main>
@@ -203,6 +240,16 @@
       </div>
     </div>
 
+    <div class="modal-backdrop" id="gamePickerModal">
+      <div class="modal game-picker-modal">
+        <button class="modal-close" data-close="gamePickerModal">×</button>
+        <span class="eyebrow blue">בוחרים משחק</span>
+        <h2 id="gamePickerTitle">מספרים</h2>
+        <p id="gamePickerSubtitle">בחרו משחק כדי להתחיל.</p>
+        <div id="gameChoices" class="game-choices"></div>
+      </div>
+    </div>
+
     <div class="modal-backdrop" id="celebrationModal">
       <div class="modal celebration-modal">
         <div class="confetti">★ ✦ ● ★ ✦</div>
@@ -226,6 +273,7 @@
     </div>
 
   </div>
-  <script src="app.js?v=0.1.1"></script>
+  <script src="games.js?v=0.1.2"></script>
+  <script src="app.js?v=0.1.2"></script>
 </body>
 </html>
