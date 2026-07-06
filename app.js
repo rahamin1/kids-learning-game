@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.3";
+const APP_VERSION = "0.1.4";
 
 const SUBJECTS = {
   math: { name: "חשבון", icon: "🔢", class: "math", desc: "סופרים, משווים ופותרים", trail: "אחו המספרים" },
