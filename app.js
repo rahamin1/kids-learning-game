@@ -9,6 +9,7 @@ const SUBJECTS = {
 };
 
 const BUDDIES = ["🦊", "🐼", "🐰", "🦁"];
+const SAMPLE_NAMES = ["הראל","גבע","גוני","ים","אודי","עומר","מיכל","גילי","שושי"];
 const STAR_GOAL = 100;
 const MOSAIC_TILES = 48;
 const MOSAIC_REVEAL_ORDER = Array.from({length:MOSAIC_TILES},(_,index)=>(index*17+11)%MOSAIC_TILES);
@@ -257,14 +258,14 @@ function generatedNaturePreschool(){
     ["מה עוזר ביום שמש?","👒",["🧣","🥾","🧤"],"מזג אוויר","☀️"],
     ["מה רואים בשמיים בלילה?","🌙",["🌈","🪁","🌻"],"יום ולילה","🌌"],
     ["מה רואים בשמיים ביום?","☀️",["🌙","⭐","🕯️"],"יום ולילה","🌤️"],
-    ["מה מהדברים הבאים גדל?","🌱",["🪨","🥄","👟"],"חי וצומח","💧"],
+    ["מה מהדברים הבאים גדל?","🌱",["⚽","🥄","👟"],"חי וצומח","💧"],
     ["מי עוזרת לפרחים?","🐝",["🐟","🐱","🐢"],"חי וצומח","🌸"],
     ["מה צריך צמח?","💧",["🧸","🚗","🎈"],"חי וצומח","🌱"],
     ["איזה פרי גדל על עץ?","🍎",["🥕","🥔","🧅"],"חי וצומח","🌳"],
     ["מה מתאים ליום קר?","🧣",["🩱","🕶️","🩴"],"מזג אוויר","❄️"],
     ["מה מגיע מעננים כהים?","🌧️",["🔥","🏖️","🌵"],"מזג אוויר","☁️"],
     ["איזו חיה חיה ליד מים?","🐸",["🦒","🐪","🐓"],"בעלי חיים","💦"],
-    ["מה שומרים בתוך כוורת?","🍯",["🧊","🪨","🧦"],"חי וצומח","🐝"]
+    ["מה שומרים בתוך כוורת?","🍯",["🧊","⚽","🧦"],"חי וצומח","🐝"]
   ];
   const preschoolQuestions=questions.map(([q,correct,wrong,skill,visual],i)=>({id:`nature-preschool-${i}`,skill,type:skill,q,visual,a:shuffled([correct,...wrong]),correct,explain:`התשובה הנכונה היא ${correct}.`}));
   return [...preschoolQuestions,...generatedIconQuestions(1,{imageOnly:true,youngOnly:true})];
@@ -285,12 +286,40 @@ let deferredInstallPrompt = null;
 let selectedAge = 5;
 let selectedBuddy = "🦊";
 let editingId = null;
+let sampleNameIndex = 0;
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
 
 function activeProfile(){ return state.profiles.find(p => p.id === state.activeId); }
 function ageLevel(age){ return clamp(Number(age)||3,1,9); }
+function defaultGameLevel(gameId,age){
+  if(gameId==="count"||gameId==="number-quantity")return ({3:1,4:2,5:4,6:7,7:9})[Number(age)]||1;
+  return ageLevel(age);
+}
+function applyDefaultHiddenGames(p){
+  p.autoHiddenGames ||= [];
+  const targetVersion = 2;
+  const ageChanged = p.defaultHiddenGamesAge!==p.age;
+  const defaultHidden = Number(p.age)>=6 ? ["count","number-quantity"] : [];
+  if(!ageChanged && p.defaultHiddenGamesVersion===targetVersion)return;
+  if(ageChanged){
+    p.hiddenGames = (p.hiddenGames||[]).filter(id=>!p.autoHiddenGames.includes(id));
+    p.autoHiddenGames = [];
+  }
+  defaultHidden.forEach(id=>{
+    const wasAlreadyAutoHidden = p.autoHiddenGames.includes(id);
+    const isNewDefaultRule = !ageChanged && p.defaultHiddenGamesVersion!==targetVersion && id==="number-quantity";
+    if(ageChanged || wasAlreadyAutoHidden || isNewDefaultRule){
+      p.hiddenGames.push(id);
+      p.autoHiddenGames.push(id);
+    }
+  });
+  p.hiddenGames = [...new Set(p.hiddenGames)];
+  p.autoHiddenGames = [...new Set(p.autoHiddenGames)];
+  p.defaultHiddenGamesAge = p.age;
+  p.defaultHiddenGamesVersion = targetVersion;
+}
 function subjectName(p,key){ return key==="math"&&p?.age<=4?"מספרים":SUBJECTS[key].name; }
 function subjectDescription(p,key){ return key==="math"&&p?.age<=4?"סופרים עצמים ומשחקים במספרים":SUBJECTS[key].desc; }
 function trophyCount(p){ return Math.floor((p?.stars||0)/STAR_GOAL); }
@@ -309,15 +338,20 @@ function prepareProfile(p){
   p.recentGames ||= {};
   p.gameProgress ||= {};
   p.hiddenGames ||= [];
+  applyDefaultHiddenGames(p);
   if(p.gameLevelAge!==p.age){
-    KIDS_GAMES.catalog.forEach(game=>p.gameLevels[game.id]=ageLevel(p.age));
+    KIDS_GAMES.catalog.forEach(game=>p.gameLevels[game.id]=defaultGameLevel(game.id,p.age));
     p.gameLevelAge=p.age;
   }
   KIDS_GAMES.catalog.forEach(game=>{
-    p.gameLevels[game.id] ||= ageLevel(p.age);
+    p.gameLevels[game.id] ||= defaultGameLevel(game.id,p.age);
     p.recentGames[game.id] ||= [];
     p.gameProgress[game.id] ||= {completed:0,correct:0,total:0};
   });
+  if(p.countingGamesVersion!==1){
+    ["count","number-quantity"].forEach(id=>p.gameLevels[id]=defaultGameLevel(id,p.age));
+    p.countingGamesVersion=1;
+  }
   Object.keys(SUBJECTS).forEach(key => {
     p.skillLevels[key] ||= {};
     p.skillFeedback[key] ||= {};
@@ -387,6 +421,8 @@ function init(){
   $("#appVersion").textContent=APP_VERSION;
   document.documentElement.dataset.appVersion=APP_VERSION;
   renderChoiceButtons();
+  rotateNamePlaceholder();
+  setInterval(rotateNamePlaceholder,3000);
   bindEvents();
   setupPWA();
   if(!activeProfile()) openCreate();
@@ -396,6 +432,12 @@ function init(){
 function renderChoiceButtons(){
   $("#ageOptions").innerHTML=[3,4,5,6,7].map(n=>`<button type="button" class="choice-btn ${n===selectedAge?"selected":""}" data-age="${n}">${n}</button>`).join("");
   $("#buddyOptions").innerHTML=BUDDIES.map(b=>`<button type="button" class="choice-btn ${b===selectedBuddy?"selected":""}" data-buddy="${b}">${b}</button>`).join("");
+}
+
+function rotateNamePlaceholder(){
+  const input=$("#childName"); if(!input)return;
+  input.placeholder=`למשל: ${SAMPLE_NAMES[sampleNameIndex%SAMPLE_NAMES.length]}`;
+  sampleNameIndex++;
 }
 
 function renderAll(){
@@ -488,7 +530,14 @@ function renderSubjectToggles(){
 
 function renderAdventureChoices(){
   const p=activeProfile();
-  $("#adventureChoices").innerHTML=(p?.subjects||[]).filter(key=>availableGames(p,key).length).map(key=>`<button class="adventure-choice" data-play-subject="${key}"><span>${SUBJECTS[key].icon}</span>${subjectName(p,key)}<small>${subjectDescription(p,key)}</small></button>`).join("");
+  $("#adventureChoices").innerHTML=(p?.subjects||[]).filter(key=>availableGames(p,key).length).map(key=>`<button class="adventure-choice" data-play-subject="${key}"><span>${SUBJECTS[key].icon}</span><b>${subjectName(p,key)}</b><small>${subjectDescription(p,key)}</small></button>`).join("");
+}
+
+function openAdventureFlow(){
+  const p=activeProfile(); if(!p)return openCreate();
+  const playableSubjects=(p.subjects||[]).filter(key=>availableGames(p,key).length);
+  if(playableSubjects.length===1)return openGamePicker(playableSubjects[0]);
+  renderAdventureChoices(); openModal("adventureModal");
 }
 
 function openCreate(){
@@ -497,6 +546,7 @@ function openCreate(){
   $("#profileFormTitle").textContent="יוצרים פרופיל לילד/ה";
   $("#profileSubmit").innerHTML=`יוצאים לדרך <span>←</span>`;
   $("#childName").value="";
+  rotateNamePlaceholder();
   $("#deleteProfile").classList.add("hidden");
   renderChoiceButtons(); openModal("createModal");
 }
@@ -552,6 +602,16 @@ function startGame(gameId){
   showScreen("gameScreen"); renderQuestion();
 }
 
+function gameBack(){
+  if(session?.subject){
+    const subject=session.subject;
+    session=null;
+    openGamePicker(subject);
+    return;
+  }
+  showScreen("homeScreen");
+}
+
 function renderQuestion(){
   const q=session.questions[session.index], p=activeProfile();
   $("#gameSubject").textContent=subjectName(p,session.subject);
@@ -560,7 +620,7 @@ function renderQuestion(){
   $("#questionBar").style.width=`${session.index/session.questions.length*100}%`;
   $("#questionType").textContent=q.type; $("#questionText").textContent=q.q;
   $("#questionVisual").textContent=q.visual||"";
-  $("#questionVisual").className="question-visual"+(q.word?" word":"");
+  $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"");
   if(q.audio){
     const listen=document.createElement("button");
     listen.type="button"; listen.className="question-audio"; listen.dataset.playAudio="true"; listen.textContent="🔊 לשמוע";
@@ -600,8 +660,14 @@ function renderQuestionInteraction(q){
     grid.innerHTML=`<div class="word-selection" id="wordSelection">בחרו אותיות לפי הסדר</div><div class="word-search-grid" style="--grid-size:${q.size}">${q.grid.map((letter,index)=>`<button data-grid-index="${index}">${letter}</button>`).join("")}</div><div class="build-actions"><button class="outline-btn" data-grid-clear>ניקוי</button><button class="primary-btn compact" data-grid-check>בדיקה</button></div>`;
     return;
   }
-  grid.innerHTML=q.a.map(a=>`<button class="answer-btn" data-answer="${escapeHtml(a)}">${a}</button>`).join("");
-  grid.classList.toggle("image-answers",session.subject==="nature"&&activeProfile().age<=4);
+  grid.innerHTML=q.a.map(a=>{
+    const scale=q.answerScales?.[a];
+    const content=scale?`<span class="scaled-answer-icon" style="font-size:${Math.round(64*scale)}px">${escapeHtml(a)}</span>`:escapeHtml(a);
+    return `<button class="answer-btn" data-answer="${escapeHtml(a)}">${content}</button>`;
+  }).join("");
+  grid.classList.toggle("object-grid-answers",Boolean(q.answerObjectGrid));
+  grid.classList.toggle("image-answers",Boolean(q.imageAnswers)||(session.subject==="nature"&&activeProfile().age<=4));
+  grid.classList.toggle("scaled-image-answers",Boolean(q.answerScales));
 }
 
 function updateBuildResult(){
@@ -718,9 +784,12 @@ function renderDifficulty(p){
 
 function toggleGameVisibility(gameId){
   const p=activeProfile(); if(!p)return;
-  p.hiddenGames.includes(gameId)
-    ? p.hiddenGames=p.hiddenGames.filter(id=>id!==gameId)
-    : p.hiddenGames.push(gameId);
+  if(p.hiddenGames.includes(gameId)){
+    p.hiddenGames=p.hiddenGames.filter(id=>id!==gameId);
+    p.autoHiddenGames=(p.autoHiddenGames||[]).filter(id=>id!==gameId);
+  } else {
+    p.hiddenGames.push(gameId);
+  }
   save();
   renderSettings();
   renderSubjects();
@@ -732,7 +801,7 @@ function adjustDifficulty(data){
   p.gameFeedback[gameId]=choice;
   if(choice==="up")p.gameLevels[gameId]=clamp(current+1,1,9);
   if(choice==="down")p.gameLevels[gameId]=clamp(current-1,1,9);
-  if(choice==="ok")p.gameLevels[gameId]=ageLevel(p.age);
+  if(choice==="ok")p.gameLevels[gameId]=defaultGameLevel(gameId,p.age);
   p.recentGames[gameId]=[];
   save(); renderSettings(); renderSubjects();
 }
@@ -824,6 +893,7 @@ function clearGridSelection(){
 
 function bindEvents(){
   document.addEventListener("click",e=>{
+    const gameBackButton=e.target.closest("[data-game-back]"); if(gameBackButton)return gameBack();
     const go=e.target.closest("[data-go]"); if(go)showScreen(go.dataset.go==="home"?"homeScreen":go.dataset.go);
     const close=e.target.closest("[data-close]"); if(close)closeModal(close.dataset.close);
     const sub=e.target.closest("[data-subject]"); if(sub)openGamePicker(sub.dataset.subject);
@@ -869,7 +939,7 @@ function bindEvents(){
   $("#exportReport").onclick=exportProgress;
   $("#resetProgress").onclick=resetProgress;
   $(".sound-toggle").onclick=e=>{state.sound=!state.sound;e.currentTarget.textContent=state.sound?"🔊":"🔇";save();if(state.sound)chime(true)};
-  $("#continueButton").onclick=()=>{const p=activeProfile();if(!p)return openCreate();renderAdventureChoices();openModal("adventureModal")};
+  $("#continueButton").onclick=openAdventureFlow;
   $("#randomButton").onclick=()=>{const p=activeProfile();if(!p)return openCreate();const games=p.subjects.flatMap(subject=>availableGames(p,subject));if(games.length)startGame(games[Math.floor(Math.random()*games.length)].id)};
   $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
 }

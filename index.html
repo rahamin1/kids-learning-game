@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=0.1.4">
+  <link rel="stylesheet" href="styles.css?build=local8">
 </head>
 <body>
   <div id="app">
@@ -92,7 +92,7 @@
       <section id="gameScreen" class="screen game-screen">
         <div class="game-shell">
           <div class="game-header">
-            <button class="back-btn" data-go="home">→</button>
+            <button class="back-btn" data-game-back>→</button>
             <div class="level-meta"><span id="gameSubject">שביל החשבון</span><b id="gameLevel">שלב 1 · אחו המספרים</b></div>
             <div class="question-progress"><span id="questionLabel">1 מתוך 5</span><div class="bar"><i id="questionBar"></i></div></div>
           </div>
@@ -216,7 +216,7 @@
         <button type="button" class="modal-close" data-close="createModal">×</button>
         <span class="eyebrow blue" id="profileFormEyebrow">הרפתקן חדש!</span>
         <h2 id="profileFormTitle">יוצרים פרופיל לילד/ה</h2>
-        <label>שם:<input id="childName" maxlength="16" placeholder="למשל: מאיה" required></label>
+        <label>שם:<input id="childName" maxlength="16" placeholder="למשל: הראל" required></label>
         <label>גיל:<div class="age-options" id="ageOptions"></div></label>
         <label>בוחרים חבר למסע<div class="buddy-options" id="buddyOptions"></div></label>
         <button class="primary-btn full" id="profileSubmit" type="submit">יוצאים לדרך <span>←</span></button>
@@ -291,7 +291,7 @@
     </div>
 
   </div>
-  <script src="games.js?v=0.1.4"></script>
-  <script src="app.js?v=0.1.4"></script>
+  <script src="games.js?build=local8"></script>
+  <script src="app.js?build=local8"></script>
 </body>
 </html>
