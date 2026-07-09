@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.4";
+const APP_VERSION = "0.1.5";
 
 const SUBJECTS = {
   math: { name: "חשבון", icon: "🔢", class: "math", desc: "סופרים, משווים ופותרים", trail: "אחו המספרים" },
@@ -287,6 +287,7 @@ let selectedAge = 5;
 let selectedBuddy = "🦊";
 let editingId = null;
 let sampleNameIndex = 0;
+let gamePickerBackTarget = "home";
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
@@ -489,26 +490,45 @@ function renderHero(){
 }
 
 function subjectLevel(p,key){
-  const levels=KIDS_GAMES.catalog.filter(game=>game.subject===key&&game.minAge<=p.age).map(game=>p.gameLevels?.[game.id]||ageLevel(p.age));
+  const levels=KIDS_GAMES.catalog.filter(game=>!game.disabled&&game.subject===key&&game.minAge<=p.age).map(game=>p.gameLevels?.[game.id]||ageLevel(p.age));
   return levels.length ? Math.round(levels.reduce((a,b)=>a+b,0)/levels.length) : ageLevel(p.age);
 }
 
 function availableGames(p,subject,includeHidden=false){
-  return KIDS_GAMES.catalog.filter(game=>game.subject===subject&&game.minAge<=p.age&&(includeHidden||!p.hiddenGames.includes(game.id)));
+  return KIDS_GAMES.catalog.filter(game=>!game.disabled&&game.subject===subject&&game.minAge<=p.age&&(includeHidden||!p.hiddenGames.includes(game.id)));
 }
 
 function renderGameChoices(subject){
   const p=activeProfile(),games=availableGames(p,subject);
   $("#gamePickerTitle").textContent=subjectName(p,subject);
-  $("#gamePickerSubtitle").textContent=`בחרו משחק המתאים לגיל ${p.age}`;
+  $("#gamePickerSubtitle").textContent="בחרו משחק";
   $("#gameChoices").innerHTML=games.length
     ? games.map(game=>`<button class="game-choice" data-game="${game.id}"><span>${game.icon}</span><b>${game.name}</b><small>${game.desc}</small><i>רמה ${p.gameLevels[game.id]}</i></button>`).join("")
     : `<div class="empty-state game-picker-empty">כל המשחקים בנושא הזה מוסתרים כרגע. אפשר להחזיר אותם במסך ההגדרות.</div>`;
 }
 
-function openGamePicker(subject){
+function canChooseAdventureSubject(){
+  const p=activeProfile(); if(!p)return false;
+  return (p.subjects||[]).filter(key=>availableGames(p,key).length).length>1;
+}
+
+function openGamePicker(subject,{backToAdventure=false}={}){
   const p=activeProfile(); if(!p)return openCreate();
-  renderGameChoices(subject); openModal("gamePickerModal");
+  gamePickerBackTarget=backToAdventure&&canChooseAdventureSubject()?"adventure":"home";
+  renderGameChoices(subject); showScreen("gamePickerScreen");
+}
+
+function backFromAdventure(){
+  showScreen("homeScreen");
+}
+
+function backFromGamePicker(){
+  if(gamePickerBackTarget==="adventure"&&canChooseAdventureSubject()){
+    renderAdventureChoices();
+    showScreen("adventureScreen");
+  } else {
+    showScreen("homeScreen");
+  }
 }
 
 function renderSubjects(){
@@ -537,7 +557,7 @@ function openAdventureFlow(){
   const p=activeProfile(); if(!p)return openCreate();
   const playableSubjects=(p.subjects||[]).filter(key=>availableGames(p,key).length);
   if(playableSubjects.length===1)return openGamePicker(playableSubjects[0]);
-  renderAdventureChoices(); openModal("adventureModal");
+  renderAdventureChoices(); showScreen("adventureScreen");
 }
 
 function openCreate(){
@@ -589,7 +609,7 @@ function adaptedQuestion(q,p,subject){
 
 function startGame(gameId){
   const p=activeProfile(); if(!p){openCreate();return}
-  const game=KIDS_GAMES.catalog.find(item=>item.id===gameId); if(!game||game.minAge>p.age)return;
+  const game=KIDS_GAMES.catalog.find(item=>item.id===gameId); if(!game||game.disabled||game.minAge>p.age)return;
   const subject=game.subject,level=p.gameLevels[gameId]||ageLevel(p.age);
   const pool=KIDS_GAMES.build(gameId,level,p);
   const recent=new Set(p.recentGames[gameId]||[]);
@@ -606,10 +626,23 @@ function gameBack(){
   if(session?.subject){
     const subject=session.subject;
     session=null;
-    openGamePicker(subject);
+    openGamePicker(subject,{backToAdventure:true});
     return;
   }
   showScreen("homeScreen");
+}
+
+function returnAfterFinishedGame(){
+  const subject=session?.subject;
+  closeModal("celebrationModal");
+  closeModal("milestoneModal");
+  session=null;
+  if(subject){
+    showScreen("homeScreen");
+    openGamePicker(subject,{backToAdventure:true});
+  } else {
+    showScreen("homeScreen");
+  }
 }
 
 function renderQuestion(){
@@ -619,8 +652,12 @@ function renderQuestion(){
   $("#questionLabel").textContent=`${session.index+1} מתוך ${session.questions.length}`;
   $("#questionBar").style.width=`${session.index/session.questions.length*100}%`;
   $("#questionType").textContent=q.type; $("#questionText").textContent=q.q;
-  $("#questionVisual").textContent=q.visual||"";
+  $("#questionVisual").textContent=q.audio || q.patternTiles ? "" : (q.visual||"");
   $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"");
+  if(q.patternTiles){
+    $("#questionVisual").classList.add("pattern-visual");
+    $("#questionVisual").innerHTML=q.patternTiles.map(tile=>`<span class="${tile==="?"?"pattern-missing":"pattern-tile"}">${escapeHtml(tile)}</span>`).join("");
+  }
   if(q.audio){
     const listen=document.createElement("button");
     listen.type="button"; listen.className="question-audio"; listen.dataset.playAudio="true"; listen.textContent="🔊 לשמוע";
@@ -632,6 +669,7 @@ function renderQuestion(){
   $("#pipPrompt").textContent=["יש לכם זמן!","קטן עליכם!","חשיבה מצוינת!"][session.index%3];
   renderQuestionInteraction(q);
   session.locked=false;
+  if(q.audio?.kind==="animal")setTimeout(()=>{if(session?.questions?.[session.index]===q)playQuestionAudio()},250);
 }
 
 function renderQuestionInteraction(q){
@@ -677,9 +715,10 @@ function updateBuildResult(){
 
 function playQuestionAudio(){
   const q=session?.questions?.[session.index]; if(!q?.audio||!state.sound)return;
-  if(q.audio.kind==="speech"){
+  if(q.audio.kind==="speech"||q.audio.kind==="animal"){
     speechSynthesis.cancel();
-    const utterance=new SpeechSynthesisUtterance(q.audio.text);
+    const animalSounds={woof:"woof woof",meow:"meow",moo:"moo",baa:"baa baa",neigh:"neigh",cluck:"cluck cluck",roar:"roar",trumpet:"toot toot",croak:"ribbit ribbit",buzz:"buzz buzz",hoot:"hoot hoot"};
+    const utterance=new SpeechSynthesisUtterance(q.audio.kind==="animal" ? (animalSounds[q.audio.key]||"listen") : q.audio.text);
     utterance.lang="en-US"; utterance.rate=.82; utterance.pitch=1.05; speechSynthesis.speak(utterance);
     return;
   }
@@ -894,11 +933,14 @@ function clearGridSelection(){
 function bindEvents(){
   document.addEventListener("click",e=>{
     const gameBackButton=e.target.closest("[data-game-back]"); if(gameBackButton)return gameBack();
+    const finishedReturn=e.target.closest("[data-game-finished-return]"); if(finishedReturn)return returnAfterFinishedGame();
+    const adventureBack=e.target.closest("[data-adventure-back]"); if(adventureBack)return backFromAdventure();
+    const gamePickerBack=e.target.closest("[data-game-picker-back]"); if(gamePickerBack)return backFromGamePicker();
     const go=e.target.closest("[data-go]"); if(go)showScreen(go.dataset.go==="home"?"homeScreen":go.dataset.go);
     const close=e.target.closest("[data-close]"); if(close)closeModal(close.dataset.close);
     const sub=e.target.closest("[data-subject]"); if(sub)openGamePicker(sub.dataset.subject);
-    const playSub=e.target.closest("[data-play-subject]"); if(playSub){closeModal("adventureModal");openGamePicker(playSub.dataset.playSubject)}
-    const game=e.target.closest("[data-game]"); if(game){closeModal("gamePickerModal");startGame(game.dataset.game)}
+    const playSub=e.target.closest("[data-play-subject]"); if(playSub)openGamePicker(playSub.dataset.playSubject,{backToAdventure:true});
+    const game=e.target.closest("[data-game]"); if(game)startGame(game.dataset.game);
     const ans=e.target.closest("[data-answer]"); if(ans)answer(ans.dataset.answer,ans);
     const audio=e.target.closest("[data-play-audio]"); if(audio)playQuestionAudio();
     const token=e.target.closest("[data-token-index]"); if(token)chooseBuildToken(token);
@@ -928,9 +970,11 @@ function bindEvents(){
   $("#saveSubjects").onclick=()=>{const chosen=$$(".subject-toggle.selected").map(x=>x.dataset.toggleSubject);if(!chosen.length)return;activeProfile().subjects=chosen;save();closeModal("subjectModal");renderAll()};
   $("#progressButton").onclick=()=>activeProfile()?showScreen("dashboardScreen"):openCreate();
   $("#settingsButton").onclick=()=>activeProfile()?showScreen("settingsScreen"):openCreate();
+  $("#contactButton").onclick=()=>showScreen("contactScreen");
   $("#headerProgressButton").onclick=()=>activeProfile()?showScreen("dashboardScreen"):openCreate();
   $("#headerSettingsButton").onclick=()=>activeProfile()?showScreen("settingsScreen"):openCreate();
   $("#headerHelpButton").onclick=()=>showScreen("helpScreen");
+  $("#headerContactButton").onclick=()=>showScreen("contactScreen");
   $("#settingsSubjects").onclick=()=>openModal("subjectModal");
   $("#settingsProfile").onclick=()=>openEdit(activeProfile().id);
   $("#settingsSound").onclick=()=>{$(".sound-toggle").click();renderSettings()};
@@ -941,6 +985,26 @@ function bindEvents(){
   $(".sound-toggle").onclick=e=>{state.sound=!state.sound;e.currentTarget.textContent=state.sound?"🔊":"🔇";save();if(state.sound)chime(true)};
   $("#continueButton").onclick=openAdventureFlow;
   $("#randomButton").onclick=()=>{const p=activeProfile();if(!p)return openCreate();const games=p.subjects.flatMap(subject=>availableGames(p,subject));if(games.length)startGame(games[Math.floor(Math.random()*games.length)].id)};
+  $("#contactForm").onsubmit=e=>{
+    e.preventDefault();
+    const name=$("#contactName").value.trim();
+    const email=$("#contactEmail").value.trim();
+    const message=$("#contactMessage").value.trim();
+    if(!message)return;
+    const subject="היער הזוהר - בקשה";
+    const body=[
+      "שלום,",
+      "",
+      message,
+      "",
+      "פרטי השולח:",
+      `שם: ${name||"לא צוין"}`,
+      `כתובת מייל לחזרה: ${email||"לא צוינה"}`,
+      "",
+      `גרסה: ${APP_VERSION}`
+    ].join("\n");
+    window.location.href=`mailto:yossi.glass@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
   $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
 }
 

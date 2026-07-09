@@ -2,9 +2,9 @@
   const catalog = [
     {id:"count",subject:"math",minAge:3,name:"כמה עצמים יש?",icon:"🔢",desc:"סופרים עצמים ובוחרים מספר",kind:"count"},
     {id:"number-quantity",subject:"math",minAge:3,name:"מספר וכמות",icon:"🍎",desc:"מתאימים מספר לקבוצת עצמים",kind:"numberQuantity"},
-    {id:"big-small",subject:"math",minAge:3,name:"גדול וקטן",icon:"↕️",desc:"משווים גדלים ואורכים",kind:"bigSmall"},
+    {id:"big-small",subject:"math",minAge:3,name:"גדול וקטן",icon:"↕️",desc:"משווים גדלים",kind:"bigSmall"},
     {id:"more-groups",subject:"math",minAge:4,name:"איפה יש יותר?",icon:"⚖️",desc:"משווים בין שתי כמויות",kind:"moreGroups"},
-    {id:"visual-pattern",subject:"math",minAge:4,name:"דפוסים",icon:"🔴",desc:"מגלים מה מגיע בהמשך",kind:"pattern"},
+    {id:"visual-pattern",subject:"math",minAge:5,name:"דפוסים",icon:"🔴",desc:"מגלים מה מגיע בהמשך",kind:"pattern"},
     {id:"number-sequence",subject:"math",minAge:5,name:"רצף מספרים",icon:"➡️",desc:"משלימים מספר חסר ברצף",kind:"sequence"},
     {id:"picture-subtraction",subject:"math",minAge:5,name:"חיסור בתמונות",icon:"➖",desc:"מורידים עצמים ומחשבים",kind:"subtraction"},
     {id:"number-line",subject:"math",minAge:5,name:"ציר המספרים",icon:"📏",desc:"מוצאים את המקום הנכון",kind:"numberLine"},
@@ -16,8 +16,8 @@
     {id:"word-problems",subject:"math",minAge:7,name:"בעיות מילוליות",icon:"🧠",desc:"פותרים בעיה מתוך סיפור",kind:"wordProblems"},
     {id:"fractions",subject:"math",minAge:7,name:"שברים",icon:"🍕",desc:"חצי, שליש ורבע",kind:"fractions"},
 
-    {id:"uppercase-letter",subject:"english",minAge:4,name:"אות גדולה",icon:"🔠",desc:"מזהים CAPITAL LETTERS",kind:"uppercase"},
-    {id:"letter-picture",subject:"english",minAge:4,name:"אות ותמונה",icon:"🅰️",desc:"מתאימים אות גדולה לתמונה",kind:"letterPicture"},
+    {id:"uppercase-letter",subject:"english",minAge:5,name:"אות גדולה",icon:"🔠",desc:"מזהים CAPITAL LETTERS",kind:"uppercase"},
+    {id:"letter-picture",subject:"english",minAge:6,name:"אות ותמונה",icon:"🅰️",desc:"מתאימים אות גדולה לתמונה",kind:"letterPicture"},
     {id:"picture-word-memory",subject:"english",minAge:5,name:"זיכרון תמונה ומילה",icon:"🧠",desc:"מוצאים זוגות מתאימים",kind:"memoryEnglish"},
     {id:"first-letter",subject:"english",minAge:5,name:"האות הראשונה",icon:"🔤",desc:"בוחרים באיזו אות המילה מתחילה",kind:"firstLetter"},
     {id:"image-word",subject:"english",minAge:6,name:"תמונה ומילה",icon:"🖼️",desc:"בוחרים מילה מתוך ארבע אפשרויות",kind:"imageWord"},
@@ -44,7 +44,7 @@
     {id:"story-title",subject:"reading",minAge:7,name:"כותרת לסיפור",icon:"📰",desc:"בוחרים כותרת מתאימה",kind:"storyTitle"},
     {id:"word-search",subject:"reading",minAge:7,name:"תפזורת",icon:"🔍",desc:"מחפשים מילים בתוך רשת אותיות",kind:"wordSearch"},
 
-    {id:"animal-sound",subject:"nature",minAge:3,name:"מי משמיע את הקול?",icon:"🐮",desc:"שומעים קול ובוחרים בעל חיים",kind:"animalSound"},
+    {id:"animal-sound",subject:"nature",minAge:3,name:"מי משמיע את הקול?",icon:"🐮",desc:"שומעים קול ובוחרים בעל חיים",kind:"animalSound",disabled:true},
     {id:"odd-one-out",subject:"nature",minAge:3,name:"מה לא שייך?",icon:"🧩",desc:"מוצאים תמונה יוצאת דופן",kind:"oddOneOut"},
     {id:"habitat",subject:"nature",minAge:4,name:"בית גידול",icon:"🏞️",desc:"מתאימים בעל חיים לסביבה",kind:"habitat"},
     {id:"baby-adult",subject:"nature",minAge:4,name:"גור ובוגר",icon:"🐣",desc:"מתאימים גור לבעל החיים הבוגר",kind:"babyAdult"},
@@ -61,7 +61,7 @@
   ];
 
   const animals = [
-    {icon:"🐶",he:"כלב",en:"DOG",letter:"D",sound:"woof",habitat:"בית",baby:"גור",food:"עצם"},
+    {icon:"🐶",he:"כלב",en:"DOG",letter:"D",sound:"woof",habitat:"בית",baby:"כלבלב",food:"עצם"},
     {icon:"🐱",he:"חתול",en:"CAT",letter:"C",sound:"meow",habitat:"בית",baby:"חתלתול",food:"דג"},
     {icon:"🐄",he:"פרה",en:"COW",letter:"C",sound:"moo",habitat:"רפת",baby:"עגל",food:"עשב"},
     {icon:"🐑",he:"כבשה",en:"SHEEP",letter:"S",sound:"baa",habitat:"דיר",baby:"טלה",food:"עשב"},
@@ -79,7 +79,7 @@
   ];
   const englishWords = [
     ["🍎","APPLE","A","FOOD"],["🐻","BEAR","B","ANIMAL"],["🐱","CAT","C","ANIMAL"],["🐶","DOG","D","ANIMAL"],
-    ["🥚","EGG","E","FOOD"],["🐟","FISH","F","FOOD"],["🎁","GIFT","G","OBJECT"],["🎩","HAT","H","OBJECT"],
+    ["🥚","EGG","E","FOOD"],["🐟","FISH","F","ANIMAL"],["🎁","GIFT","G","OBJECT"],["🎩","HAT","H","OBJECT"],
     ["🧊","ICE","I","NATURE"],["🧃","JUICE","J","FOOD"],["🔑","KEY","K","OBJECT"],["🦁","LION","L","ANIMAL"],
     ["🌙","MOON","M","NATURE"],["👃","NOSE","N","BODY"],["🦉","OWL","O","ANIMAL"],["🐷","PIG","P","ANIMAL"],
     ["☀️","SUN","S","NATURE"],["🌳","TREE","T","NATURE"],["☂️","UMBRELLA","U","OBJECT"],["🐋","WHALE","W","ANIMAL"],
@@ -102,7 +102,7 @@
   const shuffle = items => [...items].sort(() => Math.random() - .5);
   const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
   const options = (correct,pool,count=4) => shuffle([correct,...shuffle([...new Set(pool.filter(x=>x!==correct))]).slice(0,count-1)]);
-  const numberOptions = answer => options(String(answer),[answer-3,answer-2,answer-1,answer+1,answer+2,answer+3].filter(n=>n>=0).map(String));
+  const numberOptions = (answer,count=4) => options(String(answer),[answer-3,answer-2,answer-1,answer+1,answer+2,answer+3].filter(n=>n>=0).map(String),count);
   const make = (q,correct,a,visual="",extra={}) => ({q,correct,a,type:extra.type||"בוחרים תשובה",skill:extra.skill||"תרגול",visual,explain:extra.explain||`התשובה הנכונה היא ${correct}.`,...extra});
   const repeatPool = (items,count=18) => Array.from({length:Math.max(count,items.length)},(_,i)=>({...items[i%items.length]}));
   const pictures = ["🍎","⭐","🐟","🌼","🔵","🧸","🍐","🐞"];
@@ -117,7 +117,7 @@
     const max=countingMaximums[level-1];
     const out=[];
     pictures.slice(0,clamp(2+level,3,pictures.length)).forEach(icon=>{
-      for(let n=1;n<=max;n++)out.push(make("כמה עצמים יש?",String(n),numberOptions(n),objectRows(icon,n),{skill:"ספירה",type:"כמה יש?",objectGrid:true}));
+      for(let n=1;n<=max;n++)out.push(make("כמה עצמים יש?",String(n),numberOptions(n,level===1?2:4),objectRows(icon,n),{skill:"ספירה",type:"כמה יש?",objectGrid:true}));
     });
     return out;
   }
@@ -126,30 +126,30 @@
     return Array.from({length:max},(_,i)=>{
       const n=i+1,icon=pictures[i%pictures.length];
       const candidates=[n,n-1,n+1,n-2,n+2,n-3,n+3].filter(x=>x>=1&&x<=max);
-      const nums=[n,...shuffle([...new Set(candidates)].filter(x=>x!==n)).slice(0,3)];
-      for(let extra=1;nums.length<4&&extra<=max;extra++)if(!nums.includes(extra))nums.push(extra);
+      const answerCount=level===1?2:4;
+      const nums=[n,...shuffle([...new Set(candidates)].filter(x=>x!==n)).slice(0,answerCount-1)];
+      for(let extra=1;nums.length<answerCount&&extra<=max;extra++)if(!nums.includes(extra))nums.push(extra);
       const groups=nums.map(x=>objectRows(icon,x));
       return make("מצאו את הכמות המתאימה למספר",groups[nums.indexOf(n)],shuffle(groups),String(n),{skill:"מספר וכמות",type:"מתאימים כמות",word:true,answerObjectGrid:true});
     });
   }
   function bigSmall(level){
     const pairs=[
-      ["🐭","🐘"],["🐜","🐻"],["🐇","🦒"],["🐱","🐴"],["🐟","🐋"],["🐞","🦁"],["🐥","🦉"],["🌱","🌳"],["🥄","📦"],["⭐","🌕"]
+      ["🐭","🐘"],["🐜","🐻"],["🐇","🦒"],["🐱","🐴"],["🐌","🐋"],["🐞","🦁"],["🐥","🦉"],["🌱","🌳"],["🐞","🐘"],["🐭","🐴"]
     ];
     const groups=[
-      [["🐭",1],["🐱",2],["🐶",3],["🐘",6]],
-      [["🐜",1],["🐥",2],["🐰",3],["🦒",6]],
-      [["🌱",1],["🌷",2],["🌻",3],["🌳",6]],
-      [["🥄",1],["🥣",2],["📦",4],["🏠",7]],
-      [["⭐",1],["⚽",2],["🎈",3],["🌕",5]],
-      [["🐟",1],["🐢",2],["🐬",4],["🐋",7]]
+      [["🐭",1],["🐰",2],["🐱",3],["🐶",4],["🐴",5],["🐘",6]],
+      [["🐜",1],["🐞",2],["🐥",3],["🐱",4],["🐻",5],["🦒",6]],
+      [["🐌",1],["🐰",2],["🐶",3],["🐴",4],["🦁",5],["🐘",6]],
+      [["🐞",1],["🐥",2],["🐰",3],["🐶",4],["🐴",5],["🐘",6]],
+      [["🐭",1],["🐱",2],["🐶",3],["🐻",4],["🦁",5],["🦒",6]],
+      [["🐜",1],["🐞",2],["🐥",3],["🐰",4],["🐶",5],["🐴",6]]
     ];
-    const bars=["▌","▌▌","▌▌▌","▌▌▌▌","▌▌▌▌▌","▌▌▌▌▌▌","▌▌▌▌▌▌▌"];
     const scalesFor = pairs => Object.fromEntries(pairs.map(([icon,size])=>[icon,size]));
-    const pairScale = (small,big) => ({[small]:.62,[big]:1.45});
+    const pairScale = (small,big) => ({[small]:.52,[big]:1.75});
     const groupScale = group => {
       const max=Math.max(...group.map(x=>x[1])),min=Math.min(...group.map(x=>x[1]));
-      return Object.fromEntries(group.map(([icon,size])=>[icon,.58+((size-min)/(max-min||1))*1.05]));
+      return Object.fromEntries(group.map(([icon,size])=>[icon,.48+((size-min)/(max-min||1))*1.5]));
     };
     const useScaledIcons = level < 6;
     const makeCompare=(question,items,correct,extra={})=>make(question,correct,shuffle(items),extra.visual||"",{skill:"גדול וקטן",type:extra.type||"משווים גדלים",imageAnswers:extra.imageAnswers,answerScales:useScaledIcons?extra.answerScales:null,word:extra.word,explain:extra.explain||`התשובה הנכונה היא ${correct}.`});
@@ -158,38 +158,26 @@
     pairs.forEach(([small,big],i)=>{
       if(level===1){
         questions.push(makeCompare(i%2?"מי קטן יותר?":"מי גדול יותר?",[small,big],i%2?small:big,{imageAnswers:true,answerScales:pairScale(small,big),type:"גדול או קטן"}));
-      } else {
-        questions.push(makeCompare("מי גדול יותר?",[small,big],big,{imageAnswers:true,answerScales:pairScale(small,big),type:"גדול או קטן"}));
-        questions.push(makeCompare("מי קטן יותר?",[small,big],small,{imageAnswers:true,answerScales:pairScale(small,big),type:"גדול או קטן"}));
       }
     });
+    const groupCountForLevel = () => level >= 7 ? 6 : level >= 6 ? 4 : level >= 4 ? 6 : 4;
     if(level>=2){
       groups.forEach(group=>{
-        const active=group.slice(0,3),small=active[0][0],big=active.at(-1)[0];
+        const count=groupCountForLevel(),active=group.slice(0,count),small=active[0][0],big=active.at(-1)[0];
         questions.push(makeCompare("מי הכי גדול?",active.map(x=>x[0]),big,{imageAnswers:true,answerScales:groupScale(active),type:"הכי גדול"}));
         questions.push(makeCompare("מי הכי קטן?",active.map(x=>x[0]),small,{imageAnswers:true,answerScales:groupScale(active),type:"הכי קטן"}));
       });
     }
     if(level>=4){
       groups.forEach(group=>{
-        const active=group.slice(0,4),small=active[0][0],big=active.at(-1)[0];
-        questions.push(makeCompare("בחרו את הגבוה ביותר",active.map(x=>x[0]),big,{imageAnswers:true,answerScales:groupScale(active),type:"גובה"}));
-        questions.push(makeCompare("בחרו את הנמוך ביותר",active.map(x=>x[0]),small,{imageAnswers:true,answerScales:groupScale(active),type:"גובה"}));
+        const active=group.slice(0,groupCountForLevel()),small=active[0][0],big=active.at(-1)[0];
+        questions.push(makeCompare("בחרו את הגדול ביותר",active.map(x=>x[0]),big,{imageAnswers:true,answerScales:groupScale(active),type:"גודל"}));
+        questions.push(makeCompare("בחרו את הקטן ביותר",active.map(x=>x[0]),small,{imageAnswers:true,answerScales:groupScale(active),type:"גודל"}));
       });
-      for(let i=0;i<bars.length-2;i++){
-        const active=bars.slice(i,i+3),long=active.at(-1),short=active[0];
-        questions.push(makeCompare("איזה פס הוא הארוך ביותר?",active,long,{word:true,type:"אורך"}));
-        questions.push(makeCompare("איזה פס הוא הקצר ביותר?",active,short,{word:true,type:"אורך"}));
-      }
     }
     if(level>=6){
-      for(let i=0;i<bars.length-3;i++){
-        const active=bars.slice(i,i+4),long=active.at(-1),short=active[0];
-        questions.push(makeCompare("איזה פס הוא הארוך ביותר?",active,long,{word:true,type:"אורך"}));
-        questions.push(makeCompare("איזה פס הוא הקצר ביותר?",active,short,{word:true,type:"אורך"}));
-      }
       groups.forEach(group=>{
-        const active=shuffle(group).slice(0,4).sort((a,b)=>a[1]-b[1]);
+        const active=shuffle(group).slice(0,groupCountForLevel()).sort((a,b)=>a[1]-b[1]);
         questions.push(makeCompare("מי במקום השני מהקטן לגדול?",active.map(x=>x[0]),active[1][0],{imageAnswers:true,answerScales:groupScale(active),type:"סדר גודל"}));
       });
     }
@@ -205,13 +193,6 @@
         questions.push(makeOrder("סדרו מהקטן לגדול",active,{type:"סדר גודל"}));
         questions.push(makeOrder("סדרו מהגדול לקטן",[...active].reverse(),{type:"סדר גודל"}));
       });
-    }
-    if(level>=9){
-      for(let i=0;i<bars.length-3;i++){
-        const active=bars.slice(i,i+4);
-        questions.push(makeOrder("סדרו מהקצר לארוך",active,{type:"סדר אורך",word:true}));
-        questions.push(makeOrder("סדרו מהארוך לקצר",[...active].reverse(),{type:"סדר אורך",word:true}));
-      }
     }
     return repeatPool(questions,24);
   }
@@ -231,7 +212,7 @@
     return Array.from({length:20},(_,i)=>{
       const pattern=sets[i%clamp(2+Math.floor(level/2),2,sets.length)],length=clamp(4+level,5,10),seq=Array.from({length},(_,j)=>pattern[j%pattern.length]),correct=pattern[length%pattern.length];
       const pool=pools[sets.indexOf(pattern)]||[...new Set(pattern)];
-      return make("מה מגיע עכשיו?",correct,options(correct,pool),seq.join(" ")+"  ?",{skill:"דפוסים",type:"ממשיכים דפוס"});
+      return make("מה מגיע עכשיו?",correct,options(correct,pool),"",{skill:"דפוסים",type:"ממשיכים דפוס",patternTiles:[...seq,"?"]});
     });
   }
   function sequences(level){
@@ -300,7 +281,7 @@
 
   function wordQuestions(kind,level){
     const count=clamp(8+level*2,10,englishWords.length),active=englishWords.slice(0,count);
-    if(kind==="uppercase")return repeatPool(active.map(([icon,word,letter])=>make(`מצאו את האות ${letter}`,letter,options(letter,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),`${letter}  ${options(letter,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")).join("  ")}`,{skill:"אותיות גדולות",type:"CAPITAL LETTERS"})));
+    if(kind==="uppercase")return repeatPool(active.map(([icon,word,letter])=>make(`מצאו את האות ${letter}`,letter,options(letter,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),"",{skill:"אותיות גדולות",type:"CAPITAL LETTERS"})));
     if(kind==="letterPicture")return repeatPool(active.map(([icon,word,letter])=>{const correct=`${icon} ${word}`;return make(`איזו תמונה מתחילה באות ${letter}?`,correct,options(correct,active.map(x=>`${x[0]} ${x[1]}`)),letter,{skill:"אות וצליל",type:"אות ותמונה"});}));
     if(kind==="firstLetter")return repeatPool(active.map(([icon,word,letter])=>make(`באיזו אות מתחילה המילה ${word}?`,letter,options(letter,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),icon,{skill:"אות ראשונה",type:"צליל ראשון"})));
     if(kind==="imageWord")return repeatPool(active.map(([icon,word])=>make("איזו מילה מתאימה לתמונה?",word,options(word,active.map(x=>x[1])),icon,{skill:"אוצר מילים",type:"תמונה ומילה",word:true})));
@@ -308,7 +289,7 @@
     if(kind==="buildEnglish")return repeatPool(active.filter(x=>x[1].length<=clamp(3+Math.floor(level/2),4,8)).map(([icon,word])=>make("בנו את המילה מהאותיות",word,[],icon,{skill:"איות",type:"בונים מילה",mode:"build",tokens:shuffle([...word,...shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")).slice(0,clamp(level-3,1,4))]),joinWith:"",word:true})));
     if(kind==="dragEnglish")return repeatPool(active.map(([icon,word])=>make(`גררו את המילה ${word} אל התמונה המתאימה`,icon,options(icon,active.map(x=>x[0])),word,{skill:"התאמה",type:"גרירה ושחרור",mode:"drag",dragSource:word})));
     if(kind==="listenEnglish")return repeatPool(animals.slice(0,count).map(animal=>make("לחצו על הרמקול ובחרו את בעל החיים ששמעתם",animal.icon,options(animal.icon,animals.map(x=>x.icon)),"🔊",{skill:"האזנה",type:"לחצו ושמעו",audio:{kind:"speech",text:animal.en}})));
-    if(kind==="englishCategories"){const categoryPools={ANIMAL:["DOG","CAT","BEAR","LION","FROG","OWL"],FOOD:["APPLE","EGG","FISH","JUICE","BANANA","MANGO","CHEESE"],OBJECT:["GIFT","HAT","KEY","CAR","DRUM"],NATURE:["SUN","MOON","TREE","STAR"]};return repeatPool(active.map(([icon,word,letter,cat])=>{const distractors=Object.entries(categoryPools).filter(([key])=>key!==cat).flatMap(([,words])=>words);return make(`איזו מילה שייכת לקטגוריה ${cat}?`,word,options(word,distractors),cat,{skill:"קטגוריות",type:"מיון מילים"});}));}
+    if(kind==="englishCategories"){const categoryPools={ANIMAL:["DOG","CAT","BEAR","FISH","LION","FROG","OWL"],FOOD:["APPLE","EGG","JUICE","BANANA","MANGO","CHEESE"],OBJECT:["GIFT","HAT","KEY","CAR","DRUM"],NATURE:["SUN","MOON","TREE","STAR"]};return repeatPool(active.map(([icon,word,letter,cat])=>{const distractors=Object.entries(categoryPools).filter(([key])=>key!==cat).flatMap(([,words])=>words);return make(`איזו מילה שייכת לקטגוריה ${cat}?`,word,options(word,distractors),cat,{skill:"קטגוריות",type:"מיון מילים"});}));}
     return [];
   }
   function memoryEnglish(level){
@@ -374,10 +355,27 @@
 
   function natureQuestions(kind,level){
     const familiarAnimals=level<=5?animals.filter(a=>["כלב","חתול","פרה","כבשה","סוס","תרנגולת","צפרדע"].includes(a.he)):animals;
-    if(kind==="animalSound")return repeatPool(familiarAnimals.map(a=>make("לחצו לשמוע ובחרו את בעל החיים",a.icon,options(a.icon,familiarAnimals.map(x=>x.icon)),"🔊",{skill:"קולות של חיות",type:"מי משמיע את הקול?",audio:{kind:"animal",key:a.sound}})));
-    if(kind==="oddOneOut"){const groups=[["🐶","🐱","🐰","🚗"],["🍎","🍐","🥭","⚽"],["🐟","🐬","🐋","🦁"],["🌳","🌻","🌵","🚂"],["🥁","🎸","🎹","🥕"],["🐝","🐞","🦋","🐘"]];return repeatPool(groups.map(items=>make("מה לא שייך?",items[3],shuffle(items),items.join(" "),{skill:"מיון",type:"יוצא דופן"})));}
-    if(kind==="habitat")return repeatPool(familiarAnimals.map(a=>make(`איפה חי ${a.he}?`,a.habitat,options(a.habitat,familiarAnimals.map(x=>x.habitat)),a.icon,{skill:"בתי גידול",type:"בעל חיים וסביבה"})));
-    if(kind==="babyAdult")return repeatPool(familiarAnimals.map(a=>make(`איך נקרא הגור של ${a.he}?`,a.baby,options(a.baby,familiarAnimals.map(x=>x.baby)),a.icon,{skill:"משפחות בעלי חיים",type:"גור ובוגר"})));
+    const femaleAnimals=new Set(["פרה","כבשה","תרנגולת","צפרדע","דבורה"]);
+    const soundAnimals=animals.filter(a=>["כלב","חתול","פרה","כבשה","סוס","תרנגולת","אריה","פיל","צפרדע","דבורה","ינשוף"].includes(a.he));
+    if(kind==="animalSound"){const activeSoundAnimals=level<=5?soundAnimals.filter(a=>["כלב","חתול","פרה","כבשה","סוס","תרנגולת","צפרדע"].includes(a.he)):soundAnimals;return repeatPool(activeSoundAnimals.map(a=>make("לחצו לשמוע ובחרו את בעל החיים",a.icon,options(a.icon,activeSoundAnimals.map(x=>x.icon)),"🔊",{skill:"קולות של חיות",type:"מי משמיע את הקול?",audio:{kind:"animal",key:a.sound}})));}
+    if(kind==="oddOneOut"){const simpleGroups=[
+      ["🐶","🐱","🐰","🚗"],["🍎","🍐","🥭","⚽"],["🐝","🐞","🦋","🐘"],
+      ["🐄","🐑","🐴","🍎"],["🚗","🚌","🚲","🐶"],["🥕","🍅","🍎","🐱"],
+      ["🏠","🚗","🚌","🐰"],["🐔","🐄","🐑","🥁"],["🍌","🍎","🍐","🚲"],
+      ["🐶","🐱","🐴","🏠"],["🧸","🧩","🥁","🍐"],["🌸","🌳","🌻","🚗"]
+    ],advancedGroups=[
+      ["🐟","🐬","🐋","🦁"],["🌳","🌻","🌵","🚂"],["🥁","🎸","🎹","🥕"],
+      ["☀️","🌧️","❄️","🐶"],["📚","✏️","🖍️","🐝"],["🍎","🥕","🌽","🚌"]
+    ],groups=level<=4?simpleGroups:simpleGroups.concat(advancedGroups);return groups.map(items=>make("מה לא שייך?",items[3],shuffle(items),"",{skill:"מיון",type:"יוצא דופן"}));}
+    if(kind==="habitat")return familiarAnimals.map(a=>make(`איפה ${femaleAnimals.has(a.he)?"חיה":"חי"} ${a.he}?`,a.habitat,options(a.habitat,familiarAnimals.map(x=>x.habitat)),a.icon,{skill:"בתי גידול",type:"בעל חיים וסביבה"}));
+    if(kind==="babyAdult"){
+      const babyQuestionText=a=>{
+        const custom={כבשה:"איך נקרא הכבש הצעיר?",תרנגולת:"איך נקרא התרנגול הצעיר?",אריה:"איך נקרא האריה הצעיר?"};
+        if(custom[a.he])return custom[a.he];
+        return femaleAnimals.has(a.he)?`איך נקראת ה${a.he} הצעירה?`:`איך נקרא ה${a.he} הצעיר?`;
+      };
+      return repeatPool(familiarAnimals.map(a=>make(babyQuestionText(a),a.baby,options(a.baby,familiarAnimals.map(x=>x.baby)),a.icon,{skill:"משפחות בעלי חיים",type:"גור ובוגר"})));
+    }
     if(kind==="livingGroups"){const items=[["🐶","חי"],["🌳","צומח"],["⚽","דומם"],["🐝","חי"],["🌻","צומח"],["🚗","דומם"],["🐋","חי"],["🌵","צומח"],["💎","דומם"]];return repeatPool(items.map(([icon,group])=>make("לאיזו קבוצה זה שייך?",group,["חי","צומח","דומם","לא בטוח"],icon,{skill:"מיון בטבע",type:"חי, צומח או דומם"})));}
     if(kind==="plantFood"){const data=[["🍎","עץ תפוח"],["🍐","עץ אגס"],["🥭","עץ מנגו"],["🥥","דקל קוקוס"],["🥕","צמח גזר"],["🌽","צמח תירס"],["🍅","צמח עגבנייה"],["🍇","גפן"]];return repeatPool(data.map(([food,plant])=>make(`על איזה צמח גדל ${food}?`,plant,options(plant,data.map(x=>x[1])),food,{skill:"צמחים ומזון",type:"מה גדל על הצמח?"})));}
     if(kind==="seasons")return repeatPool(seasons.flatMap(([season,icon,activity])=>[make(`לאיזו עונה מתאים הסמל?`,season,options(season,seasons.map(x=>x[0])),icon,{skill:"עונות",type:"עונות השנה"}),make(`באיזו עונה מתאים: ${activity}?`,season,options(season,seasons.map(x=>x[0])),activity,{skill:"עונות",type:"עונות השנה"})]));

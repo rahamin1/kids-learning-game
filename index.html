@@ -10,11 +10,11 @@
   <title>ההרפתקה ביער הזוהר</title>
   <link rel="icon" type="image/png" href="assets/app-icon-star-forest.png">
   <link rel="apple-touch-icon" href="assets/app-icon-star-forest.png">
-  <link rel="manifest" href="manifest.webmanifest?v=0.1.4">
+  <link rel="manifest" href="manifest.webmanifest?v=0.1.5">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?build=local8">
+  <link rel="stylesheet" href="styles.css?build=local22">
 </head>
 <body>
   <div id="app">
@@ -33,6 +33,7 @@
         <button class="icon-btn header-tool" id="headerProgressButton" aria-label="צפייה בהתקדמות" title="צפייה בהתקדמות">📊</button>
         <button class="icon-btn header-tool" id="headerSettingsButton" aria-label="הגדרות" title="הגדרות">⚙️</button>
         <button class="icon-btn header-tool" id="headerHelpButton" aria-label="עזרה ומידע" title="עזרה ומידע">❓</button>
+        <button class="icon-btn header-tool" id="headerContactButton" aria-label="כתבו אלינו" title="כתבו אלינו">📩</button>
         <button class="profile-pill" id="profileButton">
           <span class="mini-avatar" id="miniAvatar">🦊</span>
           <span><small>הרפתקן/ית</small><b id="profileName">שחקן חדש</b></span>
@@ -83,6 +84,11 @@
             <button class="grownups-card settings-card" id="settingsButton">
               <span class="grownups-icon">⚙️</span>
               <span><b>הגדרות</b><small>נושאים, פרופיל ורמת קושי</small></span>
+              <i>←</i>
+            </button>
+            <button class="grownups-card contact-card" id="contactButton">
+              <span class="grownups-icon">📩</span>
+              <span><b>כתבו אלינו</b><small>הערות, בקשות ודיווח על שגיאות</small></span>
               <i>←</i>
             </button>
           </div>
@@ -199,6 +205,52 @@
           </div>
         </div>
       </section>
+
+      <section id="contactScreen" class="screen dashboard-screen contact-screen">
+        <div class="dashboard-wrap">
+          <div class="dashboard-head">
+            <button class="back-btn" data-go="home">→</button>
+            <div><span class="eyebrow blue">כתבו אלינו</span><h1>הערות? בקשות? מצאתם שגיאות במשחק?</h1><p>נשמח לשמוע כדי לשפר את היער הזוהר.</p></div>
+          </div>
+
+          <article class="panel contact-panel">
+            <form id="contactForm" class="contact-form">
+              <label>שם
+                <input id="contactName" name="name" type="text" autocomplete="name" placeholder="שם מלא">
+              </label>
+              <label>כתובת מייל
+                <input id="contactEmail" name="email" type="email" autocomplete="email" placeholder="name@example.com">
+              </label>
+              <label class="contact-message-label">מה תרצו לכתוב לנו?
+                <textarea id="contactMessage" name="message" rows="8" required placeholder="כתבו כאן הערה, בקשה או תיאור של שגיאה שמצאתם במשחק"></textarea>
+              </label>
+              <p class="contact-note">לחיצה על שליחה תפתח הודעת אימייל מוכנה. כתובת המייל שמילאתם תופיע בתוך ההודעה כדי שנוכל לחזור אליכם.</p>
+              <button class="primary-btn contact-submit" type="submit">שלח</button>
+            </form>
+          </article>
+        </div>
+      </section>
+
+      <section id="adventureScreen" class="screen dashboard-screen picker-screen">
+        <div class="dashboard-wrap">
+          <div class="dashboard-head">
+            <button class="back-btn" data-adventure-back aria-label="חזרה לדף הבית">→</button>
+            <div><span class="eyebrow blue">בוחרים הרפתקה</span><h1>באיזה נושא משחקים?</h1><p>בחרו שביל כדי להתחיל.</p></div>
+          </div>
+          <div id="adventureChoices" class="adventure-choices screen-choices"></div>
+        </div>
+      </section>
+
+      <section id="gamePickerScreen" class="screen dashboard-screen picker-screen">
+        <div class="dashboard-wrap">
+          <div class="dashboard-head">
+            <button class="back-btn" data-game-picker-back aria-label="חזרה לבחירת נושאים">→</button>
+            <div><span class="eyebrow blue">בוחרים משחק</span><h1 id="gamePickerTitle">מספרים</h1><p id="gamePickerSubtitle">בחרו משחק</p></div>
+          </div>
+          <div id="gameChoices" class="game-choices screen-choices"></div>
+        </div>
+      </section>
+
     </main>
 
     <div class="modal-backdrop" id="profileModal">
@@ -235,26 +287,6 @@
       </div>
     </div>
 
-    <div class="modal-backdrop" id="adventureModal">
-      <div class="modal adventure-modal">
-        <button class="modal-close" data-close="adventureModal">×</button>
-        <span class="eyebrow blue">בוחרים הרפתקה</span>
-        <h2>באיזה נושא משחקים?</h2>
-        <p>בחרו שביל כדי להתחיל.</p>
-        <div id="adventureChoices" class="adventure-choices"></div>
-      </div>
-    </div>
-
-    <div class="modal-backdrop" id="gamePickerModal">
-      <div class="modal game-picker-modal">
-        <button class="modal-close" data-close="gamePickerModal">×</button>
-        <span class="eyebrow blue">בוחרים משחק</span>
-        <h2 id="gamePickerTitle">מספרים</h2>
-        <p id="gamePickerSubtitle">בחרו משחק כדי להתחיל.</p>
-        <div id="gameChoices" class="game-choices"></div>
-      </div>
-    </div>
-
     <div class="modal-backdrop" id="celebrationModal">
       <div class="modal celebration-modal">
         <div class="confetti">★ ✦ ● ★ ✦</div>
@@ -262,7 +294,7 @@
         <span class="eyebrow">השביל הושלם!</span>
         <h2>איזו הרפתקה נהדרת!</h2>
         <p>אספתם <b><span id="earnedStars">3</span> כוכבים</b> והארתם עוד חלק מהיער הזוהר.</p>
-        <button class="primary-btn full" data-go="home" data-close="celebrationModal">חזרה למפה <span>←</span></button>
+        <button class="primary-btn full" data-game-finished-return data-close="celebrationModal">בחירת משחק נוסף <span>←</span></button>
       </div>
     </div>
 
@@ -273,7 +305,7 @@
         <span class="eyebrow">הגעת ליעד!</span>
         <h2>היער כולו זוהר!</h2>
         <p>אספתם עוד 100 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
-        <button class="primary-btn full" data-go="home" data-close="milestoneModal">ממשיכים ליעד הבא <span>←</span></button>
+        <button class="primary-btn full" data-game-finished-return data-close="milestoneModal">ממשיכים למשחק הבא <span>←</span></button>
       </div>
     </div>
 
@@ -291,7 +323,7 @@
     </div>
 
   </div>
-  <script src="games.js?build=local8"></script>
-  <script src="app.js?build=local8"></script>
+  <script src="games.js?build=local22"></script>
+  <script src="app.js?build=local22"></script>
 </body>
 </html>
