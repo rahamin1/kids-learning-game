@@ -1,14 +1,22 @@
-const CACHE_NAME = "brightwood-pwa-local22";
+const CACHE_NAME = "brightwood-pwa-local49";
 const CORE_FILES = [
   "./",
   "./index.html",
-  "./styles.css?build=local22",
-  "./games.js?build=local22",
-  "./app.js?build=local22",
-  "./manifest.webmanifest?v=0.1.5",
+  "./styles.css?build=local49",
+  "./games.js?build=local49",
+  "./app.js?build=local49",
+  "./manifest.webmanifest?v=0.1.6",
   "./assets/app-icon-192.png",
   "./assets/app-icon-512.png",
-  "./assets/app-icon-star-forest.png"
+  "./assets/app-icon-star-forest.png",
+  "./assets/buddy-dog.svg",
+  "./assets/buddy-cat.svg",
+  "./assets/buddy-owl.svg",
+  "./assets/buddy-penguin.svg",
+  "./assets/buddy-squirrel.svg",
+  "./assets/buddy-hedgehog.svg",
+  "./assets/buddy-bear.svg",
+  "./assets/buddy-raccoon.svg"
 ];
 
 self.addEventListener("install", event => {

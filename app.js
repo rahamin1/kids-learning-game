@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.5";
+const APP_VERSION = "0.1.6";
 
 const SUBJECTS = {
   math: { name: "חשבון", icon: "🔢", class: "math", desc: "סופרים, משווים ופותרים", trail: "אחו המספרים" },
@@ -8,22 +8,130 @@ const SUBJECTS = {
   thinking: { name: "חשיבה", icon: "🧠", class: "thinking", desc: "זיכרון, התאמה והבחנה חזותית", trail: "שביל החשיבה" }
 };
 
-const BUDDIES = ["🦊", "🐼", "🐰", "🦁"];
+const BUDDIES = ["🦊", "🐼", "🐰", "🦁", "🐶", "🐱", "🦉", "🐧", "🐿️", "🦔", "🧸", "🦝"];
+const BUDDY_TITLES = {
+  "🦊": "שועל",
+  "🐼": "פנדה",
+  "🐰": "ארנב",
+  "🦁": "אריה",
+  "🐶": "כלבלב",
+  "🐱": "חתלתול",
+  "🦉": "ינשוף",
+  "🐧": "פינגווין",
+  "🐿️": "סנאי",
+  "🦔": "קיפוד",
+  "🧸": "דובון",
+  "🦝": "דביבון"
+};
+const BUDDY_PROFILES = {
+  "🦊": {name:"פיפ השועל",trait:"מחפש הפתעות ביער",ability:"סקרנות"},
+  "🐼": {name:"במבו הפנדה",trait:"רגוע גם כשהשביל מתפתל",ability:"רוגע"},
+  "🐰": {name:"קיקי הארנבת",trait:"קופצת מרעיון לרעיון",ability:"זריזות"},
+  "🦁": {name:"ליאו האריה",trait:"נותן אומץ לפני אתגר",ability:"אומץ"},
+  "🐶": {name:"בונו הכלבלב",trait:"רץ איתך לכל הרפתקה",ability:"חברות"},
+  "🐱": {name:"מילי החתלתולה",trait:"מגלה דברים בשקט",ability:"עדינות"},
+  "🦉": {name:"אולי הינשוף",trait:"עוזר לחשוב חכם",ability:"חוכמה"},
+  "🐧": {name:"נונו הפינגווין",trait:"מצחיק גם כשקשה",ability:"שמחה"},
+  "🐿️": {name:"צ׳יקו הסנאי",trait:"אוסף רעיונות במהירות",ability:"מרץ"},
+  "🦔": {name:"קוצי הקיפוד",trait:"מתקדם לאט ובטוח",ability:"סבלנות"},
+  "🧸": {name:"דובי הדובון",trait:"נותן חיבוק של אומץ",ability:"ביטחון"},
+  "🦝": {name:"רוני הדביבון",trait:"מוצא רמזים חבויים",ability:"חקרנות"}
+};
+const BUDDY_LINES = {
+  "🦊": {
+    home:["פיפ מצא שביל חדש בין העצים.","פיפ מרחרח רמזים נוצצים.","פיפ מוכן להרפתקה חכמה."],
+    correct:["פיפ קופץ: בדיוק!","פיפ מצא כוכב של מחשבה.","פיפ אומר: פתרון חד כמו שועל!"],
+    return:["פיפ שמר לך מקום בשביל.","פיפ חיכה ליד העץ הזוהר.","פיפ שמח שחזרת להרפתקה."]
+  },
+  "🐼": {
+    home:["במבו מחכה בשקט עם חיוך.","במבו מזמין אותך להתחיל ברוגע.","במבו אומר: צעד צעד."],
+    correct:["במבו מוחא כפיים ברוגע.","במבו אומר: תשובה יפה מאוד.","במבו מצא רגע של חוכמה."],
+    return:["במבו שמר לך פינה נעימה.","במבו שמח לראות אותך שוב.","במבו מוכן לעוד צעד קטן."]
+  },
+  "🐰": {
+    home:["קיקי כבר קפצה אל השביל.","קיקי מצאה רעיון בין העלים.","קיקי מוכנה לקפיצה קטנה."],
+    correct:["קיקי קופצת משמחה!","קיקי אומרת: זה היה זריז!","קיקי מצאה כוכב קטן."],
+    return:["קיקי חיכתה ליד השיח.","קיקי שמחה שחזרת.","קיקי כבר מוכנה לשאלה הבאה."]
+  },
+  "🦁": {
+    home:["ליאו שומר על שער היער.","ליאו נותן אומץ לפני האתגר.","ליאו מוכן לשאגת למידה."],
+    correct:["ליאו שואג בשקט: מצוין!","ליאו אומר: תשובה אמיצה.","ליאו מצא כוכב של אומץ."],
+    return:["ליאו חיכה בגאווה.","ליאו שמח שחזרת למסע.","ליאו מוכן להמשיך איתך."]
+  },
+  "🐶": {
+    home:["בונו רץ איתך לכל הרפתקה.","בונו מכשכש בזנב ליד השביל.","בונו מצא ריח של כוכבים."],
+    correct:["בונו קופץ משמחה!","בונו אומר: כל הכבוד!","בונו מצא כוכב וקפץ אליו."],
+    return:["בונו חיכה ליד השער.","בונו שמח שחזרת!","בונו כבר מוכן לרוץ."]
+  },
+  "🐱": {
+    home:["מילי מתגנבת בשקט אל הרמז.","מילי מצאה כוכב קטן על ענף.","מילי מזמינה להרפתקה עדינה."],
+    correct:["מילי מגרגרת: נכון!","מילי אומרת: זה היה מדויק.","מילי מצאה תשובה בשקט."],
+    return:["מילי חיכתה על כרית עלים.","מילי שמחה שחזרת.","מילי מוכנה לגלות עוד סוד."]
+  },
+  "🦉": {
+    home:["אולי הינשוף מצא רמז חדש.","אולי מחכה ליד העץ הגבוה.","אולי אומר: היום חושבים חכם."],
+    correct:["אולי אומר: חשיבה חכמה!","אולי מהנהן: מדויק מאוד.","אולי מצא כוכב של חוכמה."],
+    return:["אולי שמר לך רמז קטן.","אולי שמח שחזרת לחשוב.","אולי מוכן לשאלה חכמה."]
+  },
+  "🐧": {
+    home:["נונו החליק אל תחילת השביל.","נונו מביא חיוך קריר להרפתקה.","נונו מצא כוכב על הקרח."],
+    correct:["נונו החליק משמחה!","נונו מוחא כפיים קטנות.","נונו אומר: קריר ומדויק!"],
+    return:["נונו חיכה ליד השלולית.","נונו שמח שחזרת להחליק.","נונו מוכן לעוד משחק."]
+  },
+  "🐿️": {
+    home:["צ׳יקו אוסף רעיונות במהירות.","צ׳יקו מצא אגוז של מחשבה.","צ׳יקו כבר רץ בין השבילים."],
+    correct:["צ׳יקו אסף כוכב זריז!","צ׳יקו אומר: מצוין ומהיר!","צ׳יקו קופץ לענף הבא."],
+    return:["צ׳יקו שמר לך אגוז קטן.","צ׳יקו חיכה בין הענפים.","צ׳יקו מוכן להמשיך מהר."]
+  },
+  "🦔": {
+    home:["קוצי מתקדם לאט ובטוח.","קוצי מצא שביל קטן ונעים.","קוצי אומר: אין למה למהר."],
+    correct:["קוצי אומר: צעד מדויק!","קוצי חייך חיוך קטן.","קוצי מצא כוכב בסבלנות."],
+    return:["קוצי שמר לך מקום בשביל.","קוצי התקדם עוד צעד קטן.","קוצי שמח שחזרת."]
+  },
+  "🧸": {
+    home:["דובי נותן אומץ להרפתקה.","דובי מחכה עם חיבוק קטן.","דובי מצא כוכב חם."],
+    correct:["דובי אומר: עשית את זה!","דובי נותן חיבוק של הצלחה.","דובי שמח מאוד."],
+    return:["דובי שמר לך חיבוק.","דובי שמח שחזרת.","דובי מוכן לעוד אתגר רגוע."]
+  },
+  "🦝": {
+    home:["רוני הדביבון מחפש רמזים.","רוני מצא הפתעה בין העלים.","רוני מוכן לחקור את היער."],
+    correct:["רוני מצא את התשובה!","רוני אומר: רמז מעולה!","רוני מחייך מתחת למסכה."],
+    return:["רוני שמר לך הפתעה.","רוני חיכה ליד הסלע.","רוני מוכן לחקור שוב."]
+  }
+};
+const BUDDY_UNLOCK_BASE = 4;
+const TROPHY_ACCESSORIES = ["🎒 תרמיל מסע","🧢 כובע הרפתקה","🧣 צעיף זוהר","🔭 משקפת כוכבים","👑 כתר היער","🧭 מצפן קסום","✨ אבקת אור","💎 אבן זוהרת"];
 const SAMPLE_NAMES = ["הראל","גבע","גוני","ים","אודי","עומר","מיכל","גילי","שושי"];
-const STAR_GOAL = 100;
+const STAR_GOAL = 20;
 const MOSAIC_TILES = 48;
 const MOSAIC_REVEAL_ORDER = Array.from({length:MOSAIC_TILES},(_,index)=>(index*17+11)%MOSAIC_TILES);
 const BUDDY_IMAGES = {
   "🦊": "assets/brightwood-fox.png",
   "🐼": "assets/brightwood-panda.png",
   "🐰": "assets/brightwood-rabbit.png",
-  "🦁": "assets/brightwood-lion.png"
+  "🦁": "assets/brightwood-lion.png",
+  "🐶": "assets/buddy-dog.svg",
+  "🐱": "assets/buddy-cat.svg",
+  "🦉": "assets/buddy-owl.svg",
+  "🐧": "assets/buddy-penguin.svg",
+  "🐿️": "assets/buddy-squirrel.svg",
+  "🦔": "assets/buddy-hedgehog.svg",
+  "🧸": "assets/buddy-bear.svg",
+  "🦝": "assets/buddy-raccoon.svg"
 };
 const BUDDY_IMAGES_OLDER = {
   "🦊": "assets/brightwood-older-fox.png",
   "🐼": "assets/brightwood-older-panda.png",
   "🐰": "assets/brightwood-older-rabbit.png",
-  "🦁": "assets/brightwood-older-lion.png"
+  "🦁": "assets/brightwood-older-lion.png",
+  "🐶": "assets/buddy-dog.svg",
+  "🐱": "assets/buddy-cat.svg",
+  "🦉": "assets/buddy-owl.svg",
+  "🐧": "assets/buddy-penguin.svg",
+  "🐿️": "assets/buddy-squirrel.svg",
+  "🦔": "assets/buddy-hedgehog.svg",
+  "🧸": "assets/buddy-bear.svg",
+  "🦝": "assets/buddy-raccoon.svg"
 };
 
 const BANK = {
@@ -32,7 +140,7 @@ const BANK = {
     { skill:"רצפים", type:"רצף מספרים", q:"איזה מספר מגיע עכשיו?", visual:"1  ·  2  ·  3  ·  ?", a:["2","4","5","6"], correct:"4", word:true, explain:"אחרי 3 מגיע המספר 4.", hard:{q:"איזה מספר חסר?",visual:"2  ·  4  ·  6  ·  ?",a:["7","8","9","10"],correct:"8",explain:"המספרים קופצים בכל פעם בשתיים: 2, 4, 6, 8."}},
     { skill:"השוואה", type:"יותר או פחות", q:"באיזו קבוצה יש יותר?", visual:"", a:["🍎 🍎","🍎 🍎 🍎 🍎","🍎","אותו דבר"], correct:"🍎 🍎 🍎 🍎", explain:"ארבעה תפוחים הם יותר משניים או מאחד."},
     { skill:"חיבור", type:"חיבור קטן", q:"שתי ציפורים פגשו עוד אחת. כמה יש עכשיו?", visual:"🐦 🐦  +  🐦", a:["2","3","4","5"], correct:"3", explain:"שתי ציפורים ועוד ציפור אחת הן שלוש.", hard:{q:"ארבע ציפורים פגשו עוד שלוש. כמה יש עכשיו?",visual:"🐦 🐦 🐦 🐦  +  🐦 🐦 🐦",a:["5","6","7","8"],correct:"7",explain:"ארבע ועוד שלוש הן שבע."}},
-    { skill:"צורות", type:"מגלים צורות", q:"איזו צורה עגולה?", visual:"△  □  ○", a:["משולש","ריבוע","עיגול","כוכב"], correct:"עיגול", explain:"לעיגול אין פינות, והוא עגול מכל הצדדים."},
+    { skill:"צורות", type:"מגלים צורות", q:"איזו צורה עגולה?", visual:"△  □  ○", a:["משולש","ריבוע","עיגול","כוכב"], correct:"עיגול", explain:"לעיגול אין קודקודים, והוא עגול מכל הצדדים."},
     { skill:"חיבור", type:"חיבור קטן", q:"כמה זה 3 ועוד 2?", visual:"● ● ●  +  ● ●", a:["4","5","6","7"], correct:"5", explain:"שלושה ועוד שניים הם חמישה.", hard:{q:"כמה זה 5 ועוד 4?",visual:"● ● ● ● ●  +  ● ● ● ●",a:["7","8","9","10"],correct:"9",explain:"חמישה ועוד ארבעה הם תשעה."}},
     { skill:"דפוסים", type:"כוח הדפוסים", q:"מה מגיע עכשיו?", visual:"🔴 🔵 🔴 🔵 ?", a:["🔴","🔵","🟡","🟢"], correct:"🔴", explain:"הצבעים מתחלפים: אדום, כחול, אדום, כחול, ולכן שוב אדום."}
   ],
@@ -326,6 +434,31 @@ function subjectDescription(p,key){ return key==="math"&&p?.age<=4?"סופרים
 function trophyCount(p){ return Math.floor((p?.stars||0)/STAR_GOAL); }
 function nextStarGoal(p){ return (trophyCount(p)+1)*STAR_GOAL; }
 function goalCycleProgress(p){ return (p?.stars||0)%STAR_GOAL; }
+function buddyUnlockCount(p){ return Math.min(BUDDIES.length,BUDDY_UNLOCK_BASE+trophyCount(p)); }
+function isBuddyUnlocked(p,buddy){ return BUDDIES.indexOf(buddy) < buddyUnlockCount(p) || p?.buddy===buddy; }
+function nextUnlockBuddy(p){ return BUDDIES[buddyUnlockCount(p)] || null; }
+function latestAccessory(p){
+  const trophies=trophyCount(p);
+  if(!trophies)return null;
+  return TROPHY_ACCESSORIES[Math.min(trophies,TROPHY_ACCESSORIES.length)-1] || TROPHY_ACCESSORIES[TROPHY_ACCESSORIES.length-1];
+}
+function buddyLine(buddy,kind,salt=0){
+  const lines=BUDDY_LINES[buddy]?.[kind]||BUDDY_LINES["🦊"][kind]||["מוכנים להרפתקה!"];
+  return lines[Math.abs(salt)%lines.length];
+}
+function renderGameBuddyPanel(){
+  const p=activeProfile(); if(!p)return;
+  const profile=BUDDY_PROFILES[p.buddy]||{name:BUDDY_TITLES[p.buddy]||"החבר למסע",trait:"מוכן להרפתקה"};
+  $("#gameBuddyIcon").textContent=p.buddy;
+  $("#gameBuddyName").textContent=profile.name;
+  $("#gameBuddyLine").textContent=buddyLine(p.buddy,"home",(session?.index||0)+(p.answered||0));
+  const unlocked=BUDDIES.filter(b=>isBuddyUnlocked(p,b));
+  const next=nextUnlockBuddy(p);
+  $("#gameBuddyFriends").innerHTML=[
+    ...unlocked.map(b=>`<button class="${b===p.buddy?"selected":""}" data-game-buddy="${b}" title="${BUDDY_PROFILES[b]?.name||BUDDY_TITLES[b]}">${b}</button>`),
+    next?`<button class="locked" disabled title="ייפתח בגביע הבא">🔒 ${next}</button>`:""
+  ].join("");
+}
 function prepareProfile(p){
   p.subjects ||= ["math","english"];
   p.progress ||= {};
@@ -432,7 +565,19 @@ function init(){
 
 function renderChoiceButtons(){
   $("#ageOptions").innerHTML=[3,4,5,6,7].map(n=>`<button type="button" class="choice-btn ${n===selectedAge?"selected":""}" data-age="${n}">${n}</button>`).join("");
-  $("#buddyOptions").innerHTML=BUDDIES.map(b=>`<button type="button" class="choice-btn ${b===selectedBuddy?"selected":""}" data-buddy="${b}">${b}</button>`).join("");
+  const p=editingId?state.profiles.find(x=>x.id===editingId):activeProfile();
+  const unlocked=buddyUnlockCount(p);
+  const next=nextUnlockBuddy(p);
+  $("#buddyOptions").innerHTML=BUDDIES.map((b,index)=>{
+    const profile=BUDDY_PROFILES[b]||{name:BUDDY_TITLES[b]||"חבר למסע",trait:"חבר למסע",ability:"קסם"};
+    const open=index<unlocked || b===selectedBuddy || p?.buddy===b;
+    return `<button type="button" class="choice-btn buddy-choice ${b===selectedBuddy?"selected":""} ${open?"":"locked"}" ${open?"":`disabled`} data-buddy="${b}" title="${profile.name}" aria-label="${profile.name}"><span class="buddy-emoji buddy-motion">${b}</span><b>${profile.name}</b><small>${open?profile.trait:`ייפתח אחרי ${Math.max(1,index-BUDDY_UNLOCK_BASE+1)*STAR_GOAL} כוכבים`}</small><i>יכולת: ${profile.ability}</i></button>`;
+  }).join("");
+  if($("#buddyUnlockHint")){
+    $("#buddyUnlockHint").textContent=next
+      ? `מתחילים עם 4 חברים. כל 20 כוכבים פותחים חבר נוסף. החבר הבא: ${BUDDY_PROFILES[next]?.name||BUDDY_TITLES[next]}.`
+      : `כל חברי המסע פתוחים! אפשר לבחור את מי שהכי מתאים להרפתקה היום.`;
+  }
 }
 
 function rotateNamePlaceholder(){
@@ -485,17 +630,21 @@ function renderHero(){
   const revealed=Math.min(MOSAIC_TILES,Math.max(2,Math.ceil(firstGoalProgress*MOSAIC_TILES)));
   $("#forestMosaic").innerHTML=Array.from({length:MOSAIC_TILES},(_,index)=>`<span class="${MOSAIC_REVEAL_ORDER.indexOf(index)<revealed?"revealed":""}"></span>`).join("");
   $(".speech-bubble").innerHTML=stars
-    ? `היער כבר זוהר יותר!<br><b>אספנו ${stars} ${stars===1?"כוכב":"כוכבים"}</b>`
-    : `אני החבר שלך למסע!<br><b>בואו נאיר את היער!</b>`;
+    ? `${buddyLine(p?.buddy||"🦊","return",stars)}<br><b>אספנו ${stars} ${stars===1?"כוכב":"כוכבים"}</b>`
+    : `${buddyLine(p?.buddy||"🦊","home",age)}<br><b>בואו נאיר את היער!</b>`;
 }
 
 function subjectLevel(p,key){
-  const levels=KIDS_GAMES.catalog.filter(game=>!game.disabled&&game.subject===key&&game.minAge<=p.age).map(game=>p.gameLevels?.[game.id]||ageLevel(p.age));
+  const levels=KIDS_GAMES.catalog.filter(game=>!game.disabled&&game.subject===key&&gameMatchesAge(game,p.age)).map(game=>p.gameLevels?.[game.id]||ageLevel(p.age));
   return levels.length ? Math.round(levels.reduce((a,b)=>a+b,0)/levels.length) : ageLevel(p.age);
 }
 
+function gameMatchesAge(game,age){
+  return game.minAge<=age && (!game.maxAge || game.maxAge>=age);
+}
+
 function availableGames(p,subject,includeHidden=false){
-  return KIDS_GAMES.catalog.filter(game=>!game.disabled&&game.subject===subject&&game.minAge<=p.age&&(includeHidden||!p.hiddenGames.includes(game.id)));
+  return KIDS_GAMES.catalog.filter(game=>!game.disabled&&game.subject===subject&&gameMatchesAge(game,p.age)&&(includeHidden||!p.hiddenGames.includes(game.id)));
 }
 
 function renderGameChoices(subject){
@@ -607,16 +756,42 @@ function adaptedQuestion(q,p,subject){
   return level>=4&&q.hard ? {...q,...q.hard} : {...q};
 }
 
+function questionSignature(q){
+  return [
+    q.skill,
+    q.type,
+    q.q,
+    q.visual,
+    q.correct,
+    Array.isArray(q.patternTiles)?q.patternTiles.join("|"):"",
+    Array.isArray(q.tokens)?q.tokens.join("|"):"",
+    q.dragSource||"",
+    q.audio?.key||q.audio?.text||"",
+    q.clock?`${q.clock.hour}:${q.clock.minutes}`:"",
+    q.mode||""
+  ].join("::");
+}
+
+function uniqueQuestions(pool){
+  const seen=new Set();
+  return pool.filter(q=>{
+    const key=questionSignature(q);
+    if(seen.has(key))return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function startGame(gameId){
   const p=activeProfile(); if(!p){openCreate();return}
-  const game=KIDS_GAMES.catalog.find(item=>item.id===gameId); if(!game||game.disabled||game.minAge>p.age)return;
+  const game=KIDS_GAMES.catalog.find(item=>item.id===gameId); if(!game||game.disabled||!gameMatchesAge(game,p.age))return;
   const subject=game.subject,level=p.gameLevels[gameId]||ageLevel(p.age);
-  const pool=KIDS_GAMES.build(gameId,level,p);
+  const pool=uniqueQuestions(KIDS_GAMES.build(gameId,level,p));
   const recent=new Set(p.recentGames[gameId]||[]);
-  let available=pool.filter(q=>!recent.has(q.id));
+  let available=pool.filter(q=>!recent.has(questionSignature(q)));
   if(available.length<5)available=pool;
   const questions=shuffled(available).slice(0,5).map(q=>({...q,a:Array.isArray(q.a)?shuffled(q.a):[]}));
-  p.recentGames[gameId]=[...(p.recentGames[gameId]||[]),...questions.map(q=>q.id)].slice(-Math.min(40,Math.max(12,pool.length-5)));
+  p.recentGames[gameId]=[...(p.recentGames[gameId]||[]),...questions.map(questionSignature)].slice(-Math.min(40,Math.max(12,pool.length-5)));
   save();
   session={subject,gameId,game,level,questions,index:0,correct:0,start:Date.now(),locked:false,results:{}};
   showScreen("gameScreen"); renderQuestion();
@@ -645,6 +820,30 @@ function returnAfterFinishedGame(){
   }
 }
 
+function renderClockFace(hour,minutes){
+  const hourAngle=((hour%12)+(minutes/60))*30;
+  const minuteAngle=minutes*6;
+  const ticks=Array.from({length:12},(_,i)=>{
+    const angle=i*30;
+    const strong=i%3===0;
+    return `<line class="clock-tick${strong?" strong":""}" x1="60" y1="${strong?8:10}" x2="60" y2="${strong?18:15}" transform="rotate(${angle} 60 60)"></line>`;
+  }).join("");
+  const digital=`${String(hour).padStart(2,"0")}:${String(minutes).padStart(2,"0")}`;
+  return `<div class="analog-clock" aria-label="${digital}">
+    <svg viewBox="0 0 120 120" role="img">
+      <circle class="clock-face" cx="60" cy="60" r="54"></circle>
+      ${ticks}
+      <text class="clock-number" x="60" y="25">12</text>
+      <text class="clock-number" x="95" y="62">3</text>
+      <text class="clock-number" x="60" y="98">6</text>
+      <text class="clock-number" x="25" y="62">9</text>
+      <line class="clock-hour-hand" x1="60" y1="60" x2="60" y2="34" transform="rotate(${hourAngle} 60 60)"></line>
+      <line class="clock-minute-hand" x1="60" y1="60" x2="60" y2="20" transform="rotate(${minuteAngle} 60 60)"></line>
+      <circle class="clock-center" cx="60" cy="60" r="4.4"></circle>
+    </svg>
+  </div>`;
+}
+
 function renderQuestion(){
   const q=session.questions[session.index], p=activeProfile();
   $("#gameSubject").textContent=subjectName(p,session.subject);
@@ -652,11 +851,16 @@ function renderQuestion(){
   $("#questionLabel").textContent=`${session.index+1} מתוך ${session.questions.length}`;
   $("#questionBar").style.width=`${session.index/session.questions.length*100}%`;
   $("#questionType").textContent=q.type; $("#questionText").textContent=q.q;
-  $("#questionVisual").textContent=q.audio || q.patternTiles ? "" : (q.visual||"");
+  $("#questionVisual").textContent=q.audio || q.patternTiles || q.clock ? "" : (q.visual||"");
   $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"");
+  if(q.clock){
+    $("#questionVisual").classList.add("clock-visual");
+    $("#questionVisual").innerHTML=renderClockFace(q.clock.hour,q.clock.minutes);
+  }
   if(q.patternTiles){
     $("#questionVisual").classList.add("pattern-visual");
     $("#questionVisual").innerHTML=q.patternTiles.map(tile=>`<span class="${tile==="?"?"pattern-missing":"pattern-tile"}">${escapeHtml(tile)}</span>`).join("");
+    requestAnimationFrame(()=>{$("#questionVisual").scrollLeft=$("#questionVisual").scrollWidth;});
   }
   if(q.audio){
     const listen=document.createElement("button");
@@ -665,8 +869,8 @@ function renderQuestion(){
   }
   $("#feedback").className="feedback"; $("#feedback").textContent="";
   $("#explanation").className="explanation"; $("#explanation").textContent="";
-  $(".pip-corner").firstChild.textContent=p.buddy;
-  $("#pipPrompt").textContent=["יש לכם זמן!","קטן עליכם!","חשיבה מצוינת!"][session.index%3];
+  $(".pip-corner").textContent=p.buddy;
+  renderGameBuddyPanel();
   renderQuestionInteraction(q);
   session.locked=false;
   if(q.audio?.kind==="animal")setTimeout(()=>{if(session?.questions?.[session.index]===q)playQuestionAudio()},250);
@@ -738,10 +942,11 @@ function answer(value,button){
   if(right){
     p.correct++; session.correct++; session.results[q.skill].correct++;
     button.classList.add("correct"); chime(true);
-    $("#feedback").textContent="כן! בדיוק! ★"; $("#feedback").className="feedback good";
+    $("#feedback").textContent=session.correct%2===0 ? buddyLine(p.buddy,"correct",p.correct+session.index) : "כן! בדיוק! ★";
+    $("#feedback").className="feedback good";
   } else {
     button.classList.add("wrong"); chime(false);
-    $("#feedback").textContent=`ניסיון יפה — התשובה היא ${q.correct}.`; $("#feedback").className="feedback bad";
+    $("#feedback").textContent="לא בדיוק"; $("#feedback").className="feedback bad";
     $$(".answer-btn").find(b=>b.dataset.answer===q.correct)?.classList.add("correct");
     $("#explanation").textContent=q.explain; $("#explanation").className="explanation show";
   }
@@ -763,10 +968,19 @@ function finishGame(){
   p.minutes+=Math.max(1,Math.round((Date.now()-session.start)/60000));
   p.log.unshift({subject:key,gameId:session.gameId,gameName:session.game.name,correct:session.correct,total:session.questions.length,earned,date:new Date().toLocaleDateString("he-IL",{month:"short",day:"numeric"})});
   p.log=p.log.slice(0,8); save();
-  $("#celebrateBuddy").textContent=p.buddy; $("#earnedStars").textContent=earned;
-  $("#earnedStars").parentElement.innerHTML=`<span id="earnedStars">${earned}</span> ${earned===1?"כוכב":"כוכבים"}`;
+  $("#celebrateBuddy").textContent=p.buddy;
+  $("#earnedStarsTitle").textContent=`אספתם ${earned} ${earned===1?"כוכב":"כוכבים"}`;
+  $("#finishEncouragement").textContent="";
   if(newTrophies>previousTrophies){
+    const newFriend=BUDDIES[BUDDY_UNLOCK_BASE+newTrophies-1];
+    const accessory=latestAccessory(p);
     $("#milestoneTrophyNumber").textContent=newTrophies;
+    $("#milestoneTitle").textContent=newFriend ? `נפתח חבר חדש למסע!` : `היער כולו זוהר!`;
+    $("#milestoneText").textContent=[
+      `אספתם עוד 20 כוכבים וזכיתם בגביע מספר ${newTrophies}.`,
+      accessory?`קיבלתם גם אביזר חדש: ${accessory}.`:null,
+      newFriend?`החבר החדש שנפתח: ${newFriend} ${BUDDY_PROFILES[newFriend]?.name||BUDDY_TITLES[newFriend]}.`:null
+    ].filter(Boolean).join(" ");
     openModal("milestoneModal");
     playMilestoneMelody();
   } else {
@@ -786,6 +1000,12 @@ function renderDashboard(){
   $("#trophyTitle").textContent=trophies?`${trophies} ${trophies===1?"גביע הושג":"גביעים הושגו"}!`:"בדרך לגביע הראשון";
   $("#trophyText").textContent=`עוד ${remaining} ${remaining===1?"כוכב":"כוכבים"} לגביע הבא.`;
   $("#trophyBar").style.width=`${cycleStars}%`;
+  const buddyProfile=BUDDY_PROFILES[p.buddy]||{name:BUDDY_TITLES[p.buddy]||"החבר למסע",trait:"ממשיך איתכם בהרפתקה",ability:"התמדה"};
+  $("#dashboardBuddyIcon").textContent=p.buddy;
+  $("#dashboardBuddyName").textContent=buddyProfile.name;
+  $("#dashboardBuddyText").textContent=`${buddyProfile.trait}. אספתם יחד ${p.stars} ${p.stars===1?"כוכב":"כוכבים"}.`;
+  $("#dashboardBuddyAbility").textContent=`יכולת: ${buddyProfile.ability}`;
+  $("#dashboardBuddyAccessory").textContent=latestAccessory(p)?`אביזר אחרון: ${latestAccessory(p)}`:"אביזר: ייפתח בגביע הראשון";
   $("#subjectProgress").innerHTML=Object.entries(SUBJECTS).map(([k,s])=>{
     const x=p.progress[k],pct=x?Math.min(x.completed/10*100,100):0;
     return `<div class="progress-row"><span class="trail-icon">${s.icon}</span><b>${subjectName(p,k)}</b><div class="bar"><i style="width:${pct}%"></i></div><small>${x?.completed||0}/10</small></div>`;
@@ -957,6 +1177,7 @@ function bindEvents(){
     const tog=e.target.closest("[data-toggle-subject]"); if(tog)tog.classList.toggle("selected");
     const adjust=e.target.closest("[data-adjust]"); if(adjust)adjustDifficulty(adjust.dataset.adjust);
     const gameVisibility=e.target.closest("[data-game-visibility]"); if(gameVisibility)toggleGameVisibility(gameVisibility.dataset.gameVisibility);
+    const gameBuddy=e.target.closest("[data-game-buddy]"); if(gameBuddy){const p=activeProfile(); if(p&&isBuddyUnlocked(p,gameBuddy.dataset.gameBuddy)){p.buddy=gameBuddy.dataset.gameBuddy; save(); renderAll(); renderGameBuddyPanel();}}
     const install=e.target.closest("[data-install-app]"); if(install)requestAppInstall();
   });
   document.addEventListener("dragstart",e=>{const source=e.target.closest("[data-drag-source]");if(source)e.dataTransfer.setData("text/plain",source.dataset.dragSource)});

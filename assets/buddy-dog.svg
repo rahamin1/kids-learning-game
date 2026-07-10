@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#dff7ff"/><stop offset="1" stop-color="#fff0b8"/></linearGradient>
+    <radialGradient id="glow" cx=".42" cy=".35" r=".48"><stop stop-color="#fff8b5"/><stop offset="1" stop-color="#fff8b500"/></radialGradient>
+  </defs>
+  <rect width="1200" height="760" fill="url(#sky)"/>
+  <circle cx="510" cy="275" r="300" fill="url(#glow)"/>
+  <path d="M0 595 C180 500 300 555 455 485 C620 410 790 515 1200 420 V760 H0 Z" fill="#87d6a5"/>
+  <path d="M0 650 C220 560 420 640 610 560 C800 485 980 610 1200 535 V760 H0 Z" fill="#46b67a"/>
+  <g fill="#2f7e55" opacity=".55"><path d="M925 120 l55 160 h-110z"/><path d="M1015 95 l70 210 h-140z"/><path d="M145 135 l65 190 h-130z"/><path d="M245 90 l75 235 h-150z"/></g>
+  <text x="725" y="500" text-anchor="middle" font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif" font-size="265">🐶</text>
+</svg>

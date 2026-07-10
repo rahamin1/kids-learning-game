@@ -10,11 +10,11 @@
   <title>ההרפתקה ביער הזוהר</title>
   <link rel="icon" type="image/png" href="assets/app-icon-star-forest.png">
   <link rel="apple-touch-icon" href="assets/app-icon-star-forest.png">
-  <link rel="manifest" href="manifest.webmanifest?v=0.1.5">
+  <link rel="manifest" href="manifest.webmanifest?v=0.1.6">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?build=local22">
+  <link rel="stylesheet" href="styles.css?build=local49">
 </head>
 <body>
   <div id="app">
@@ -55,8 +55,8 @@
               <button class="round-btn" id="randomButton" aria-label="הפתיעו אותי">✦</button>
             </div>
             <div class="goal-progress">
-              <div><span>🏆 היעד הבא</span><b id="homeGoalLabel">100 כוכבים</b></div>
-              <strong id="homeGoalCount">0 / 100</strong>
+              <div><span>🏆 היעד הבא</span><b id="homeGoalLabel">20 כוכבים</b></div>
+              <strong id="homeGoalCount">0 / 20</strong>
               <div class="bar"><i id="homeGoalBar"></i></div>
             </div>
           </div>
@@ -103,7 +103,11 @@
             <div class="question-progress"><span id="questionLabel">1 מתוך 5</span><div class="bar"><i id="questionBar"></i></div></div>
           </div>
           <div class="game-card">
-            <div class="pip-corner">🦊<span id="pipPrompt">קטן עליכם!</span></div>
+            <div class="game-buddy-panel">
+              <div class="game-buddy-main"><span id="gameBuddyIcon">🦊</span><div><b id="gameBuddyName">פיפ השועל</b><small id="gameBuddyLine">מחפש הפתעות ביער.</small></div></div>
+              <div class="game-buddy-friends" id="gameBuddyFriends" aria-label="חברים פתוחים לבחירה"></div>
+            </div>
+            <div class="pip-corner">🦊</div>
             <span class="eyebrow blue" id="questionType">סופרים ובוחרים</span>
             <h2 id="questionText">כמה כוכבים אתם רואים?</h2>
             <div id="questionVisual" class="question-visual"></div>
@@ -131,7 +135,16 @@
           </div>
           <article class="panel trophy-panel">
             <div class="trophy-stack"><b id="trophyCount">0</b><span>🏆</span></div>
-            <div class="trophy-copy"><span class="eyebrow blue">יעד הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 100 כוכבים והגביע הראשון שלכם!</p><div class="bar"><i id="trophyBar"></i></div></div>
+            <div class="trophy-copy"><span class="eyebrow blue">יעד הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 20 כוכבים והגביע הראשון שלכם!</p><div class="bar"><i id="trophyBar"></i></div></div>
+          </article>
+          <article class="panel buddy-progress-panel">
+            <div class="buddy-progress-icon" id="dashboardBuddyIcon">🦊</div>
+            <div class="buddy-progress-copy">
+              <span class="eyebrow blue">החבר למסע</span>
+              <h2 id="dashboardBuddyName">פיפ השועל</h2>
+              <p id="dashboardBuddyText">מחפש הפתעות ביער.</p>
+              <div class="buddy-rewards"><span id="dashboardBuddyAbility">יכולת: סקרנות</span><span id="dashboardBuddyAccessory">אביזר: עדיין אין</span></div>
+            </div>
           </article>
           <div class="dashboard-grid">
             <article class="panel"><div class="panel-title"><div><span class="eyebrow blue">מקצועות</span><h2>התקדמות לפי שביל</h2></div><span>השבוע</span></div><div id="subjectProgress"></div></article>
@@ -149,11 +162,11 @@
           </div>
 
           <div class="settings-shortcuts">
-            <button class="settings-shortcut" id="settingsSubjects"><span>🧭</span><b>בחירת נושאים</b><small>בוחרים במה משחקים ולומדים</small></button>
+            <button class="settings-shortcut install-shortcut" data-install-app><span>📲</span><b data-install-label>התקנת האפליקציה</b><small data-install-hint>הוספה למסך הבית</small></button>
+            <button class="settings-shortcut" id="settingsSubjects"><span>🧭</span><b>בחירת נושאים</b><small>בוחרים במה משחקים ומה לומדים</small></button>
             <button class="settings-shortcut" id="settingsProfile"><span>🦊</span><b>פרטי ההרפתקן</b><small>שם, גיל וחבר למסע</small></button>
             <button class="settings-shortcut" id="settingsSound"><span>🔊</span><b>צלילים</b><small id="settingsSoundLabel">הצלילים פעילים</small></button>
             <button class="settings-shortcut" id="settingsHelp"><span>❓</span><b>עזרה ומידע</b><small>איך משחקים, מתקדמים וזוכים</small></button>
-            <button class="settings-shortcut install-shortcut" data-install-app><span>📲</span><b data-install-label>התקנת האפליקציה</b><small data-install-hint>הוספה למסך הבית</small></button>
           </div>
 
           <article class="panel difficulty-panel">
@@ -185,9 +198,9 @@
 
             <article class="panel help-card"><span class="help-icon">🎮</span><div><h2>משחקים ורמות</h2><p>לכל משחק יש תשע רמות קושי. נקודת ההתחלה נקבעת לפי גיל הילד.</p><p>במסך ההגדרות אפשר לבחור לכל משחק <b>קל יותר</b>, <b>מתאים</b> או <b>קשה יותר</b>. ברמה הראשונה או התשיעית האפשרות שאינה זמינה תופיע מעומעמת.</p></div></article>
 
-            <article class="panel help-card reward-help-card"><span class="help-icon">⭐</span><div><h2>כוכבים וגביעים</h2><p>המטרה במשחק היא לאסוף 100 כוכבים. כשמגיעים ל־100 כוכבים זוכים בגביע!</p><p>אפשר להמשיך ל־200 כוכבים כדי לזכות בגביע נוסף, וכן הלאה. בראש המסך מוצגים מספר הכוכבים ומספר הגביעים של הילד.</p><div class="help-reward-example"><span>★</span><b>140</b><i></i><span>🏆</span><b>1</b></div></div></article>
+            <article class="panel help-card reward-help-card"><span class="help-icon">⭐</span><div><h2>כוכבים וגביעים</h2><p>המטרה במשחק היא לאסוף 20 כוכבים. כשמגיעים ל־20 כוכבים זוכים בגביע!</p><p>אפשר להמשיך ל־40 כוכבים כדי לזכות בגביע נוסף, וכן הלאה. בראש המסך מוצגים מספר הכוכבים ומספר הגביעים של הילד.</p><div class="help-reward-example"><span>★</span><b>28</b><i></i><span>🏆</span><b>1</b></div></div></article>
 
-            <article class="panel help-card"><span class="help-icon">🏆</span><div><h2>הדרך לגביע הבא</h2><p>במסך ההתקדמות מוצג כמה כוכבים חסרים עד לגביע הבא. לדוגמה: לאחר איסוף 140 כוכבים יוצגו גביע אחד והתקדמות של 40 מתוך 100 לקראת הגביע השני.</p></div></article>
+            <article class="panel help-card"><span class="help-icon">🏆</span><div><h2>הדרך לגביע הבא</h2><p>במסך ההתקדמות מוצג כמה כוכבים חסרים עד לגביע הבא. לדוגמה: לאחר איסוף 28 כוכבים יוצגו גביע אחד והתקדמות של 8 מתוך 20 לקראת הגביע השני.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">🔥</span><div><h2>רצף ימי תרגול</h2><p>סמל האש מציג כמה ימים ברצף תרגל הילד באפליקציה. תרגול קצר בכל יום עוזר לשמור על הרצף ולחזק את מה שנלמד.</p></div></article>
 
@@ -216,7 +229,7 @@
           <article class="panel contact-panel">
             <form id="contactForm" class="contact-form">
               <label>שם
-                <input id="contactName" name="name" type="text" autocomplete="name" placeholder="שם מלא">
+                <input id="contactName" name="name" type="text" autocomplete="name" placeholder="שם">
               </label>
               <label>כתובת מייל
                 <input id="contactEmail" name="email" type="email" autocomplete="email" placeholder="name@example.com">
@@ -270,7 +283,7 @@
         <h2 id="profileFormTitle">יוצרים פרופיל לילד/ה</h2>
         <label>שם:<input id="childName" maxlength="16" placeholder="למשל: הראל" required></label>
         <label>גיל:<div class="age-options" id="ageOptions"></div></label>
-        <label>בוחרים חבר למסע<div class="buddy-options" id="buddyOptions"></div></label>
+        <label>בוחרים חבר למסע<div class="buddy-options" id="buddyOptions"></div><p class="buddy-unlock-hint" id="buddyUnlockHint">מתחילים עם 4 חברים. כל 20 כוכבים פותחים חבר נוסף למסע.</p></label>
         <button class="primary-btn full" id="profileSubmit" type="submit">יוצאים לדרך <span>←</span></button>
         <button class="danger-btn hidden" id="deleteProfile" type="button">מחיקת הפרופיל</button>
       </form>
@@ -292,8 +305,8 @@
         <div class="confetti">★ ✦ ● ★ ✦</div>
         <div class="celebrate-buddy" id="celebrateBuddy">🦊</div>
         <span class="eyebrow">השביל הושלם!</span>
-        <h2>איזו הרפתקה נהדרת!</h2>
-        <p>אספתם <b><span id="earnedStars">3</span> כוכבים</b> והארתם עוד חלק מהיער הזוהר.</p>
+        <h2 id="earnedStarsTitle">אספתם 3 כוכבים</h2>
+        <p id="finishEncouragement" class="hidden"></p>
         <button class="primary-btn full" data-game-finished-return data-close="celebrationModal">בחירת משחק נוסף <span>←</span></button>
       </div>
     </div>
@@ -303,8 +316,8 @@
         <div class="milestone-rays">✦ ★ ✦ ★ ✦</div>
         <div class="milestone-trophy"><b id="milestoneTrophyNumber">1</b><span>🏆</span></div>
         <span class="eyebrow">הגעת ליעד!</span>
-        <h2>היער כולו זוהר!</h2>
-        <p>אספתם עוד 100 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
+        <h2 id="milestoneTitle">היער כולו זוהר!</h2>
+        <p id="milestoneText">אספתם עוד 20 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
         <button class="primary-btn full" data-game-finished-return data-close="milestoneModal">ממשיכים למשחק הבא <span>←</span></button>
       </div>
     </div>
@@ -323,7 +336,7 @@
     </div>
 
   </div>
-  <script src="games.js?build=local22"></script>
-  <script src="app.js?build=local22"></script>
+  <script src="games.js?build=local49"></script>
+  <script src="app.js?build=local49"></script>
 </body>
 </html>
