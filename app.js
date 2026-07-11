@@ -1,9 +1,9 @@
-const APP_VERSION = "0.1.7";
+const APP_VERSION = "0.1.8";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const INTRO_STEPS = [
   {icon:"🌟",eyebrow:"ברוכים הבאים",title:"היער הזוהר מחכה לכם",text:"יוצאים להרפתקת למידה קצרה, צבעונית וכיפית. בכל פעם משחקים קצת, מתקדמים קצת, ומגלים עוד מהיער."},
-  {icon:"🏆",eyebrow:"כוכבים וגביעים",title:"אוספים כוכבים וזוכים בגביעים",text:"בכל משחק אוספים כוכבים. כל 20 כוכבים הופכים לגביע חדש, ואפשר להמשיך לאסוף עוד ועוד גביעים."},
-  {icon:"🦊",eyebrow:"חברי מסע",title:"בוחרים חבר שמלווה את ההרפתקה",text:"בתחילת הדרך בוחרים חבר למסע. בהמשך נפתחים חברים נוספים, וכל ילד יכול לבחור מי יצא איתו למשחקים."},
+  {icon:"🏆",eyebrow:"כוכבים וגביעים",title:"אוספים כוכבים וזוכים בגביעים",text:"בכל משחק אוספים כוכבים. כל 10 כוכבים הופכים לגביע חדש, ואפשר להמשיך לאסוף עוד ועוד גביעים."},
+  {icon:"🦊",eyebrow:"חברי מסע",title:"בוחרים חבר שמלווה את ההרפתקה",text:"בתחילת הדרך בוחרים חבר למסע. בהמשך מתגלים חברים נוספים, וכל ילד יכול לבחור מי יצא איתו למסע ולהחליף חבר בדרך."},
   {icon:"⚙️",eyebrow:"מתאים לכל ילד",title:"אפשר להתאים נושאים ורמות קושי",text:"ההורים יכולים לבחור נושאים, להסתיר משחקים, ולהעלות או להוריד רמת קושי לפי מה שמתאים לילד."}
 ];
 
@@ -107,9 +107,11 @@ const BUDDY_LINES = {
   }
 };
 const BUDDY_UNLOCK_BASE = 4;
+const TROPHY_ACCESSORY_UPGRADES = ["✨ תרמיל מסע זוהר","🌟 כובע הרפתקה מוזהב","💫 צעיף כוכבים","🔭 משקפת אור","👑 כתר יהלומים","🧭 מצפן ירח","✨ אבקת אור מנצנצת","💎 אבן קשת"];
+const TROPHY_UPGRADE_TIERS = ["שדרוג זהב","שדרוג כוכבים","שדרוג ירח","שדרוג קשת"];
 const TROPHY_ACCESSORIES = ["🎒 תרמיל מסע","🧢 כובע הרפתקה","🧣 צעיף זוהר","🔭 משקפת כוכבים","👑 כתר היער","🧭 מצפן קסום","✨ אבקת אור","💎 אבן זוהרת"];
 const SAMPLE_NAMES = ["הראל","גבע","גוני","ים","אודי","עומר","מיכל","גילי","שושי"];
-const STAR_GOAL = 20;
+const STAR_GOAL = 10;
 const MOSAIC_TILES = 48;
 const MOSAIC_REVEAL_ORDER = Array.from({length:MOSAIC_TILES},(_,index)=>(index*17+11)%MOSAIC_TILES);
 const BUDDY_IMAGES = {
@@ -416,9 +418,16 @@ function defaultGameLevel(gameId,age){
 }
 function applyDefaultHiddenGames(p){
   p.autoHiddenGames ||= [];
-  const targetVersion = 2;
+  const targetVersion = 3;
   const ageChanged = p.defaultHiddenGamesAge!==p.age;
-  const defaultHidden = Number(p.age)>=6 ? ["count","number-quantity"] : [];
+  const playerAge=Number(p.age)||3;
+  const futureHidden=KIDS_GAMES.catalog
+    .filter(game=>!game.disabled&&game.minAge>playerAge&&game.minAge<=Math.min(7,playerAge+2))
+    .map(game=>game.id);
+  const defaultHidden = [
+    ...(playerAge>=6 ? ["count","number-quantity"] : []),
+    ...futureHidden
+  ];
   if(!ageChanged && p.defaultHiddenGamesVersion===targetVersion)return;
   if(ageChanged){
     p.hiddenGames = (p.hiddenGames||[]).filter(id=>!p.autoHiddenGames.includes(id));
@@ -426,10 +435,12 @@ function applyDefaultHiddenGames(p){
   }
   defaultHidden.forEach(id=>{
     const wasAlreadyAutoHidden = p.autoHiddenGames.includes(id);
-    const isNewDefaultRule = !ageChanged && p.defaultHiddenGamesVersion!==targetVersion && id==="number-quantity";
+    const isNewDefaultRule = !ageChanged && p.defaultHiddenGamesVersion!==targetVersion && (id==="number-quantity" || futureHidden.includes(id));
     if(ageChanged || wasAlreadyAutoHidden || isNewDefaultRule){
       p.hiddenGames.push(id);
       p.autoHiddenGames.push(id);
+      const game=KIDS_GAMES.catalog.find(item=>item.id===id);
+      if(game?.minAge>playerAge)p.gameLevels[id]=1;
     }
   });
   p.hiddenGames = [...new Set(p.hiddenGames)];
@@ -445,16 +456,29 @@ function goalCycleProgress(p){ return (p?.stars||0)%STAR_GOAL; }
 function buddyUnlockCount(p){ return Math.min(BUDDIES.length,BUDDY_UNLOCK_BASE+trophyCount(p)); }
 function isBuddyUnlocked(p,buddy){ return BUDDIES.indexOf(buddy) < buddyUnlockCount(p) || p?.buddy===buddy; }
 function nextUnlockBuddy(p){ return BUDDIES[buddyUnlockCount(p)] || null; }
+function trophyReward(trophyNumber){
+  if(trophyNumber<=0)return null;
+  if(trophyNumber<=TROPHY_ACCESSORIES.length)return TROPHY_ACCESSORIES[trophyNumber-1];
+  const zeroBased=trophyNumber-1;
+  const itemIndex=zeroBased%TROPHY_ACCESSORIES.length;
+  const cycle=Math.floor(zeroBased/TROPHY_ACCESSORIES.length);
+  if(cycle===1)return TROPHY_ACCESSORY_UPGRADES[itemIndex];
+  return `${TROPHY_ACCESSORIES[itemIndex]} · ${TROPHY_UPGRADE_TIERS[(cycle-2)%TROPHY_UPGRADE_TIERS.length]}`;
+}
+function earnedAccessories(p){
+  return Array.from({length:trophyCount(p)},(_,index)=>trophyReward(index+1)).filter(Boolean);
+}
 function latestAccessory(p){
   const trophies=trophyCount(p);
   if(!trophies)return null;
-  return TROPHY_ACCESSORIES[Math.min(trophies,TROPHY_ACCESSORIES.length)-1] || TROPHY_ACCESSORIES[TROPHY_ACCESSORIES.length-1];
+  return trophyReward(trophies);
 }
 function buddyLine(buddy,kind,salt=0){
   const lines=BUDDY_LINES[buddy]?.[kind]||BUDDY_LINES["🦊"][kind]||["מוכנים להרפתקה!"];
   return lines[Math.abs(salt)%lines.length];
 }
 function renderGameBuddyPanel(){
+  if(!$("#gameBuddyFriends"))return;
   const p=activeProfile(); if(!p)return;
   const profile=BUDDY_PROFILES[p.buddy]||{name:BUDDY_TITLES[p.buddy]||"החבר למסע",trait:"מוכן להרפתקה"};
   $("#gameBuddyIcon").textContent=p.buddy;
@@ -567,6 +591,7 @@ function renderIntro(){
   $("#introText").textContent=step.text;
   $("#introDots").innerHTML=INTRO_STEPS.map((_,i)=>`<span class="${i===introIndex?"active":""}"></span>`).join("");
   $("[data-intro-prev]").disabled=introIndex===0;
+  $("[data-intro-skip]").classList.toggle("hidden",introIndex===INTRO_STEPS.length-1);
   $("[data-intro-next]").classList.toggle("hidden",introIndex===INTRO_STEPS.length-1);
   $("[data-intro-start]").classList.toggle("hidden",introIndex!==INTRO_STEPS.length-1);
 }
@@ -609,7 +634,7 @@ function renderChoiceButtons(){
   }).join("");
   if($("#buddyUnlockHint")){
     $("#buddyUnlockHint").textContent=next
-      ? `מתחילים עם 4 חברים. כל 20 כוכבים פותחים חבר נוסף. החבר הבא: ${BUDDY_PROFILES[next]?.name||BUDDY_TITLES[next]}.`
+      ? `מתחילים עם 4 חברים. כל 10 כוכבים פותחים חבר נוסף. החבר הבא: ${BUDDY_PROFILES[next]?.name||BUDDY_TITLES[next]}.`
       : `כל חברי המסע פתוחים! אפשר לבחור את מי שהכי מתאים להרפתקה היום.`;
   }
 }
@@ -639,6 +664,10 @@ function renderAll(){
   $("#homeGoalLabel").textContent=`${nextGoal} כוכבים`;
   $("#homeGoalCount").textContent=`${cycleStars} / ${STAR_GOAL}`;
   $("#homeGoalBar").style.width=`${cycleStars}%`;
+  const heroBuddyProfile=p ? (BUDDY_PROFILES[p.buddy]||{name:BUDDY_TITLES[p.buddy]||"חבר המסע"}) : null;
+  $("#heroBuddyText").textContent=p
+    ? `בוחרים שביל, פותרים חידות ועוזרים ל${heroBuddyProfile.name} להאיר את היער הזוהר!`
+    : "בוחרים שביל, פותרים חידות ועוזרים לחבר המסע להאיר את היער הזוהר!";
   $("#continueButton").innerHTML=p?.answered ? `ממשיכים בהרפתקה <span>←</span>` : `מתחילים בהרפתקה <span>←</span>`;
   renderHero();
   renderSubjects();
@@ -676,9 +705,13 @@ function subjectLevel(p,key){
 function gameMatchesAge(game,age){
   return game.minAge<=age && (!game.maxAge || game.maxAge>=age);
 }
+function gameVisibleInSettings(game,age){
+  const maxSettingsAge=Math.min(7,(Number(age)||3)+2);
+  return game.minAge<=maxSettingsAge && (!game.maxAge || game.maxAge>=Number(age));
+}
 
 function availableGames(p,subject,includeHidden=false){
-  return KIDS_GAMES.catalog.filter(game=>!game.disabled&&game.subject===subject&&gameMatchesAge(game,p.age)&&(includeHidden||!p.hiddenGames.includes(game.id)));
+  return KIDS_GAMES.catalog.filter(game=>!game.disabled&&game.subject===subject&&gameVisibleInSettings(game,p.age)&&(includeHidden||!p.hiddenGames.includes(game.id)));
 }
 
 function renderGameChoices(subject){
@@ -818,7 +851,7 @@ function uniqueQuestions(pool){
 
 function startGame(gameId){
   const p=activeProfile(); if(!p){openCreate();return}
-  const game=KIDS_GAMES.catalog.find(item=>item.id===gameId); if(!game||game.disabled||!gameMatchesAge(game,p.age))return;
+  const game=KIDS_GAMES.catalog.find(item=>item.id===gameId); if(!game||game.disabled||!gameVisibleInSettings(game,p.age)||p.hiddenGames.includes(game.id))return;
   const subject=game.subject,level=p.gameLevels[gameId]||ageLevel(p.age);
   const pool=uniqueQuestions(KIDS_GAMES.build(gameId,level,p));
   const recent=new Set(p.recentGames[gameId]||[]);
@@ -887,6 +920,7 @@ function renderQuestion(){
   $("#questionType").textContent=q.type; $("#questionText").textContent=q.q;
   $("#questionVisual").textContent=q.audio || q.patternTiles || q.clock ? "" : (q.visual||"");
   $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"");
+  $("#questionVisual").classList.toggle("no-visual",!q.visual&&!q.audio&&!q.patternTiles&&!q.clock);
   if(q.clock){
     $("#questionVisual").classList.add("clock-visual");
     $("#questionVisual").innerHTML=renderClockFace(q.clock.hour,q.clock.minutes);
@@ -944,6 +978,10 @@ function renderQuestionInteraction(q){
   grid.classList.toggle("object-grid-answers",Boolean(q.answerObjectGrid));
   grid.classList.toggle("image-answers",Boolean(q.imageAnswers)||(session.subject==="nature"&&activeProfile().age<=4));
   grid.classList.toggle("scaled-image-answers",Boolean(q.answerScales));
+  const imageLike=Boolean(q.imageAnswers)||(session.subject==="nature"&&activeProfile().age<=4);
+  grid.classList.toggle("roomy-image-answers",imageLike&&q.a.length<=4);
+  const maxObjectCount=q.answerObjectGrid?Math.max(...q.a.map(a=>String(a).split(/\s+/).filter(Boolean).length)):0;
+  grid.classList.toggle("roomy-object-grid-answers",Boolean(q.answerObjectGrid)&&maxObjectCount<=8);
 }
 
 function updateBuildResult(){
@@ -1011,7 +1049,7 @@ function finishGame(){
     $("#milestoneTrophyNumber").textContent=newTrophies;
     $("#milestoneTitle").textContent=newFriend ? `נפתח חבר חדש למסע!` : `היער כולו זוהר!`;
     $("#milestoneText").textContent=[
-      `אספתם עוד 20 כוכבים וזכיתם בגביע מספר ${newTrophies}.`,
+      `אספתם עוד 10 כוכבים וזכיתם בגביע מספר ${newTrophies}.`,
       accessory?`קיבלתם גם אביזר חדש: ${accessory}.`:null,
       newFriend?`החבר החדש שנפתח: ${newFriend} ${BUDDY_PROFILES[newFriend]?.name||BUDDY_TITLES[newFriend]}.`:null
     ].filter(Boolean).join(" ");
@@ -1025,7 +1063,7 @@ function finishGame(){
 
 function renderDashboard(){
   const p=activeProfile(); if(!p)return;
-  $("#dashboardSubtitle").textContent=`תמונה נעימה של ההתקדמות האחרונה של ${p.name}.`;
+  $("#dashboardSubtitle").textContent=`תמונה של ההתקדמות האחרונה של ${p.name}.`;
   $("#dashStars").textContent=p.stars; $("#dashQuestions").textContent=p.answered;
   $("#dashAccuracy").textContent=p.answered?Math.round(p.correct/p.answered*100)+"%":"—";
   $("#dashTime").textContent=p.minutes+" דקות";
@@ -1040,6 +1078,11 @@ function renderDashboard(){
   $("#dashboardBuddyText").textContent=`${buddyProfile.trait}. אספתם יחד ${p.stars} ${p.stars===1?"כוכב":"כוכבים"}.`;
   $("#dashboardBuddyAbility").textContent=`יכולת: ${buddyProfile.ability}`;
   $("#dashboardBuddyAccessory").textContent=latestAccessory(p)?`אביזר אחרון: ${latestAccessory(p)}`:"אביזר: ייפתח בגביע הראשון";
+  const unlockedAccessories=earnedAccessories(p);
+  $("#dashboardBuddyAccessories").innerHTML=unlockedAccessories.length
+    ? `<b>האביזרים שקיבלתם:</b><div>${unlockedAccessories.map(item=>`<span>${item}</span>`).join("")}</div>`
+    : `<b>האביזרים שקיבלתם:</b><p>עדיין לא נאספו אביזרים. בגביע הראשון ייפתח האביזר הראשון.</p>`;
+  $("#insightEyebrow").textContent=`הפתק של ${buddyProfile.name}`;
   $("#subjectProgress").innerHTML=Object.entries(SUBJECTS).map(([k,s])=>{
     const x=p.progress[k],pct=x?Math.min(x.completed/10*100,100):0;
     return `<div class="progress-row"><span class="trail-icon">${s.icon}</span><b>${subjectName(p,k)}</b><div class="bar"><i style="width:${pct}%"></i></div><small>${x?.completed||0}/10</small></div>`;
@@ -1052,7 +1095,7 @@ function renderDashboard(){
     $("#insightText").textContent=`אפשר לבחור רמה קלה יותר בהגדרות, או להמשיך לתרגל בקצב נעים וללא לחץ.`;
   } else {
     $("#insightTitle").textContent="מוכנים להרפתקה הראשונה";
-    $("#insightText").textContent="השלימו שביל ופיפ ישתף כאן תובנה על הלמידה.";
+    $("#insightText").textContent=`השלימו שביל ו${buddyProfile.name} ישתף כאן תובנה על הלמידה.`;
   }
 }
 
@@ -1067,7 +1110,7 @@ function renderSettings(){
 
 function renderDifficulty(p){
   $("#difficultyControls").innerHTML=p.subjects.map(key=>{
-    const games=availableGames(p,key,true);
+    const games=KIDS_GAMES.catalog.filter(game=>!game.disabled&&game.subject===key&&gameVisibleInSettings(game,p.age));
     return `<section class="difficulty-subject"><h3>${SUBJECTS[key].icon} ${subjectName(p,key)}</h3>${games.map(game=>{
       const feedback=p.gameFeedback[game.id]||"ok",level=p.gameLevels[game.id]||ageLevel(p.age),hidden=p.hiddenGames.includes(game.id);
       return `<div class="skill-row game-level-row ${hidden?"game-is-hidden":""}"><span><b>${game.icon} ${game.name}</b><small class="level-badge">רמה ${level} מתוך 9</small><small class="question-count">${game.desc}</small>${hidden?`<small class="hidden-game-note">המשחק מוסתר מבחירת המשחקים</small>`:""}</span><div class="game-level-actions"><div class="level-adjust"><button ${level<=1||hidden?"disabled":""} class="${feedback==="down"?"selected":""}" data-adjust="${game.id}|down">קל יותר</button><button ${hidden?"disabled":""} class="${feedback==="ok"?"selected":""}" data-adjust="${game.id}|ok">מתאים</button><button ${level>=9||hidden?"disabled":""} class="${feedback==="up"?"selected":""}" data-adjust="${game.id}|up">קשה יותר</button></div><button class="game-visibility-button ${hidden?"restore":""}" data-game-visibility="${game.id}">${hidden?"החזרת המשחק":"הסתרת המשחק"}</button></div></div>`;
@@ -1102,6 +1145,12 @@ function adjustDifficulty(data){
 function exportProgress(){
   const p=activeProfile(); if(!p)return;
   const report={
+    app:"brightwood-quest",
+    exportType:"backup",
+    version:APP_VERSION,
+    exportedAt:new Date().toISOString(),
+    starGoal:STAR_GOAL,
+    backup:{state},
     child:{name:p.name,age:p.age,buddy:p.buddy},
     summary:{stars:p.stars,trophies:trophyCount(p),answered:p.answered,correct:p.correct,minutes:p.minutes},
     topics:p.subjects.map(key=>({topic:subjectName(p,key),level:subjectLevel(p,key),completed:p.progress[key]?.completed||0,games:availableGames(p,key).map(game=>({name:game.name,level:p.gameLevels[game.id],progress:p.gameProgress[game.id]}))})),
@@ -1110,6 +1159,38 @@ function exportProgress(){
   const blob=new Blob([JSON.stringify(report,null,2)],{type:"application/json;charset=utf-8"});
   const url=URL.createObjectURL(blob),a=document.createElement("a");
   a.href=url;a.download=`brightwood-${p.name}.json`;a.click();URL.revokeObjectURL(url);
+}
+
+function importProgressFile(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      const importedState=data?.backup?.state || data?.state;
+      if(!importedState || !Array.isArray(importedState.profiles))throw new Error("invalid");
+      const profileCount=importedState.profiles.length;
+      if(!confirm(`לייבא נתונים מהקובץ?\nהייבוא יחליף את הנתונים המקומיים במכשיר הזה.\nנמצאו ${profileCount} משתמשים בקובץ.`))return;
+      state={
+        profiles:importedState.profiles,
+        activeId:importedState.activeId || importedState.profiles[0]?.id || null,
+        sound:typeof importedState.sound==="boolean" ? importedState.sound : state.sound,
+        introSeen:Boolean(importedState.introSeen)
+      };
+      state.profiles.forEach(prepareProfile);
+      save();
+      session=null;
+      renderAll();
+      showScreen("homeScreen");
+      alert("הנתונים יובאו בהצלחה.");
+    }catch(err){
+      alert("לא הצלחתי לייבא את הקובץ. צריך לבחור קובץ גיבוי שנוצר מתוך האפליקציה.");
+    }finally{
+      const input=$("#importReportFile");
+      if(input)input.value="";
+    }
+  };
+  reader.readAsText(file);
 }
 
 function resetProgress(){
@@ -1240,6 +1321,8 @@ function bindEvents(){
   $("#settingsIntro").onclick=openIntro;
   $("#printReport").onclick=()=>window.print();
   $("#exportReport").onclick=exportProgress;
+  $("#importReport").onclick=()=>$("#importReportFile").click();
+  $("#importReportFile").onchange=e=>importProgressFile(e.target.files?.[0]);
   $("#resetProgress").onclick=resetProgress;
   $(".sound-toggle").onclick=e=>{state.sound=!state.sound;e.currentTarget.textContent=state.sound?"🔊":"🔇";save();if(state.sound)chime(true)};
   $("#continueButton").onclick=openAdventureFlow;

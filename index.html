@@ -10,11 +10,11 @@
   <title>ההרפתקה ביער הזוהר</title>
   <link rel="icon" type="image/png" href="assets/app-icon-star-forest.png">
   <link rel="apple-touch-icon" href="assets/app-icon-star-forest.png">
-  <link rel="manifest" href="manifest.webmanifest?v=0.1.7">
+  <link rel="manifest" href="manifest.webmanifest?v=0.1.8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?build=local52">
+  <link rel="stylesheet" href="styles.css?build=local64">
 </head>
 <body>
   <div id="app">
@@ -49,14 +49,14 @@
           <div class="hero-copy">
             <span class="eyebrow">ההרפתקה של היום</span>
             <h1>מוכנים לעשות<br><em>קסמים</em> עם הראש?</h1>
-            <p>בוחרים שביל, פותרים חידות ועוזרים לפיפ להאיר את היער הזוהר!</p>
+            <p id="heroBuddyText">בוחרים שביל, פותרים חידות ועוזרים לחבר המסע להאיר את היער הזוהר!</p>
             <div class="hero-actions">
               <button class="primary-btn" id="continueButton">ממשיכים בהרפתקה <span>←</span></button>
               <button class="round-btn" id="randomButton" aria-label="הפתיעו אותי">✦</button>
             </div>
             <div class="goal-progress">
-              <div><span>🏆 היעד הבא</span><b id="homeGoalLabel">20 כוכבים</b></div>
-              <strong id="homeGoalCount">0 / 20</strong>
+              <div><span>🏆 היעד הבא</span><b id="homeGoalLabel">10 כוכבים</b></div>
+              <strong id="homeGoalCount">0 / 10</strong>
               <div class="bar"><i id="homeGoalBar"></i></div>
             </div>
           </div>
@@ -122,7 +122,7 @@
         <div class="dashboard-wrap">
           <div class="dashboard-head">
             <button class="back-btn" data-go="home">→</button>
-            <div><span class="eyebrow blue">התקדמות</span><h1>מסע הלמידה</h1><p id="dashboardSubtitle">תמונה נעימה של ההתקדמות האחרונה.</p></div>
+            <div><span class="eyebrow blue">התקדמות</span><h1>מסע הלמידה</h1><p id="dashboardSubtitle">תמונה של ההתקדמות האחרונה.</p></div>
             <div class="dashboard-actions">
               <button class="outline-btn" id="printReport">הדפסת דוח</button>
             </div>
@@ -135,7 +135,7 @@
           </div>
           <article class="panel trophy-panel">
             <div class="trophy-stack"><b id="trophyCount">0</b><span>🏆</span></div>
-            <div class="trophy-copy"><span class="eyebrow blue">יעד הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 20 כוכבים והגביע הראשון שלכם!</p><div class="bar"><i id="trophyBar"></i></div></div>
+            <div class="trophy-copy"><span class="eyebrow blue">יעד הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 10 כוכבים והגביע הראשון שלכם!</p><div class="bar"><i id="trophyBar"></i></div></div>
           </article>
           <article class="panel buddy-progress-panel">
             <div class="buddy-progress-icon" id="dashboardBuddyIcon">🦊</div>
@@ -144,13 +144,14 @@
               <h2 id="dashboardBuddyName">פיפ השועל</h2>
               <p id="dashboardBuddyText">מחפש הפתעות ביער.</p>
               <div class="buddy-rewards"><span id="dashboardBuddyAbility">יכולת: סקרנות</span><span id="dashboardBuddyAccessory">אביזר: עדיין אין</span></div>
+              <div class="buddy-accessory-collection" id="dashboardBuddyAccessories"></div>
             </div>
           </article>
           <div class="dashboard-grid">
             <article class="panel"><div class="panel-title"><div><span class="eyebrow blue">מקצועות</span><h2>התקדמות לפי שביל</h2></div><span>השבוע</span></div><div id="subjectProgress"></div></article>
             <article class="panel"><div class="panel-title"><div><span class="eyebrow blue">רגעים אחרונים</span><h2>יומן ההרפתקאות</h2></div></div><div id="activityLog"></div></article>
           </div>
-          <article class="panel insight-panel"><div class="insight-icon">💡</div><div><span class="eyebrow">הפתק של פיפ</span><h3 id="insightTitle">מוכנים להרפתקה הראשונה</h3><p id="insightText">השלימו שביל ופיפ ישתף כאן תובנה על הלמידה.</p></div></article>
+          <article class="panel insight-panel"><div class="insight-icon">💡</div><div><span class="eyebrow" id="insightEyebrow">הפתק של חבר המסע</span><h3 id="insightTitle">מוכנים להרפתקה הראשונה</h3><p id="insightText">השלימו שביל וחבר המסע ישתף כאן תובנה על הלמידה.</p></div></article>
         </div>
       </section>
 
@@ -179,6 +180,8 @@
             <div><span class="eyebrow blue">נתוני הלמידה</span><h2>שמירה וניהול</h2><p>אפשר לשמור עותק של ההתקדמות או להתחיל מחדש.</p></div>
             <div class="settings-data-actions">
               <button class="outline-btn" id="exportReport">ייצוא נתונים</button>
+              <button class="outline-btn" id="importReport">ייבוא נתונים</button>
+              <input class="hidden" id="importReportFile" type="file" accept="application/json,.json">
               <button class="quiet-danger" id="resetProgress">איפוס התקדמות</button>
             </div>
           </article>
@@ -199,7 +202,7 @@
 
             <article class="panel help-card"><span class="help-icon">🎮</span><div><h2>משחקים ורמות</h2><p>לכל משחק יש תשע רמות קושי. נקודת ההתחלה נקבעת לפי גיל הילד.</p><p>במסך ההגדרות אפשר לבחור לכל משחק <b>קל יותר</b>, <b>מתאים</b> או <b>קשה יותר</b>. ברמה הראשונה או התשיעית האפשרות שאינה זמינה תופיע מעומעמת.</p></div></article>
 
-            <article class="panel help-card reward-help-card"><span class="help-icon">⭐</span><div><h2>כוכבים וגביעים</h2><p>המטרה במשחק היא לאסוף 20 כוכבים. כשמגיעים ל־20 כוכבים זוכים בגביע!</p><p>אפשר להמשיך ל־40 כוכבים כדי לזכות בגביע נוסף, וכן הלאה. בראש המסך מוצגים מספר הכוכבים ומספר הגביעים של הילד.</p><div class="help-reward-example"><span>★</span><b>28</b><i></i><span>🏆</span><b>1</b></div></div></article>
+            <article class="panel help-card reward-help-card"><span class="help-icon">⭐</span><div><h2>כוכבים וגביעים</h2><p>המטרה במשחק היא לאסוף 10 כוכבים. כשמגיעים ל־10 כוכבים זוכים בגביע!</p><p>אפשר להמשיך ל־20 כוכבים כדי לזכות בגביע נוסף, וכן הלאה. בראש המסך מוצגים מספר הכוכבים ומספר הגביעים של הילד.</p><div class="help-reward-example"><span>★</span><b>18</b><i></i><span>🏆</span><b>1</b></div></div></article>
 
             <article class="panel help-card"><span class="help-icon">🏆</span><div><h2>הדרך לגביע הבא</h2><p>במסך ההתקדמות מוצג כמה כוכבים חסרים עד לגביע הבא. לדוגמה: לאחר איסוף 28 כוכבים יוצגו גביע אחד והתקדמות של 8 מתוך 20 לקראת הגביע השני.</p></div></article>
 
@@ -276,7 +279,7 @@
         <p id="introText">יוצאים להרפתקת למידה קצרה, צבעונית וכיפית.</p>
         <div class="intro-dots" id="introDots"></div>
         <div class="intro-actions">
-          <button type="button" class="text-btn" data-intro-skip>דלגו והתחילו</button>
+          <button type="button" class="text-btn" data-intro-skip>דלגו על ההקדמה והתחילו</button>
           <button type="button" class="outline-btn" data-intro-prev>הקודם</button>
           <button type="button" class="primary-btn" data-intro-next>הבא <span>←</span></button>
           <button type="button" class="primary-btn hidden" data-intro-start>מתחילים <span>←</span></button>
@@ -301,7 +304,7 @@
         <h2 id="profileFormTitle">יוצרים פרופיל לילד/ה</h2>
         <label>שם:<input id="childName" maxlength="16" placeholder="למשל: הראל" required></label>
         <label>גיל:<div class="age-options" id="ageOptions"></div></label>
-        <label>בוחרים חבר למסע<div class="buddy-options" id="buddyOptions"></div><p class="buddy-unlock-hint" id="buddyUnlockHint">מתחילים עם 4 חברים. כל 20 כוכבים פותחים חבר נוסף למסע.</p></label>
+        <label>בוחרים חבר למסע<div class="buddy-options" id="buddyOptions"></div><p class="buddy-unlock-hint" id="buddyUnlockHint">מתחילים עם 4 חברים. כל 10 כוכבים פותחים חבר נוסף למסע.</p></label>
         <button class="primary-btn full" id="profileSubmit" type="submit">יוצאים לדרך <span>←</span></button>
         <button class="danger-btn hidden" id="deleteProfile" type="button">מחיקת הפרופיל</button>
       </form>
@@ -335,7 +338,7 @@
         <div class="milestone-trophy"><b id="milestoneTrophyNumber">1</b><span>🏆</span></div>
         <span class="eyebrow">הגעת ליעד!</span>
         <h2 id="milestoneTitle">היער כולו זוהר!</h2>
-        <p id="milestoneText">אספתם עוד 20 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
+        <p id="milestoneText">אספתם עוד 10 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
         <button class="primary-btn full" data-game-finished-return data-close="milestoneModal">ממשיכים למשחק הבא <span>←</span></button>
       </div>
     </div>
@@ -354,7 +357,7 @@
     </div>
 
   </div>
-  <script src="games.js?build=local52"></script>
-  <script src="app.js?build=local52"></script>
+  <script src="games.js?build=local64"></script>
+  <script src="app.js?build=local64"></script>
 </body>
 </html>
