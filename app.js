@@ -1,4 +1,11 @@
-const APP_VERSION = "0.1.6";
+const APP_VERSION = "0.1.7";
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
+const INTRO_STEPS = [
+  {icon:"🌟",eyebrow:"ברוכים הבאים",title:"היער הזוהר מחכה לכם",text:"יוצאים להרפתקת למידה קצרה, צבעונית וכיפית. בכל פעם משחקים קצת, מתקדמים קצת, ומגלים עוד מהיער."},
+  {icon:"🏆",eyebrow:"כוכבים וגביעים",title:"אוספים כוכבים וזוכים בגביעים",text:"בכל משחק אוספים כוכבים. כל 20 כוכבים הופכים לגביע חדש, ואפשר להמשיך לאסוף עוד ועוד גביעים."},
+  {icon:"🦊",eyebrow:"חברי מסע",title:"בוחרים חבר שמלווה את ההרפתקה",text:"בתחילת הדרך בוחרים חבר למסע. בהמשך נפתחים חברים נוספים, וכל ילד יכול לבחור מי יצא איתו למשחקים."},
+  {icon:"⚙️",eyebrow:"מתאים לכל ילד",title:"אפשר להתאים נושאים ורמות קושי",text:"ההורים יכולים לבחור נושאים, להסתיר משחקים, ולהעלות או להוריד רמת קושי לפי מה שמתאים לילד."}
+];
 
 const SUBJECTS = {
   math: { name: "חשבון", icon: "🔢", class: "math", desc: "סופרים, משווים ופותרים", trail: "אחו המספרים" },
@@ -396,6 +403,7 @@ let selectedBuddy = "🦊";
 let editingId = null;
 let sampleNameIndex = 0;
 let gamePickerBackTarget = "home";
+let introIndex = 0;
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
@@ -551,6 +559,31 @@ function showScreen(id){
   if(id==="settingsScreen") renderSettings();
 }
 
+function renderIntro(){
+  const step=INTRO_STEPS[introIndex];
+  $("#introIcon").textContent=step.icon;
+  $("#introEyebrow").textContent=step.eyebrow;
+  $("#introTitle").textContent=step.title;
+  $("#introText").textContent=step.text;
+  $("#introDots").innerHTML=INTRO_STEPS.map((_,i)=>`<span class="${i===introIndex?"active":""}"></span>`).join("");
+  $("[data-intro-prev]").disabled=introIndex===0;
+  $("[data-intro-next]").classList.toggle("hidden",introIndex===INTRO_STEPS.length-1);
+  $("[data-intro-start]").classList.toggle("hidden",introIndex!==INTRO_STEPS.length-1);
+}
+
+function openIntro(){
+  introIndex=0;
+  renderIntro();
+  openModal("introModal");
+}
+
+function finishIntro(){
+  state.hasSeenIntro=true;
+  save();
+  closeModal("introModal");
+  if(!activeProfile()) openCreate();
+}
+
 function init(){
   $("#appVersion").textContent=APP_VERSION;
   document.documentElement.dataset.appVersion=APP_VERSION;
@@ -559,7 +592,8 @@ function init(){
   setInterval(rotateNamePlaceholder,3000);
   bindEvents();
   setupPWA();
-  if(!activeProfile()) openCreate();
+  if(!state.hasSeenIntro) openIntro();
+  else if(!activeProfile()) openCreate();
   renderAll();
 }
 
@@ -1156,6 +1190,9 @@ function bindEvents(){
     const finishedReturn=e.target.closest("[data-game-finished-return]"); if(finishedReturn)return returnAfterFinishedGame();
     const adventureBack=e.target.closest("[data-adventure-back]"); if(adventureBack)return backFromAdventure();
     const gamePickerBack=e.target.closest("[data-game-picker-back]"); if(gamePickerBack)return backFromGamePicker();
+    const introNext=e.target.closest("[data-intro-next]"); if(introNext){introIndex=Math.min(INTRO_STEPS.length-1,introIndex+1);renderIntro();return}
+    const introPrev=e.target.closest("[data-intro-prev]"); if(introPrev){introIndex=Math.max(0,introIndex-1);renderIntro();return}
+    const introStart=e.target.closest("[data-intro-start],[data-intro-skip]"); if(introStart)return finishIntro();
     const go=e.target.closest("[data-go]"); if(go)showScreen(go.dataset.go==="home"?"homeScreen":go.dataset.go);
     const close=e.target.closest("[data-close]"); if(close)closeModal(close.dataset.close);
     const sub=e.target.closest("[data-subject]"); if(sub)openGamePicker(sub.dataset.subject);
@@ -1200,18 +1237,56 @@ function bindEvents(){
   $("#settingsProfile").onclick=()=>openEdit(activeProfile().id);
   $("#settingsSound").onclick=()=>{$(".sound-toggle").click();renderSettings()};
   $("#settingsHelp").onclick=()=>showScreen("helpScreen");
+  $("#settingsIntro").onclick=openIntro;
   $("#printReport").onclick=()=>window.print();
   $("#exportReport").onclick=exportProgress;
   $("#resetProgress").onclick=resetProgress;
   $(".sound-toggle").onclick=e=>{state.sound=!state.sound;e.currentTarget.textContent=state.sound?"🔊":"🔇";save();if(state.sound)chime(true)};
   $("#continueButton").onclick=openAdventureFlow;
   $("#randomButton").onclick=()=>{const p=activeProfile();if(!p)return openCreate();const games=p.subjects.flatMap(subject=>availableGames(p,subject));if(games.length)startGame(games[Math.floor(Math.random()*games.length)].id)};
-  $("#contactForm").onsubmit=e=>{
+  $("#contactForm").onsubmit=async e=>{
     e.preventDefault();
+    const form=e.currentTarget;
+    const submit=form.querySelector(".contact-submit");
+    const status=$("#contactStatus");
     const name=$("#contactName").value.trim();
     const email=$("#contactEmail").value.trim();
     const message=$("#contactMessage").value.trim();
     if(!message)return;
+    if(!FORMSPREE_ENDPOINT){
+      status.textContent="הטופס כמעט מוכן. צריך להגדיר בקוד את כתובת ה-Formspree לפני שאפשר לשלוח.";
+      status.className="contact-status error";
+      return;
+    }
+    submit.disabled=true;
+    status.textContent="שולחים...";
+    status.className="contact-status";
+    try{
+      const response=await fetch(FORMSPREE_ENDPOINT,{
+        method:"POST",
+        headers:{"Content-Type":"application/json","Accept":"application/json"},
+        body:JSON.stringify({
+          name,
+          email,
+          _replyto:email,
+          _subject:"היער הזוהר - בקשה",
+          message,
+          appVersion:APP_VERSION,
+          pageUrl:location.href,
+          userAgent:navigator.userAgent
+        })
+      });
+      if(!response.ok)throw new Error(`Formspree ${response.status}`);
+      form.reset();
+      status.textContent="תודה! ההודעה נשלחה אלינו.";
+      status.className="contact-status success";
+    }catch(err){
+      status.textContent="לא הצלחנו לשלוח כרגע. נסו שוב בעוד רגע.";
+      status.className="contact-status error";
+    }finally{
+      submit.disabled=false;
+    }
+    return;
     const subject="היער הזוהר - בקשה";
     const body=[
       "שלום,",
@@ -1224,9 +1299,9 @@ function bindEvents(){
       "",
       `גרסה: ${APP_VERSION}`
     ].join("\n");
-    window.location.href=`mailto:yossi.glass@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    throw new Error("Legacy mail fallback disabled");
   };
-  $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
+  $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&m.id!=="introModal"&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
 }
 
 init();

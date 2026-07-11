@@ -10,11 +10,11 @@
   <title>ההרפתקה ביער הזוהר</title>
   <link rel="icon" type="image/png" href="assets/app-icon-star-forest.png">
   <link rel="apple-touch-icon" href="assets/app-icon-star-forest.png">
-  <link rel="manifest" href="manifest.webmanifest?v=0.1.6">
+  <link rel="manifest" href="manifest.webmanifest?v=0.1.7">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?build=local49">
+  <link rel="stylesheet" href="styles.css?build=local52">
 </head>
 <body>
   <div id="app">
@@ -167,6 +167,7 @@
             <button class="settings-shortcut" id="settingsProfile"><span>🦊</span><b>פרטי ההרפתקן</b><small>שם, גיל וחבר למסע</small></button>
             <button class="settings-shortcut" id="settingsSound"><span>🔊</span><b>צלילים</b><small id="settingsSoundLabel">הצלילים פעילים</small></button>
             <button class="settings-shortcut" id="settingsHelp"><span>❓</span><b>עזרה ומידע</b><small>איך משחקים, מתקדמים וזוכים</small></button>
+            <button class="settings-shortcut" id="settingsIntro"><span>🌟</span><b>הצגת ההסבר שוב</b><small>מסכי פתיחה קצרים על המשחק</small></button>
           </div>
 
           <article class="panel difficulty-panel">
@@ -237,7 +238,8 @@
               <label class="contact-message-label">מה תרצו לכתוב לנו?
                 <textarea id="contactMessage" name="message" rows="8" required placeholder="כתבו כאן הערה, בקשה או תיאור של שגיאה שמצאתם במשחק"></textarea>
               </label>
-              <p class="contact-note">לחיצה על שליחה תפתח הודעת אימייל מוכנה. כתובת המייל שמילאתם תופיע בתוך ההודעה כדי שנוכל לחזור אליכם.</p>
+              <p class="formspree-note">ההודעה תישלח אלינו דרך Formspree. כתובת המייל שמילאתם תשמש לחזרה אליכם.</p>
+              <p id="contactStatus" class="contact-status" aria-live="polite"></p>
               <button class="primary-btn contact-submit" type="submit">שלח</button>
             </form>
           </article>
@@ -265,6 +267,22 @@
       </section>
 
     </main>
+
+    <div class="modal-backdrop intro-backdrop" id="introModal">
+      <div class="modal intro-modal">
+        <div class="intro-icon" id="introIcon">🌟</div>
+        <span class="eyebrow blue" id="introEyebrow">ברוכים הבאים</span>
+        <h2 id="introTitle">היער הזוהר מחכה לכם</h2>
+        <p id="introText">יוצאים להרפתקת למידה קצרה, צבעונית וכיפית.</p>
+        <div class="intro-dots" id="introDots"></div>
+        <div class="intro-actions">
+          <button type="button" class="text-btn" data-intro-skip>דלגו והתחילו</button>
+          <button type="button" class="outline-btn" data-intro-prev>הקודם</button>
+          <button type="button" class="primary-btn" data-intro-next>הבא <span>←</span></button>
+          <button type="button" class="primary-btn hidden" data-intro-start>מתחילים <span>←</span></button>
+        </div>
+      </div>
+    </div>
 
     <div class="modal-backdrop" id="profileModal">
       <div class="modal profile-modal">
@@ -336,7 +354,7 @@
     </div>
 
   </div>
-  <script src="games.js?build=local49"></script>
-  <script src="app.js?build=local49"></script>
+  <script src="games.js?build=local52"></script>
+  <script src="app.js?build=local52"></script>
 </body>
 </html>
