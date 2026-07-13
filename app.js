@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.9";
+const APP_VERSION = "0.1.10";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const GA_MEASUREMENT_ID = "";
 const INTRO_STEPS = [
@@ -438,6 +438,8 @@ function ageLevel(age){ return clamp(Number(age)||3,1,9); }
 function defaultGameLevel(gameId,age){
   if(gameId==="count"||gameId==="number-quantity")return ({3:1,4:2,5:4,6:7,7:9})[Number(age)]||1;
   if(gameId==="big-small"&&Number(age)===5)return 6;
+  if(gameId==="number-sequence")return ({5:3,6:4,7:5})[Number(age)]||ageLevel(age);
+  if(gameId==="number-line")return ({5:2,6:3,7:4})[Number(age)]||ageLevel(age);
   return ageLevel(age);
 }
 function applyDefaultHiddenGames(p){
@@ -498,9 +500,10 @@ function accessoryIcon(item){
 function gameBuddyAccessoryMarkup(p){
   const accessories=earnedAccessories(p);
   if(!accessories.length)return "";
-  const visible=accessories.slice(-3);
+  const visible=accessories.slice(-4);
   const hiddenCount=accessories.length-visible.length;
-  return `<span class="pip-accessories" aria-label="אביזרים שהושגו">${visible.map(item=>`<span title="${escapeHtml(item)}">${escapeHtml(accessoryIcon(item))}</span>`).join("")}${hiddenCount?`<small>ועוד ${hiddenCount}</small>`:""}</span>`;
+  const label=accessories.join(", ");
+  return `<span class="pip-accessories" aria-label="${escapeHtml(label)}">${visible.map(item=>`<span title="${escapeHtml(item)}">${escapeHtml(accessoryIcon(item))}</span>`).join("")}${hiddenCount?`<small title="עוד ${hiddenCount} אביזרים">+${hiddenCount}</small>`:""}</span>`;
 }
 function latestAccessory(p){
   const trophies=trophyCount(p);
@@ -563,6 +566,12 @@ function prepareProfile(p){
     p.mathBoostVersion=1;
     p.recentQuestions.math=[];
   }
+  if(p.gameDefaultTuningVersion!==1){
+    ["number-sequence","number-line","big-small"].forEach(id=>{
+      if(!p.gameFeedback[id])p.gameLevels[id]=defaultGameLevel(id,p.age);
+    });
+    p.gameDefaultTuningVersion=1;
+  }
   return p;
 }
 state.profiles.forEach(prepareProfile);
@@ -577,8 +586,6 @@ function updateInstallUI(){
   $$("[data-install-app]").forEach(button=>{
     const label=button.querySelector("[data-install-label]");
     const hint=button.querySelector("[data-install-hint]");
-    if(label)label.textContent=installed?"האפליקציה מותקנת":deferredInstallPrompt?"התקנת האפליקציה":"הוספה למסך הבית";
-    if(hint)hint.textContent=installed?"אפשר לפתוח אותה ממסך הבית":deferredInstallPrompt?"התקנה בלחיצה אחת":"הצגת הוראות התקנה";
     if(label)label.textContent=deferredInstallPrompt?"התקנת האפליקציה":installed?"פתיחה / התקנה":"הוספה למסך הבית";
     if(hint)hint.textContent=deferredInstallPrompt?"התקנה בלחיצה אחת":installed?"אם הסרתם את האפליקציה, אפשר להתקין שוב מהתפריט":"הצגת הוראות התקנה";
     button.disabled=false;
@@ -663,11 +670,12 @@ function init(){
 function renderChoiceButtons(){
   $("#ageOptions").innerHTML=[3,4,5,6,7].map(n=>`<button type="button" class="choice-btn ${n===selectedAge?"selected":""}" data-age="${n}">${n}</button>`).join("");
   const p=editingId?state.profiles.find(x=>x.id===editingId):activeProfile();
-  const unlocked=buddyUnlockCount(p);
-  const next=nextUnlockBuddy(p);
+  const isCreatingNewProfile=!editingId;
+  const unlocked=isCreatingNewProfile?BUDDY_UNLOCK_BASE:buddyUnlockCount(p);
+  const next=isCreatingNewProfile?BUDDIES[BUDDY_UNLOCK_BASE]:nextUnlockBuddy(p);
   $("#buddyOptions").innerHTML=BUDDIES.map((b,index)=>{
     const profile=BUDDY_PROFILES[b]||{name:BUDDY_TITLES[b]||"חבר למסע",trait:"חבר למסע",ability:"קסם"};
-    const open=index<unlocked || b===selectedBuddy || p?.buddy===b;
+    const open=index<unlocked || (!isCreatingNewProfile&&(b===selectedBuddy || p?.buddy===b));
     return `<button type="button" class="choice-btn buddy-choice ${b===selectedBuddy?"selected":""} ${open?"":"locked"}" ${open?"":`disabled`} data-buddy="${b}" title="${profile.name}" aria-label="${profile.name}"><span class="buddy-emoji buddy-motion">${b}</span><b>${profile.name}</b><small>${open?profile.trait:`ייפתח אחרי ${Math.max(1,index-BUDDY_UNLOCK_BASE+1)*STAR_GOAL} כוכבים`}</small><i>יכולת: ${profile.ability}</i></button>`;
   }).join("");
   if($("#buddyUnlockHint")){
@@ -843,7 +851,8 @@ function submitProfile(name){
     prepareProfile(p); save(); closeModal("createModal"); renderAll(); showScreen("homeScreen");
     editingId=null;
   } else {
-    const p=prepareProfile({id:Date.now().toString(),name:name.trim(),age:selectedAge,buddy:selectedBuddy,subjects:["math","english"],stars:0,streak:0,progress:{},log:[],correct:0,answered:0,minutes:0,daily:0,dailyDate:""});
+    const defaultSubjects=selectedAge>=6?["math","english"]:["math","thinking"];
+    const p=prepareProfile({id:Date.now().toString(),name:name.trim(),age:selectedAge,buddy:selectedBuddy,subjects:defaultSubjects,stars:0,streak:0,progress:{},log:[],correct:0,answered:0,minutes:0,daily:0,dailyDate:""});
     state.profiles.push(p); state.activeId=p.id; session=null; save(); closeModal("createModal"); renderAll(); showScreen("homeScreen"); openModal("subjectModal");
   }
 }
@@ -963,9 +972,9 @@ function renderQuestion(){
   $("#questionLabel").textContent=`${session.index+1} מתוך ${session.questions.length}`;
   $("#questionBar").style.width=`${session.index/session.questions.length*100}%`;
   $("#questionType").textContent=q.type; $("#questionText").textContent=q.q;
-  $("#questionVisual").textContent=q.audio || q.patternTiles || q.clock ? "" : (q.visual||"");
+  $("#questionVisual").textContent=q.audio || q.patternTiles || q.clock || q.pictureMath ? "" : (q.visual||"");
   $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"");
-  $("#questionVisual").classList.toggle("no-visual",!q.visual&&!q.audio&&!q.patternTiles&&!q.clock);
+  $("#questionVisual").classList.toggle("no-visual",!q.visual&&!q.audio&&!q.patternTiles&&!q.clock&&!q.pictureMath);
   if(q.clock){
     $("#questionVisual").classList.add("clock-visual");
     $("#questionVisual").innerHTML=renderClockFace(q.clock.hour,q.clock.minutes);
@@ -973,7 +982,10 @@ function renderQuestion(){
   if(q.patternTiles){
     $("#questionVisual").classList.add("pattern-visual");
     $("#questionVisual").innerHTML=q.patternTiles.map(tile=>`<span class="${tile==="?"?"pattern-missing":"pattern-tile"}">${escapeHtml(tile)}</span>`).join("");
-    requestAnimationFrame(()=>{$("#questionVisual").scrollLeft=$("#questionVisual").scrollWidth;});
+  }
+  if(q.pictureMath){
+    $("#questionVisual").classList.add("picture-math-visual");
+    $("#questionVisual").innerHTML=q.pictureMath.groups.map((group,index)=>`${index?`<span class="picture-math-operator">${escapeHtml(q.pictureMath.operator)}</span>`:""}<span class="picture-math-group">${group.map(icon=>`<span>${escapeHtml(icon)}</span>`).join("")}</span>`).join("");
   }
   if(q.audio){
     const listen=document.createElement("button");
@@ -1066,7 +1078,10 @@ function answer(value,button){
     button.classList.add("wrong"); chime(false);
     $("#feedback").textContent="לא בדיוק"; $("#feedback").className="feedback bad";
     $$(".answer-btn").find(b=>b.dataset.answer===q.correct)?.classList.add("correct");
-    $("#explanation").textContent=q.explain; $("#explanation").className="explanation show";
+    const genericExplanation=`התשובה הנכונה היא ${q.correct}.`;
+    if(q.explain&&q.explain!==genericExplanation){
+      $("#explanation").textContent=q.explain; $("#explanation").className="explanation show";
+    }
   }
   save();
   setTimeout(()=>{session.index++;session.index<session.questions.length?renderQuestion():finishGame()},right?1050:2400);

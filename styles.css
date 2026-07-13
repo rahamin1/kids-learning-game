@@ -14,15 +14,19 @@ body{font-family:Heebo,system-ui,sans-serif}
 .modal-close{right:auto;left:18px}
 .modal-back{position:absolute;right:18px;top:15px;border:0;background:#eef3f7;width:32px;height:32px;border-radius:50%;font-size:20px;color:var(--muted)}
 .game-picker-modal,.adventure-modal{padding-top:58px}
-.pattern-visual{flex-wrap:nowrap;justify-content:flex-end;overflow-x:auto;white-space:nowrap;gap:12px;direction:ltr}
-.pattern-tile,.pattern-missing{width:72px;height:72px;min-width:72px;display:inline-flex;align-items:center;justify-content:center;font-size:58px;line-height:1}
+.pattern-visual{flex-wrap:nowrap;justify-content:center;overflow:hidden;white-space:nowrap;gap:8px;direction:ltr;max-width:100%;margin:12px auto 8px;padding:12px;border:3px solid #dbe7f0;border-radius:24px;background:#f8fbfd}
+.pattern-tile,.pattern-missing{width:clamp(48px,9vw,72px);height:clamp(48px,9vw,72px);min-width:0;display:inline-flex;align-items:center;justify-content:center;font-size:clamp(38px,7vw,58px);line-height:1}
 .pattern-missing{border:3px solid #dbe7f0;border-radius:16px;background:#f8fbfd;color:var(--blue-dark);font-family:Rubik,Heebo,sans-serif;font-size:46px;font-weight:900}
+.picture-math-visual{display:flex;align-items:center;justify-content:center;gap:20px;direction:ltr;flex-wrap:nowrap}
+.picture-math-group{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 10px;align-items:center;justify-items:center;max-width:270px}
+.picture-math-group span{font-size:54px;line-height:1}
+.picture-math-operator{font-family:Rubik,Heebo,sans-serif;font-size:62px;font-weight:900;color:var(--blue-dark);line-height:1}
 .pip-corner{right:auto;left:28px}
-.pip-corner{display:flex;align-items:flex-start;gap:6px}
-.pip-corner .pip-buddy{font-size:45px;background:transparent;border-radius:0;padding:0;line-height:1}
-.pip-accessories{display:flex;align-items:center;gap:3px;margin-top:3px;background:#fff8db;border:1px solid #f4df9d;border-radius:999px;padding:3px 6px;box-shadow:0 4px 10px rgba(120,85,0,.12)}
-.pip-accessories span{font-size:15px;background:transparent;border-radius:0;padding:0;line-height:1}
-.pip-accessories small{font-size:10px;color:#8a6400;font-weight:900;white-space:nowrap}
+.pip-corner{display:flex;align-items:center;gap:4px}
+.pip-corner .pip-buddy{font-size:42px;background:transparent;border-radius:0;padding:0;line-height:1}
+.pip-accessories{display:flex;align-items:center;gap:2px;margin-top:0;background:#fff8db;border:1px solid #f4df9d;border-radius:999px;padding:2px 5px;box-shadow:0 4px 10px rgba(120,85,0,.12);max-width:86px;flex-wrap:wrap;justify-content:center}
+.pip-accessories span{font-size:14px;background:transparent;border-radius:0;padding:0;line-height:1}
+.pip-accessories small{font-size:9px;color:#8a6400;font-weight:900;white-space:nowrap}
 .primary-btn span{margin-left:0;margin-right:20px}
 .question-visual{direction:ltr}
 .question-visual.object-grid{white-space:pre-line;font-size:30px;line-height:1.18}
@@ -355,12 +359,21 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .answer-grid.roomy-object-grid-answers .answer-btn{font-size:clamp(24px,4.8vw,38px);min-height:140px;line-height:1.25}
 .answer-grid.large-object-grid-answers .answer-btn{font-size:clamp(20px,3.8vw,28px);min-height:132px;line-height:1.2}
 .pip-corner{top:12px;left:22px;z-index:2}
-.pip-corner .pip-buddy{font-size:42px}
+.pip-corner .pip-buddy{font-size:38px}
 @media(max-width:520px){
+  .picture-math-visual{gap:12px;padding-left:2px;padding-right:2px}
+  .picture-math-group{grid-template-columns:repeat(4,1fr);gap:5px 6px;max-width:210px}
+  .picture-math-group span{font-size:42px}
+  .picture-math-operator{font-size:48px}
   .question-visual.no-visual{min-height:4px;padding:0}
   .answer-grid.roomy-image-answers .answer-btn{font-size:clamp(86px,20vw,118px);min-height:150px}
   .answer-grid.roomy-object-grid-answers .answer-btn{font-size:clamp(24px,8vw,34px);min-height:126px}
   .answer-grid.large-object-grid-answers .answer-btn{font-size:clamp(19px,6.5vw,25px);min-height:124px}
   .pip-corner{top:10px;left:16px}
-  .pip-corner .pip-buddy{font-size:38px}
+  .pip-corner{left:14px;gap:3px}
+  .pip-corner .pip-buddy{font-size:34px}
+  .pip-accessories{padding:2px 4px}
+  .pip-accessories{max-width:82px}
+  .pip-accessories span{font-size:13px}
+  .pip-accessories small{font-size:8px}
 }
