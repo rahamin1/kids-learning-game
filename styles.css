@@ -18,6 +18,11 @@ body{font-family:Heebo,system-ui,sans-serif}
 .pattern-tile,.pattern-missing{width:72px;height:72px;min-width:72px;display:inline-flex;align-items:center;justify-content:center;font-size:58px;line-height:1}
 .pattern-missing{border:3px solid #dbe7f0;border-radius:16px;background:#f8fbfd;color:var(--blue-dark);font-family:Rubik,Heebo,sans-serif;font-size:46px;font-weight:900}
 .pip-corner{right:auto;left:28px}
+.pip-corner{display:flex;align-items:flex-start;gap:6px}
+.pip-corner .pip-buddy{font-size:45px;background:transparent;border-radius:0;padding:0;line-height:1}
+.pip-accessories{display:flex;align-items:center;gap:3px;margin-top:3px;background:#fff8db;border:1px solid #f4df9d;border-radius:999px;padding:3px 6px;box-shadow:0 4px 10px rgba(120,85,0,.12)}
+.pip-accessories span{font-size:15px;background:transparent;border-radius:0;padding:0;line-height:1}
+.pip-accessories small{font-size:10px;color:#8a6400;font-weight:900;white-space:nowrap}
 .primary-btn span{margin-left:0;margin-right:20px}
 .question-visual{direction:ltr}
 .question-visual.object-grid{white-space:pre-line;font-size:30px;line-height:1.18}
@@ -104,13 +109,17 @@ body{font-family:Heebo,system-ui,sans-serif}
 .data-settings-panel{margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:20px}
 .data-settings-panel p{margin:5px 0 0;color:var(--muted);font-size:12px}
 .settings-data-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.settings-users-panel{margin:0 0 18px;display:flex;align-items:center;justify-content:space-between;gap:20px;background:linear-gradient(135deg,#fff,#f3f9ff)}
+.settings-users-panel p{margin:5px 0 0;color:var(--muted);font-size:12px}
+.settings-user-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 @media(max-width:800px){
   .home-tools-grid,.settings-shortcuts{grid-template-columns:1fr}
 }
 @media(max-width:520px){
   .settings-shortcuts{margin-top:22px}
   .settings-shortcut{min-height:112px}
-  .data-settings-panel{align-items:flex-start;flex-direction:column}
+  .data-settings-panel,.settings-users-panel{align-items:flex-start;flex-direction:column}
+  .settings-user-actions{justify-content:flex-start}
 }
 
 /* The 100-star journey and the forest reveal. */
@@ -226,13 +235,14 @@ body{font-family:Heebo,system-ui,sans-serif}
 html,body{width:100%;max-width:100%;overflow-x:hidden}
 #app,main,.screen{width:100%;max-width:100%;overflow-x:hidden}
 .install-shortcut{background:linear-gradient(145deg,#eef8ff,#fff)}
-.install-shortcut.installed{opacity:.7;cursor:default}
+.install-shortcut.installed{opacity:1;cursor:pointer}
 .install-help-card{background:linear-gradient(135deg,#eaf5ff,#fff)}
 .install-help-button{margin-top:10px}
 .help-steps{margin:12px 0;padding-right:20px;color:var(--muted);font-size:13px;line-height:1.65}
 .help-steps li+li{margin-top:8px}
 .help-steps b{color:var(--ink)}
 .install-instructions{display:grid;gap:12px;margin:20px 0}
+.install-modal-note{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.65}
 .install-instructions section{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:16px;background:#f5f9fc}
 .install-instructions section>span{font-size:28px}
 .install-instructions b{font-family:Rubik,Heebo,sans-serif}
@@ -295,7 +305,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 
 /* Keep answer choices inside the game card on narrow mobile screens. */
 .answer-grid{width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}
-.answer-btn{min-width:0;overflow-wrap:anywhere;word-break:normal}
+.answer-btn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal;word-break:keep-all}
 .question-visual.clock-visual{min-height:190px;padding:18px;display:grid;place-items:center}
 .analog-clock{width:min(210px,58vw);height:min(210px,58vw);margin:auto}
 .analog-clock svg{width:100%;height:100%;display:block;filter:drop-shadow(0 8px 14px rgba(23,49,83,.12))}
@@ -310,7 +320,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   .game-screen,.game-shell,.game-card{max-width:100vw;overflow-x:hidden}
   .game-card{padding-left:14px;padding-right:14px}
   .answer-grid{gap:10px;max-width:100%}
-  .answer-btn{font-size:clamp(22px,8vw,34px);line-height:1.08;padding:10px 6px}
+  .answer-btn{font-size:clamp(18px,6.2vw,30px);line-height:1.08;padding:10px 5px}
   .answer-grid.image-answers .answer-btn{font-size:72px;min-height:118px}
   .question-visual.clock-visual{min-height:170px}
   .analog-clock{width:min(180px,62vw);height:min(180px,62vw)}
@@ -343,8 +353,14 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .question-visual.no-visual{min-height:12px;padding:6px}
 .answer-grid.roomy-image-answers .answer-btn{font-size:clamp(92px,12vw,132px);min-height:168px}
 .answer-grid.roomy-object-grid-answers .answer-btn{font-size:clamp(24px,4.8vw,38px);min-height:140px;line-height:1.25}
+.answer-grid.large-object-grid-answers .answer-btn{font-size:clamp(20px,3.8vw,28px);min-height:132px;line-height:1.2}
+.pip-corner{top:12px;left:22px;z-index:2}
+.pip-corner .pip-buddy{font-size:42px}
 @media(max-width:520px){
   .question-visual.no-visual{min-height:4px;padding:0}
   .answer-grid.roomy-image-answers .answer-btn{font-size:clamp(86px,20vw,118px);min-height:150px}
   .answer-grid.roomy-object-grid-answers .answer-btn{font-size:clamp(24px,8vw,34px);min-height:126px}
+  .answer-grid.large-object-grid-answers .answer-btn{font-size:clamp(19px,6.5vw,25px);min-height:124px}
+  .pip-corner{top:10px;left:16px}
+  .pip-corner .pip-buddy{font-size:38px}
 }

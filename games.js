@@ -2,9 +2,9 @@
   const catalog = [
     {id:"count",subject:"math",minAge:3,name:"כמה עצמים יש?",icon:"🔢",desc:"סופרים עצמים ובוחרים מספר",kind:"count"},
     {id:"number-quantity",subject:"math",minAge:3,name:"מספר וכמות",icon:"🍎",desc:"מתאימים מספר לקבוצת עצמים",kind:"numberQuantity"},
-    {id:"big-small",subject:"math",minAge:3,name:"גדול וקטן",icon:"↕️",desc:"משווים גדלים",kind:"bigSmall"},
+    {id:"big-small",subject:"thinking",minAge:3,name:"גדול וקטן",icon:"↕️",desc:"משווים גדלים",kind:"bigSmall"},
     {id:"more-groups",subject:"math",minAge:4,maxAge:5,name:"איפה יש יותר?",icon:"⚖️",desc:"משווים בין שתי כמויות",kind:"moreGroups"},
-    {id:"visual-pattern",subject:"math",minAge:5,name:"דפוסים",icon:"🔴",desc:"מגלים מה מגיע בהמשך",kind:"pattern"},
+    {id:"visual-pattern",subject:"thinking",minAge:5,name:"דפוסים",icon:"🔴",desc:"מגלים מה מגיע בהמשך",kind:"pattern"},
     {id:"number-sequence",subject:"math",minAge:5,name:"רצף מספרים",icon:"➡️",desc:"משלימים מספר חסר ברצף",kind:"sequence"},
     {id:"picture-subtraction",subject:"math",minAge:5,name:"חיסור בתמונות",icon:"➖",desc:"מורידים עצמים ומחשבים",kind:"subtraction"},
     {id:"number-line",subject:"math",minAge:5,name:"ציר המספרים",icon:"📏",desc:"מוצאים את המקום הנכון",kind:"numberLine"},
@@ -384,10 +384,8 @@
       ["☀️","🌧️","❄️","🐶"],["📕","✏️","🖍️","🐝"],["🍎","🥕","🌽","🚌"]
     ],groups=level<=4?simpleGroups:simpleGroups.concat(advancedGroups);return groups.map(items=>make("מה לא שייך?",items[3],shuffle(items),"",{skill:"מיון",type:"יוצא דופן"}));}
     if(kind==="habitat"){
-      const habitatIcons={"מלונה":"🐶🏠","בית":"🏠","רפת":"🐄","דיר":"🐑","אורווה":"🐴","לול":"🐔","סוואנה":"🌾","מדבר":"🏜️","אזור קפוא":"❄️","ים":"🌊","בריכה":"🪷","כוורת":"🍯","יער":"🌳"};
-      const habitatIcon=h=>habitatIcons[h]||"🏞️";
       const habitats=[...new Set(familiarAnimals.map(x=>x.habitat))];
-      return familiarAnimals.map(a=>make(`איפה ${femaleAnimals.has(a.he)?"גרה":"גר"} ${a.he}?`,habitatIcon(a.habitat),options(a.habitat,habitats).map(habitatIcon),a.icon,{skill:"בתי גידול",type:"בעל חיים וסביבה",imageAnswers:true,explain:`התשובה הנכונה היא ${a.habitat}.`}));
+      return familiarAnimals.map(a=>make(`איפה ${femaleAnimals.has(a.he)?"גרה":"גר"} ${a.he}?`,a.habitat,options(a.habitat,habitats),a.icon,{skill:"בתי גידול",type:"בעל חיים וסביבה",explain:`התשובה הנכונה היא ${a.habitat}.`}));
     }
     if(kind==="babyAdult"){
       const babyQuestionText=a=>{

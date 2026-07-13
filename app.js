@@ -1,5 +1,6 @@
-const APP_VERSION = "0.1.8";
+const APP_VERSION = "0.1.9";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
+const GA_MEASUREMENT_ID = "";
 const INTRO_STEPS = [
   {icon:"🌟",eyebrow:"ברוכים הבאים",title:"היער הזוהר מחכה לכם",text:"יוצאים להרפתקת למידה קצרה, צבעונית וכיפית. בכל פעם משחקים קצת, מתקדמים קצת, ומגלים עוד מהיער."},
   {icon:"🏆",eyebrow:"כוכבים וגביעים",title:"אוספים כוכבים וזוכים בגביעים",text:"בכל משחק אוספים כוכבים. כל 10 כוכבים הופכים לגביע חדש, ואפשר להמשיך לאסוף עוד ועוד גביעים."},
@@ -410,10 +411,33 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
 
+function analyticsReady(){
+  return Boolean(GA_MEASUREMENT_ID && /^G-[A-Z0-9]+$/i.test(GA_MEASUREMENT_ID));
+}
+
+function initAnalytics(){
+  if(!analyticsReady() || window.gtag)return;
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function(){ window.dataLayer.push(arguments); };
+  const script=document.createElement("script");
+  script.async=true;
+  script.src=`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_MEASUREMENT_ID)}`;
+  document.head.appendChild(script);
+  window.gtag("js",new Date());
+  window.gtag("config",GA_MEASUREMENT_ID,{send_page_view:false});
+  trackEvent("app_open");
+}
+
+function trackEvent(name,params={}){
+  if(!analyticsReady() || typeof window.gtag!=="function")return;
+  window.gtag("event",name,{app_version:APP_VERSION,...params});
+}
+
 function activeProfile(){ return state.profiles.find(p => p.id === state.activeId); }
 function ageLevel(age){ return clamp(Number(age)||3,1,9); }
 function defaultGameLevel(gameId,age){
   if(gameId==="count"||gameId==="number-quantity")return ({3:1,4:2,5:4,6:7,7:9})[Number(age)]||1;
+  if(gameId==="big-small"&&Number(age)===5)return 6;
   return ageLevel(age);
 }
 function applyDefaultHiddenGames(p){
@@ -467,6 +491,16 @@ function trophyReward(trophyNumber){
 }
 function earnedAccessories(p){
   return Array.from({length:trophyCount(p)},(_,index)=>trophyReward(index+1)).filter(Boolean);
+}
+function accessoryIcon(item){
+  return String(item||"").trim().split(/\s+/)[0] || "";
+}
+function gameBuddyAccessoryMarkup(p){
+  const accessories=earnedAccessories(p);
+  if(!accessories.length)return "";
+  const visible=accessories.slice(-3);
+  const hiddenCount=accessories.length-visible.length;
+  return `<span class="pip-accessories" aria-label="אביזרים שהושגו">${visible.map(item=>`<span title="${escapeHtml(item)}">${escapeHtml(accessoryIcon(item))}</span>`).join("")}${hiddenCount?`<small>ועוד ${hiddenCount}</small>`:""}</span>`;
 }
 function latestAccessory(p){
   const trophies=trophyCount(p);
@@ -545,12 +579,14 @@ function updateInstallUI(){
     const hint=button.querySelector("[data-install-hint]");
     if(label)label.textContent=installed?"האפליקציה מותקנת":deferredInstallPrompt?"התקנת האפליקציה":"הוספה למסך הבית";
     if(hint)hint.textContent=installed?"אפשר לפתוח אותה ממסך הבית":deferredInstallPrompt?"התקנה בלחיצה אחת":"הצגת הוראות התקנה";
-    button.disabled=installed;
+    if(label)label.textContent=deferredInstallPrompt?"התקנת האפליקציה":installed?"פתיחה / התקנה":"הוספה למסך הבית";
+    if(hint)hint.textContent=deferredInstallPrompt?"התקנה בלחיצה אחת":installed?"אם הסרתם את האפליקציה, אפשר להתקין שוב מהתפריט":"הצגת הוראות התקנה";
+    button.disabled=false;
     button.classList.toggle("installed",installed);
   });
 }
 async function requestAppInstall(){
-  if(isAppInstalled())return;
+  trackEvent("install_clicked");
   if(!deferredInstallPrompt){
     openModal("installModal");
     return;
@@ -581,6 +617,7 @@ function showScreen(id){
   window.scrollTo({top:0,behavior:"smooth"});
   if(id==="dashboardScreen") renderDashboard();
   if(id==="settingsScreen") renderSettings();
+  trackEvent("screen_view",{screen_name:id});
 }
 
 function renderIntro(){
@@ -612,6 +649,7 @@ function finishIntro(){
 function init(){
   $("#appVersion").textContent=APP_VERSION;
   document.documentElement.dataset.appVersion=APP_VERSION;
+  initAnalytics();
   renderChoiceButtons();
   rotateNamePlaceholder();
   setInterval(rotateNamePlaceholder,3000);
@@ -818,6 +856,12 @@ function deleteCurrentProfile(){
   if(!activeProfile()) openCreate();
 }
 
+function deleteActiveProfileFromSettings(){
+  const p=activeProfile(); if(!p)return openCreate();
+  editingId=p.id;
+  deleteCurrentProfile();
+}
+
 function adaptedQuestion(q,p,subject){
   const level=p.skillLevels?.[subject]?.[q.skill]||ageLevel(p.age);
   return level>=4&&q.hard ? {...q,...q.hard} : {...q};
@@ -853,6 +897,7 @@ function startGame(gameId){
   const p=activeProfile(); if(!p){openCreate();return}
   const game=KIDS_GAMES.catalog.find(item=>item.id===gameId); if(!game||game.disabled||!gameVisibleInSettings(game,p.age)||p.hiddenGames.includes(game.id))return;
   const subject=game.subject,level=p.gameLevels[gameId]||ageLevel(p.age);
+  trackEvent("game_started",{subject,game_id:gameId,game_level:level});
   const pool=uniqueQuestions(KIDS_GAMES.build(gameId,level,p));
   const recent=new Set(p.recentGames[gameId]||[]);
   let available=pool.filter(q=>!recent.has(questionSignature(q)));
@@ -937,7 +982,7 @@ function renderQuestion(){
   }
   $("#feedback").className="feedback"; $("#feedback").textContent="";
   $("#explanation").className="explanation"; $("#explanation").textContent="";
-  $(".pip-corner").textContent=p.buddy;
+  $(".pip-corner").innerHTML=`<span class="pip-buddy">${escapeHtml(p.buddy)}</span>${gameBuddyAccessoryMarkup(p)}`;
   renderGameBuddyPanel();
   renderQuestionInteraction(q);
   session.locked=false;
@@ -981,6 +1026,7 @@ function renderQuestionInteraction(q){
   const imageLike=Boolean(q.imageAnswers)||(session.subject==="nature"&&activeProfile().age<=4);
   grid.classList.toggle("roomy-image-answers",imageLike&&q.a.length<=4);
   const maxObjectCount=q.answerObjectGrid?Math.max(...q.a.map(a=>String(a).split(/\s+/).filter(Boolean).length)):0;
+  grid.classList.toggle("large-object-grid-answers",Boolean(q.answerObjectGrid)&&maxObjectCount>8&&maxObjectCount<=14);
   grid.classList.toggle("roomy-object-grid-answers",Boolean(q.answerObjectGrid)&&maxObjectCount<=8);
 }
 
@@ -1028,6 +1074,7 @@ function answer(value,button){
 
 function finishGame(){
   const p=activeProfile(), key=session.subject, now=new Date().toDateString(), earned=Math.max(1,session.correct);
+  trackEvent("game_finished",{subject:key,game_id:session.gameId,game_level:session.level,questions_total:session.questions.length,correct_total:session.correct,stars_earned:earned});
   const previousTrophies=trophyCount(p);
   p.stars+=earned; p.progress[key] ||= {completed:0,level:1,correct:0,total:0};
   const newTrophies=trophyCount(p);
@@ -1069,7 +1116,7 @@ function renderDashboard(){
   $("#dashTime").textContent=p.minutes+" דקות";
   const trophies=trophyCount(p),cycleStars=goalCycleProgress(p),remaining=STAR_GOAL-cycleStars;
   $("#trophyCount").textContent=trophies;
-  $("#trophyTitle").textContent=trophies?`${trophies} ${trophies===1?"גביע הושג":"גביעים הושגו"}!`:"בדרך לגביע הראשון";
+  $("#trophyTitle").textContent=trophies?(trophies===1?"יש לי גביע אחד!":`יש לי ${trophies} גביעים!`):"בדרך לגביע הראשון";
   $("#trophyText").textContent=`עוד ${remaining} ${remaining===1?"כוכב":"כוכבים"} לגביע הבא.`;
   $("#trophyBar").style.width=`${cycleStars}%`;
   const buddyProfile=BUDDY_PROFILES[p.buddy]||{name:BUDDY_TITLES[p.buddy]||"החבר למסע",trait:"ממשיך איתכם בהרפתקה",ability:"התמדה"};
@@ -1102,6 +1149,7 @@ function renderDashboard(){
 function renderSettings(){
   const p=activeProfile(); if(!p)return;
   $("#settingsSubtitle").textContent=`ההגדרות של ${p.name}.`;
+  $("#settingsUsersText").textContent=`המשתמש הנוכחי: ${p.name}. אפשר להוסיף ילד, לעבור בין ילדים, או למחוק משתמש שכבר לא צריך.`;
   $("#settingsProfile span").textContent=p.buddy;
   $("#settingsSound span").textContent=state.sound?"🔊":"🔇";
   $("#settingsSoundLabel").textContent=state.sound?"הצלילים פעילים":"הצלילים כבויים";
@@ -1316,6 +1364,9 @@ function bindEvents(){
   $("#headerContactButton").onclick=()=>showScreen("contactScreen");
   $("#settingsSubjects").onclick=()=>openModal("subjectModal");
   $("#settingsProfile").onclick=()=>openEdit(activeProfile().id);
+  $("#settingsSwitchUser").onclick=()=>openModal("profileModal");
+  $("#settingsAddUser").onclick=()=>openCreate();
+  $("#settingsDeleteUser").onclick=deleteActiveProfileFromSettings;
   $("#settingsSound").onclick=()=>{$(".sound-toggle").click();renderSettings()};
   $("#settingsHelp").onclick=()=>showScreen("helpScreen");
   $("#settingsIntro").onclick=openIntro;
@@ -1363,6 +1414,7 @@ function bindEvents(){
       form.reset();
       status.textContent="תודה! ההודעה נשלחה אלינו.";
       status.className="contact-status success";
+      trackEvent("feedback_submitted");
     }catch(err){
       status.textContent="לא הצלחנו לשלוח כרגע. נסו שוב בעוד רגע.";
       status.className="contact-status error";
