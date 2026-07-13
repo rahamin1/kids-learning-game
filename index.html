@@ -10,11 +10,11 @@
   <title>ההרפתקה ביער הזוהר</title>
   <link rel="icon" type="image/png" href="assets/app-icon-star-forest.png">
   <link rel="apple-touch-icon" href="assets/app-icon-star-forest.png">
-  <link rel="manifest" href="manifest.webmanifest?v=0.1.10">
+  <link rel="manifest" href="manifest.webmanifest?v=0.1.11">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?build=local92">
+  <link rel="stylesheet" href="styles.css?build=local96">
 </head>
 <body>
   <div id="app">
@@ -29,11 +29,11 @@
       <div class="top-actions">
         <div class="streak-chip" title="רצף הרפתקאות"><span>🔥</span><b class="streak-text" id="streakText">0 ימים ברצף</b></div>
         <div class="star-chip" title="כוכבים וגביעים"><span>★</span><b id="starCount">0</b><span class="reward-divider"></span><span class="trophy-symbol">🏆</span><b id="headerTrophyCount">0</b></div>
-        <button class="icon-btn sound-toggle" aria-label="הפעלת או השתקת צלילים">🔊</button>
-        <button class="icon-btn header-tool" id="headerProgressButton" aria-label="צפייה בהתקדמות" title="צפייה בהתקדמות">📊</button>
-        <button class="icon-btn header-tool" id="headerSettingsButton" aria-label="הגדרות" title="הגדרות">⚙️</button>
-        <button class="icon-btn header-tool" id="headerHelpButton" aria-label="עזרה ומידע" title="עזרה ומידע">❓</button>
-        <button class="icon-btn header-tool" id="headerContactButton" aria-label="כתבו אלינו" title="כתבו אלינו">✉️</button>
+        <button class="icon-btn sound-toggle" aria-label="הפעלת או השתקת צלילים"></button>
+        <button class="icon-btn header-tool" id="headerProgressButton" aria-label="צפייה בהתקדמות" title="צפייה בהתקדמות"><span class="magic-icon magic-progress" aria-hidden="true"><i></i><i></i><i></i></span></button>
+        <button class="icon-btn header-tool" id="headerSettingsButton" aria-label="הגדרות" title="הגדרות"><span class="magic-icon magic-settings" aria-hidden="true"></span></button>
+        <button class="icon-btn header-tool" id="headerHelpButton" aria-label="עזרה ומידע" title="עזרה ומידע"><span class="magic-icon magic-help" aria-hidden="true">?</span></button>
+        <button class="icon-btn header-tool" id="headerContactButton" aria-label="כתבו אלינו" title="כתבו אלינו"><span class="magic-icon magic-mail" aria-hidden="true"></span></button>
         <button class="profile-pill" id="profileButton">
           <span class="mini-avatar" id="miniAvatar">🦊</span>
           <span><small>הרפתקן/ית</small><b id="profileName">שחקן חדש</b></span>
@@ -359,6 +359,7 @@
         <span class="eyebrow blue">התקנת האפליקציה</span>
         <h2>מוסיפים למסך הבית</h2>
         <p class="install-modal-note">לא תמיד הדפדפן מציג כפתור התקנה מיד. אם לא נפתח חלון התקנה, פתחו את תפריט ⋮ בדפדפן ובחרו „התקנת האפליקציה” או „הוספה למסך הבית”.</p>
+        <p class="install-modal-note">אם הסרתם את האפליקציה ועדיין מופיע שהיא מותקנת, בדרך כלל זה זיכרון זמני של הדפדפן. כדאי לרענן את הדף או לנסות שוב מאוחר יותר.</p>
         <div class="install-instructions">
           <section><span>🤖</span><div><b>ב־Chrome באנדרואיד</b><p>פתחו את תפריט שלוש הנקודות ⋮ ובחרו „התקנת האפליקציה” או „הוספה למסך הבית”.</p></div></section>
           <section><span>🍎</span><div><b>ב־Safari באייפון</b><p>לחצו על כפתור השיתוף ובחרו „הוספה למסך הבית”.</p></div></section>
@@ -368,7 +369,7 @@
     </div>
 
   </div>
-  <script src="games.js?build=local92"></script>
-  <script src="app.js?build=local92"></script>
+  <script src="games.js?build=local96"></script>
+  <script src="app.js?build=local96"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.10";
+const APP_VERSION = "0.1.11";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const GA_MEASUREMENT_ID = "";
 const INTRO_STEPS = [
@@ -500,10 +500,11 @@ function accessoryIcon(item){
 function gameBuddyAccessoryMarkup(p){
   const accessories=earnedAccessories(p);
   if(!accessories.length)return "";
-  const visible=accessories.slice(-4);
+  const visible=accessories.slice(-6);
   const hiddenCount=accessories.length-visible.length;
   const label=accessories.join(", ");
-  return `<span class="pip-accessories" aria-label="${escapeHtml(label)}">${visible.map(item=>`<span title="${escapeHtml(item)}">${escapeHtml(accessoryIcon(item))}</span>`).join("")}${hiddenCount?`<small title="עוד ${hiddenCount} אביזרים">+${hiddenCount}</small>`:""}</span>`;
+  const hiddenText=hiddenCount?`<small title="עוד ${hiddenCount} אביזרים">ועוד ${hiddenCount}</small>`:"";
+  return `<span class="pip-accessories" aria-label="${escapeHtml(label)}">${visible.map(item=>`<span title="${escapeHtml(item)}">${escapeHtml(accessoryIcon(item))}</span>`).join("")}${hiddenText}</span>`;
 }
 function latestAccessory(p){
   const trophies=trophyCount(p);
@@ -702,7 +703,7 @@ function renderAll(){
   $(".star-chip").title=trophies?`${p.name} זכה ב־${trophies} ${trophies===1?"גביע":"גביעים"}`:"עוד לא הושג גביע";
   const streak=p?.streak||0;
   $("#streakText").textContent=streak===1?"יום תרגול אחד":`${streak} ימים ברצף`;
-  $(".sound-toggle").textContent=state.sound?"🔊":"🔇";
+  renderSoundToggle();
   const today=p?.dailyDate===new Date().toDateString()?p.daily||0:0;
   $("#dailyDone").textContent=`${Math.min(today,3)} / 3`;
   $("#dailyBar").style.width=`${Math.min(today/3*100,100)}%`;
@@ -722,6 +723,14 @@ function renderAll(){
   renderAdventureChoices();
   if($("#dashboardScreen").classList.contains("active")) renderDashboard();
   if($("#settingsScreen").classList.contains("active")) renderSettings();
+}
+
+function renderSoundToggle(){
+  const button=$(".sound-toggle");
+  if(!button)return;
+  button.innerHTML=`<span class="magic-icon magic-sound ${state.sound?"on":"off"}" aria-hidden="true"><span class="sound-glyph">${state.sound?"♪":"×"}</span></span>`;
+  button.setAttribute("aria-label",state.sound?"השתקת צלילים":"הפעלת צלילים");
+  button.title=state.sound?"השתקת צלילים":"הפעלת צלילים";
 }
 
 function renderHero(){
@@ -1390,7 +1399,7 @@ function bindEvents(){
   $("#importReport").onclick=()=>$("#importReportFile").click();
   $("#importReportFile").onchange=e=>importProgressFile(e.target.files?.[0]);
   $("#resetProgress").onclick=resetProgress;
-  $(".sound-toggle").onclick=e=>{state.sound=!state.sound;e.currentTarget.textContent=state.sound?"🔊":"🔇";save();if(state.sound)chime(true)};
+  $(".sound-toggle").onclick=()=>{state.sound=!state.sound;renderSoundToggle();save();if(state.sound)chime(true)};
   $("#continueButton").onclick=openAdventureFlow;
   $("#randomButton").onclick=()=>{const p=activeProfile();if(!p)return openCreate();const games=p.subjects.flatMap(subject=>availableGames(p,subject));if(games.length)startGame(games[Math.floor(Math.random()*games.length)].id)};
   $("#contactForm").onsubmit=async e=>{
