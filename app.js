@@ -1,11 +1,11 @@
-const APP_VERSION = "0.1.11";
+const APP_VERSION = "0.1.12";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
-const GA_MEASUREMENT_ID = "";
+const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
 const INTRO_STEPS = [
-  {icon:"🌟",eyebrow:"ברוכים הבאים",title:"היער הזוהר מחכה לכם",text:"יוצאים להרפתקת למידה קצרה, צבעונית וכיפית. בכל פעם משחקים קצת, מתקדמים קצת, ומגלים עוד מהיער."},
-  {icon:"🏆",eyebrow:"כוכבים וגביעים",title:"אוספים כוכבים וזוכים בגביעים",text:"בכל משחק אוספים כוכבים. כל 10 כוכבים הופכים לגביע חדש, ואפשר להמשיך לאסוף עוד ועוד גביעים."},
-  {icon:"🦊",eyebrow:"חברי מסע",title:"בוחרים חבר שמלווה את ההרפתקה",text:"בתחילת הדרך בוחרים חבר למסע. בהמשך מתגלים חברים נוספים, וכל ילד יכול לבחור מי יצא איתו למסע ולהחליף חבר בדרך."},
-  {icon:"⚙️",eyebrow:"מתאים לכל ילד",title:"אפשר להתאים נושאים ורמות קושי",text:"ההורים יכולים לבחור נושאים, להסתיר משחקים, ולהעלות או להוריד רמת קושי לפי מה שמתאים לילד."}
+  {icon:"🌟",image:"assets/app-icon-star-forest.png",tone:"forest",eyebrow:"ברוכים הבאים",title:"היער הזוהר מחכה לכם",text:"יוצאים להרפתקת למידה קצרה, צבעונית וכיפית. בכל פעם משחקים קצת, מתקדמים קצת, ומגלים עוד מהיער."},
+  {icon:"🏆",tone:"trophy",eyebrow:"כוכבים וגביעים",title:"אוספים כוכבים וזוכים בגביעים",text:"בכל משחק אוספים כוכבים. כל 5 כוכבים הופכים לגביע חדש, ואפשר להמשיך לאסוף עוד ועוד גביעים."},
+  {icon:"🦊",tone:"buddy",eyebrow:"חברי מסע",title:"בוחרים חבר שמלווה את ההרפתקה",text:"בתחילת הדרך בוחרים חבר למסע. בהמשך מתגלים חברים נוספים, וכל ילד יכול לבחור מי יצא איתו למסע ולהחליף חבר בדרך."},
+  {icon:"⚙️",tone:"settings",eyebrow:"מתאים לכל ילד",title:"אפשר להתאים נושאים ורמות קושי",text:"ההורים יכולים לבחור נושאים, להסתיר משחקים, ולהעלות או להוריד רמת קושי לפי מה שמתאים לילד."}
 ];
 
 const SUBJECTS = {
@@ -108,11 +108,11 @@ const BUDDY_LINES = {
   }
 };
 const BUDDY_UNLOCK_BASE = 4;
-const TROPHY_ACCESSORY_UPGRADES = ["✨ תרמיל מסע זוהר","🌟 כובע הרפתקה מוזהב","💫 צעיף כוכבים","🔭 משקפת אור","👑 כתר יהלומים","🧭 מצפן ירח","✨ אבקת אור מנצנצת","💎 אבן קשת"];
+const TROPHY_ACCESSORY_UPGRADES = ["✨ תרמיל מסע זוהר","🌟 כובע הרפתקה מוזהב","💫 צעיף כוכבים","🔭 משקפת אור","👑 כתר יהלומים","🧭 מצפן ירח","☀️ אבקת אור מנצנצת","💎 אבן קשת"];
 const TROPHY_UPGRADE_TIERS = ["שדרוג זהב","שדרוג כוכבים","שדרוג ירח","שדרוג קשת"];
-const TROPHY_ACCESSORIES = ["🎒 תרמיל מסע","🧢 כובע הרפתקה","🧣 צעיף זוהר","🔭 משקפת כוכבים","👑 כתר היער","🧭 מצפן קסום","✨ אבקת אור","💎 אבן זוהרת"];
+const TROPHY_ACCESSORIES = ["🎒 תרמיל מסע","🧢 כובע הרפתקה","🧣 צעיף זוהר","🔭 משקפת כוכבים","👑 כתר היער","🧭 מצפן קסום","☀️ אבקת אור","💎 אבן זוהרת"];
 const SAMPLE_NAMES = ["הראל","גבע","גוני","ים","אודי","עומר","מיכל","גילי","שושי"];
-const STAR_GOAL = 10;
+const STAR_GOAL = 5;
 const MOSAIC_TILES = 48;
 const MOSAIC_REVEAL_ORDER = Array.from({length:MOSAIC_TILES},(_,index)=>(index*17+11)%MOSAIC_TILES);
 const BUDDY_IMAGES = {
@@ -500,7 +500,7 @@ function accessoryIcon(item){
 function gameBuddyAccessoryMarkup(p){
   const accessories=earnedAccessories(p);
   if(!accessories.length)return "";
-  const visible=accessories.slice(-6);
+  const visible=accessories.slice(-4);
   const hiddenCount=accessories.length-visible.length;
   const label=accessories.join(", ");
   const hiddenText=hiddenCount?`<small title="עוד ${hiddenCount} אביזרים">ועוד ${hiddenCount}</small>`:"";
@@ -630,7 +630,9 @@ function showScreen(id){
 
 function renderIntro(){
   const step=INTRO_STEPS[introIndex];
-  $("#introIcon").textContent=step.icon;
+  const icon=$("#introIcon");
+  icon.className=`intro-icon intro-${step.tone||"forest"}`;
+  icon.innerHTML=step.image?`<img src="${step.image}" alt="">`:step.icon;
   $("#introEyebrow").textContent=step.eyebrow;
   $("#introTitle").textContent=step.title;
   $("#introText").textContent=step.text;
@@ -681,7 +683,7 @@ function renderChoiceButtons(){
   }).join("");
   if($("#buddyUnlockHint")){
     $("#buddyUnlockHint").textContent=next
-      ? `מתחילים עם 4 חברים. כל 10 כוכבים פותחים חבר נוסף. החבר הבא: ${BUDDY_PROFILES[next]?.name||BUDDY_TITLES[next]}.`
+      ? `מתחילים עם 4 חברים. כל 5 כוכבים פותחים חבר נוסף. החבר הבא: ${BUDDY_PROFILES[next]?.name||BUDDY_TITLES[next]}.`
       : `כל חברי המסע פתוחים! אפשר לבחור את מי שהכי מתאים להרפתקה היום.`;
   }
 }
@@ -728,7 +730,7 @@ function renderAll(){
 function renderSoundToggle(){
   const button=$(".sound-toggle");
   if(!button)return;
-  button.innerHTML=`<span class="magic-icon magic-sound ${state.sound?"on":"off"}" aria-hidden="true"><span class="sound-glyph">${state.sound?"♪":"×"}</span></span>`;
+  button.innerHTML=`<span class="magic-icon magic-sound ${state.sound?"on":"off"}" aria-hidden="true">${state.sound?"🔊":"🔇"}</span>`;
   button.setAttribute("aria-label",state.sound?"השתקת צלילים":"הפעלת צלילים");
   button.title=state.sound?"השתקת צלילים":"הפעלת צלילים";
 }
@@ -981,9 +983,9 @@ function renderQuestion(){
   $("#questionLabel").textContent=`${session.index+1} מתוך ${session.questions.length}`;
   $("#questionBar").style.width=`${session.index/session.questions.length*100}%`;
   $("#questionType").textContent=q.type; $("#questionText").textContent=q.q;
-  $("#questionVisual").textContent=q.audio || q.patternTiles || q.clock || q.pictureMath ? "" : (q.visual||"");
+  $("#questionVisual").textContent=q.audio || q.patternTiles || q.clock || q.pictureMath || q.numberLine ? "" : (q.visual||"");
   $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"");
-  $("#questionVisual").classList.toggle("no-visual",!q.visual&&!q.audio&&!q.patternTiles&&!q.clock&&!q.pictureMath);
+  $("#questionVisual").classList.toggle("no-visual",!q.visual&&!q.audio&&!q.patternTiles&&!q.clock&&!q.pictureMath&&!q.numberLine);
   if(q.clock){
     $("#questionVisual").classList.add("clock-visual");
     $("#questionVisual").innerHTML=renderClockFace(q.clock.hour,q.clock.minutes);
@@ -995,6 +997,10 @@ function renderQuestion(){
   if(q.pictureMath){
     $("#questionVisual").classList.add("picture-math-visual");
     $("#questionVisual").innerHTML=q.pictureMath.groups.map((group,index)=>`${index?`<span class="picture-math-operator">${escapeHtml(q.pictureMath.operator)}</span>`:""}<span class="picture-math-group">${group.map(icon=>`<span>${escapeHtml(icon)}</span>`).join("")}</span>`).join("");
+  }
+  if(q.numberLine){
+    $("#questionVisual").classList.add("number-line-visual");
+    $("#questionVisual").innerHTML=q.numberLine.items.map(item=>`<span class="${item==="□"?"number-line-missing":"number-line-number"}">${item==="□"?"":escapeHtml(item)}</span>`).join(`<span class="number-line-dash">—</span>`);
   }
   if(q.audio){
     const listen=document.createElement("button");
@@ -1038,17 +1044,54 @@ function renderQuestionInteraction(q){
   }
   grid.innerHTML=q.a.map(a=>{
     const scale=q.answerScales?.[a];
+    const answerClass=answerIsIconOnly(a)?"icon-answer":"text-answer";
     const content=scale?`<span class="scaled-answer-icon" style="font-size:${Math.round(64*scale)}px">${escapeHtml(a)}</span>`:escapeHtml(a);
-    return `<button class="answer-btn" data-answer="${escapeHtml(a)}">${content}</button>`;
+    return `<button class="answer-btn ${answerClass}" data-answer="${escapeHtml(a)}">${content}</button>`;
   }).join("");
+  const answersAreIconOnly=q.a.every(answerIsIconOnly);
+  const youngNatureImageAnswers=session.subject==="nature"&&activeProfile().age<=4&&answersAreIconOnly;
   grid.classList.toggle("object-grid-answers",Boolean(q.answerObjectGrid));
-  grid.classList.toggle("image-answers",Boolean(q.imageAnswers)||(session.subject==="nature"&&activeProfile().age<=4));
+  grid.classList.toggle("image-answers",Boolean(q.imageAnswers)||youngNatureImageAnswers);
   grid.classList.toggle("scaled-image-answers",Boolean(q.answerScales));
-  const imageLike=Boolean(q.imageAnswers)||(session.subject==="nature"&&activeProfile().age<=4);
+  const imageLike=Boolean(q.imageAnswers)||youngNatureImageAnswers;
   grid.classList.toggle("roomy-image-answers",imageLike&&q.a.length<=4);
   const maxObjectCount=q.answerObjectGrid?Math.max(...q.a.map(a=>String(a).split(/\s+/).filter(Boolean).length)):0;
   grid.classList.toggle("large-object-grid-answers",Boolean(q.answerObjectGrid)&&maxObjectCount>8&&maxObjectCount<=14);
   grid.classList.toggle("roomy-object-grid-answers",Boolean(q.answerObjectGrid)&&maxObjectCount<=8);
+  fitTextAnswers(grid,q);
+}
+
+function answerIsIconOnly(answer){
+  return !/[\u0590-\u05FFa-zA-Z0-9]/.test(String(answer));
+}
+
+function fitTextAnswers(grid,q){
+  const answersAreIconOnly=q.a.every(answerIsIconOnly);
+  const youngNatureImageAnswers=session.subject==="nature"&&activeProfile().age<=4&&answersAreIconOnly;
+  const shouldFitText=!q.answerObjectGrid&&!q.answerScales&&!youngNatureImageAnswers;
+  if(!shouldFitText)return;
+  const buttons=$$(".answer-btn.text-answer",grid);
+  if(!buttons.length)return;
+  buttons.forEach(button=>{
+    button.style.fontSize="";
+    button.classList.add("fit-text-answer");
+  });
+  const applySize=size=>buttons.forEach(button=>button.style.fontSize=`${size}px`);
+  const fits=()=>buttons.every(button=>button.scrollWidth<=button.clientWidth&&button.scrollHeight<=button.clientHeight);
+  let size=Math.max(...buttons.map(button=>Number.parseFloat(getComputedStyle(button).fontSize)||32));
+  const minSize=14;
+  while(size>minSize&&!fits()){
+    size-=1;
+    applySize(size);
+  }
+  applySize(size);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    let nextSize=size;
+    while(nextSize>minSize&&!fits()){
+      nextSize-=1;
+      applySize(nextSize);
+    }
+  }));
 }
 
 function updateBuildResult(){
@@ -1120,7 +1163,7 @@ function finishGame(){
     $("#milestoneTrophyNumber").textContent=newTrophies;
     $("#milestoneTitle").textContent=newFriend ? `נפתח חבר חדש למסע!` : `היער כולו זוהר!`;
     $("#milestoneText").textContent=[
-      `אספתם עוד 10 כוכבים וזכיתם בגביע מספר ${newTrophies}.`,
+      `אספתם עוד 5 כוכבים וזכיתם בגביע מספר ${newTrophies}.`,
       accessory?`קיבלתם גם אביזר חדש: ${accessory}.`:null,
       newFriend?`החבר החדש שנפתח: ${newFriend} ${BUDDY_PROFILES[newFriend]?.name||BUDDY_TITLES[newFriend]}.`:null
     ].filter(Boolean).join(" ");
@@ -1173,7 +1216,7 @@ function renderDashboard(){
 function renderSettings(){
   const p=activeProfile(); if(!p)return;
   $("#settingsSubtitle").textContent=`ההגדרות של ${p.name}.`;
-  $("#settingsUsersText").textContent=`המשתמש הנוכחי: ${p.name}. אפשר להוסיף ילד, לעבור בין ילדים, או למחוק משתמש שכבר לא צריך.`;
+  $("#settingsUsersText").textContent=`השחקן הנוכחי: ${p.name}. אפשר להוסיף שחקן, לעבור בין שחקנים, או למחוק שחקן שלא משחק יותר.`;
   $("#settingsProfile span").textContent=p.buddy;
   $("#settingsSound span").textContent=state.sound?"🔊":"🔇";
   $("#settingsSoundLabel").textContent=state.sound?"הצלילים פעילים":"הצלילים כבויים";
@@ -1242,7 +1285,7 @@ function importProgressFile(file){
       const importedState=data?.backup?.state || data?.state;
       if(!importedState || !Array.isArray(importedState.profiles))throw new Error("invalid");
       const profileCount=importedState.profiles.length;
-      if(!confirm(`לייבא נתונים מהקובץ?\nהייבוא יחליף את הנתונים המקומיים במכשיר הזה.\nנמצאו ${profileCount} משתמשים בקובץ.`))return;
+      if(!confirm(`לייבא נתונים מהקובץ?\nהייבוא יחליף את הנתונים המקומיים במכשיר הזה.\nנמצאו ${profileCount} שחקנים בקובץ.`))return;
       state={
         profiles:importedState.profiles,
         activeId:importedState.activeId || importedState.profiles[0]?.id || null,

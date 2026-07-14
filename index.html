@@ -10,11 +10,11 @@
   <title>ההרפתקה ביער הזוהר</title>
   <link rel="icon" type="image/png" href="assets/app-icon-star-forest.png">
   <link rel="apple-touch-icon" href="assets/app-icon-star-forest.png">
-  <link rel="manifest" href="manifest.webmanifest?v=0.1.11">
+  <link rel="manifest" href="manifest.webmanifest?v=0.1.12">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?build=local96">
+  <link rel="stylesheet" href="styles.css?build=local130">
 </head>
 <body>
   <div id="app">
@@ -55,7 +55,7 @@
               <button class="round-btn" id="randomButton" aria-label="הפתיעו אותי">✦</button>
             </div>
             <div class="goal-progress">
-              <div><span>🏆 היעד הבא</span><b id="homeGoalLabel">10 כוכבים</b></div>
+              <div><span>🏆 היעד הבא</span><b id="homeGoalLabel">5 כוכבים</b></div>
               <strong id="homeGoalCount">0 / 10</strong>
               <div class="bar"><i id="homeGoalBar"></i></div>
             </div>
@@ -135,7 +135,7 @@
           </div>
           <article class="panel trophy-panel">
             <div class="trophy-stack"><b id="trophyCount">0</b><span>🏆</span></div>
-            <div class="trophy-copy"><span class="eyebrow blue">יעד הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 10 כוכבים והגביע הראשון שלכם!</p><div class="bar"><i id="trophyBar"></i></div></div>
+            <div class="trophy-copy"><span class="eyebrow blue">יעד הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 5 כוכבים והגביע הראשון שלכם!</p><div class="bar"><i id="trophyBar"></i></div></div>
           </article>
           <article class="panel buddy-progress-panel">
             <div class="buddy-progress-icon" id="dashboardBuddyIcon">🦊</div>
@@ -172,11 +172,11 @@
           </div>
 
           <article class="panel settings-users-panel">
-            <div><span class="eyebrow blue">משתמשים</span><h2>ניהול ילדים</h2><p id="settingsUsersText">אפשר להוסיף ילד, לעבור בין ילדים, או למחוק משתמש שכבר לא צריך.</p></div>
+            <div><span class="eyebrow blue">שחקנים</span><h2>ניהול שחקנים</h2><p id="settingsUsersText">אפשר להוסיף שחקן, לעבור בין שחקנים, או למחוק שחקן שלא משחק יותר.</p></div>
             <div class="settings-user-actions">
-              <button class="outline-btn" id="settingsSwitchUser">החלפת משתמש</button>
-              <button class="outline-btn" id="settingsAddUser">הוספת משתמש</button>
-              <button class="quiet-danger" id="settingsDeleteUser">מחיקת המשתמש הנוכחי</button>
+              <button class="outline-btn" id="settingsSwitchUser">החלפת שחקן</button>
+              <button class="outline-btn" id="settingsAddUser">הוספת שחקן</button>
+              <button class="quiet-danger" id="settingsDeleteUser">מחיקת השחקן הנוכחי</button>
             </div>
           </article>
 
@@ -205,27 +205,27 @@
           </div>
 
           <div class="help-grid">
-            <article class="panel help-card"><span class="help-icon">👤</span><div><h2>משתמשים</h2><p>לכל ילד וילדה אפשר ליצור משתמש נפרד עם שם, גיל וחבר למסע. ההתקדמות, הכוכבים ורמות הקושי נשמרים בנפרד לכל משתמש.</p><p>בחירה במשתמש אחר תעביר לדף הבית שלו. בחירה מחדש במשתמש הפעיל תשאיר אתכם במסך הנוכחי.</p></div></article>
+            <article class="panel help-card"><span class="help-icon">👤</span><div><h2>שחקנים</h2><p>לכל ילד וילדה אפשר ליצור שחקן נפרד עם שם, גיל וחבר למסע. ההתקדמות, הכוכבים ורמות הקושי נשמרים בנפרד לכל שחקן.</p><p>בחירה בשחקן אחר תעביר לדף הבית שלו. בחירה מחדש בשחקן הפעיל תשאיר אתכם במסך הנוכחי.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">🧭</span><div><h2>בחירת נושאים</h2><p>אפשר לבחור מספרים או חשבון, אנגלית, עברית, טבע וחשיבה. המשחקים מותאמים לגיל, ומשחקים חדשים נפתחים ככל שעולים בגיל.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">🎮</span><div><h2>משחקים ורמות</h2><p>לכל משחק יש תשע רמות קושי. נקודת ההתחלה נקבעת לפי גיל הילד.</p><p>במסך ההגדרות אפשר לבחור לכל משחק <b>קל יותר</b>, <b>מתאים</b> או <b>קשה יותר</b>. ברמה הראשונה או התשיעית האפשרות שאינה זמינה תופיע מעומעמת.</p></div></article>
 
-            <article class="panel help-card reward-help-card"><span class="help-icon">⭐</span><div><h2>כוכבים וגביעים</h2><p>המטרה במשחק היא לאסוף 10 כוכבים. כשמגיעים ל־10 כוכבים זוכים בגביע!</p><p>אפשר להמשיך ל־20 כוכבים כדי לזכות בגביע נוסף, וכן הלאה. בראש המסך מוצגים מספר הכוכבים ומספר הגביעים של הילד.</p><div class="help-reward-example"><span>★</span><b>18</b><i></i><span>🏆</span><b>1</b></div></div></article>
+            <article class="panel help-card reward-help-card"><span class="help-icon">⭐</span><div><h2>כוכבים וגביעים</h2><p>המטרה במשחק היא לאסוף 5 כוכבים. כשמגיעים ל־5 כוכבים זוכים בגביע!</p><p>אפשר להמשיך ל־10 כוכבים כדי לזכות בגביע נוסף, וכן הלאה. בראש המסך מוצגים מספר הכוכבים ומספר הגביעים של הילד.</p><div class="help-reward-example"><span>★</span><b>8</b><i></i><span>🏆</span><b>1</b></div></div></article>
 
-            <article class="panel help-card"><span class="help-icon">🏆</span><div><h2>הדרך לגביע הבא</h2><p>במסך ההתקדמות מוצג כמה כוכבים חסרים עד לגביע הבא. לדוגמה: לאחר איסוף 28 כוכבים יוצגו גביע אחד והתקדמות של 8 מתוך 20 לקראת הגביע השני.</p></div></article>
+            <article class="panel help-card"><span class="help-icon">🏆</span><div><h2>הדרך לגביע הבא</h2><p>במסך ההתקדמות מוצג כמה כוכבים חסרים עד לגביע הבא. לדוגמה: לאחר איסוף 8 כוכבים יוצגו גביע אחד והתקדמות של 3 מתוך 5 לקראת הגביע השני.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">🔥</span><div><h2>רצף ימי תרגול</h2><p>סמל האש מציג כמה ימים ברצף תרגל הילד באפליקציה. תרגול קצר בכל יום עוזר לשמור על הרצף ולחזק את מה שנלמד.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">📊</span><div><h2>צפייה בהתקדמות</h2><p>כאן אפשר לראות כמה כוכבים וגביעים נאספו, באילו נושאים שיחקו, אילו משחקים הושלמו ומהי הרמה הנוכחית.</p></div></article>
 
-            <article class="panel help-card"><span class="help-icon">⚙️</span><div><h2>הגדרות</h2><p>אפשר לבחור נושאי לימוד, להתאים את רמת הקושי, להסתיר משחקים ולהחזיר אותם, לשנות שם, גיל וחבר למסע, ולהוסיף או למחוק משתמשים.</p></div></article>
+            <article class="panel help-card"><span class="help-icon">⚙️</span><div><h2>הגדרות</h2><p>אפשר לבחור נושאי לימוד, להתאים את רמת הקושי, להסתיר משחקים ולהחזיר אותם, לשנות שם, גיל וחבר למסע, ולהוסיף או למחוק שחקנים.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">👁️</span><div><h2>הסתרה והחזרה של משחקים</h2><p>במסך ההגדרות אפשר לבחור „הסתרת המשחק”. המשחק לא יופיע בבחירת המשחקים או ב„הפתיעו אותי”, אך הוא אינו נמחק וההתקדמות בו נשמרת.</p><p>כדי להציג אותו שוב, לחצו על „החזרת המשחק”. ההסתרה וההחזרה נשמרות בנפרד לכל ילד.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">🔊</span><div><h2>צלילים</h2><p>אפשר להפעיל או להשתיק את צלילי המשחק באמצעות סמל הרמקול. במשחקי אנגלית מסוימים אפשר ללחוץ על סמל השמע כדי לשמוע מילה או צליל באנגלית.</p></div></article>
 
-            <article class="panel help-card"><span class="help-icon">💾</span><div><h2>שמירת ההתקדמות</h2><p>המשתמשים וההתקדמות נשמרים בדפדפן ובמכשיר שבו משחקים. במכשיר או בדפדפן אחר יהיה צורך ליצור את המשתמשים מחדש, משום שכרגע אין סנכרון בין מכשירים.</p></div></article>
+            <article class="panel help-card"><span class="help-icon">💾</span><div><h2>שמירת ההתקדמות</h2><p>השחקנים וההתקדמות נשמרים בדפדפן ובמכשיר שבו משחקים. במכשיר או בדפדפן אחר יהיה צורך ליצור את השחקנים מחדש, משום שכרגע אין סנכרון בין מכשירים.</p></div></article>
 
             <article class="panel help-card install-help-card"><span class="help-icon">📲</span><div><h2>התקנת האפליקציה</h2><p>אפשר להתקין את היער הזוהר במסך הבית ולפתוח אותו כמו אפליקציה רגילה.</p><p>ב־Chrome באנדרואיד, לפעמים אפשר להתקין מיד מתוך האפליקציה, ולפעמים האפשרות מופיעה רק בתפריט ⋮ של הדפדפן. אם האפליקציה הוסרה לאחרונה, ייתכן שהדפדפן עדיין יזכור אותה לזמן קצר. במקרה כזה כדאי לרענן את הדף או לנסות שוב מאוחר יותר.</p><ul class="help-steps"><li><b>ב־Chrome באנדרואיד:</b> לחצו על כפתור „התקנת האפליקציה” למטה. אם הוא אינו מופיע, פתחו את תפריט שלוש הנקודות ⋮ ובחרו „התקנת האפליקציה” או „הוספה למסך הבית”.</li><li><b>ב־Safari באייפון:</b> לחצו על כפתור השיתוף ובחרו „הוספה למסך הבית”.</li></ul><button class="outline-btn install-help-button" data-install-app><span data-install-label>התקנת האפליקציה</span></button></div></article>
             <article class="panel help-card"><span class="help-icon">🌱</span><div><h2>איך נולד המשחק</h2><p>היער הזוהר נולד מרעיון של יוסי גלס, ופותח יחד עם Codex של OpenAI. המשחק התפתח צעד אחר צעד בעזרת הכוונה, בדיקות, שבחים, תיקונים — וגם כמה גערות ידידותיות כשהיה צריך.</p></div></article>
@@ -314,7 +314,7 @@
         <h2 id="profileFormTitle">יוצרים פרופיל לילד/ה</h2>
         <label>שם:<input id="childName" maxlength="16" placeholder="למשל: הראל" required></label>
         <label>גיל:<div class="age-options" id="ageOptions"></div></label>
-        <label>בוחרים חבר למסע<div class="buddy-options" id="buddyOptions"></div><p class="buddy-unlock-hint" id="buddyUnlockHint">מתחילים עם 4 חברים. כל 10 כוכבים פותחים חבר נוסף למסע.</p></label>
+        <label>בוחרים חבר למסע<div class="buddy-options" id="buddyOptions"></div><p class="buddy-unlock-hint" id="buddyUnlockHint">מתחילים עם 4 חברים. כל 5 כוכבים פותחים חבר נוסף למסע.</p></label>
         <button class="primary-btn full" id="profileSubmit" type="submit">יוצאים לדרך <span>←</span></button>
         <button class="danger-btn hidden" id="deleteProfile" type="button">מחיקת הפרופיל</button>
       </form>
@@ -348,7 +348,7 @@
         <div class="milestone-trophy"><b id="milestoneTrophyNumber">1</b><span>🏆</span></div>
         <span class="eyebrow">הגעת ליעד!</span>
         <h2 id="milestoneTitle">היער כולו זוהר!</h2>
-        <p id="milestoneText">אספתם עוד 10 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
+        <p id="milestoneText">אספתם עוד 5 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
         <button class="primary-btn full" data-game-finished-return data-close="milestoneModal">ממשיכים למשחק הבא <span>←</span></button>
       </div>
     </div>
@@ -369,7 +369,7 @@
     </div>
 
   </div>
-  <script src="games.js?build=local96"></script>
-  <script src="app.js?build=local96"></script>
+  <script src="games.js?build=local130"></script>
+  <script src="app.js?build=local130"></script>
 </body>
 </html>
