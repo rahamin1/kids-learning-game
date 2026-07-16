@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.13";
+const APP_VERSION = "0.1.14";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
 const INTRO_STEPS = [
@@ -614,6 +614,7 @@ function setupPWA(){
     updateInstallUI();
   });
   window.addEventListener("appinstalled",()=>{
+    trackEvent("pwa_installed");
     deferredInstallPrompt=null;
     updateInstallUI();
   });
