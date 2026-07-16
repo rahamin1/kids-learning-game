@@ -256,7 +256,7 @@
     const max=clamp(5+level*3,8,32),out=[];
     const minA=level>=7?4:level>=5?2:1;
     const minB=level>=7?2:1;
-    for(let a=minA;a<=max;a++){for(let b=minB;b<=Math.min(a,8);b++){const answer=kind==="add"?a+b:a-b;if(answer<0)continue;if(kind!=="add"&&level>=4&&answer===0)continue;const icon=pictures[(a+b)%pictures.length],pictureVisual={groups:[Array(Math.min(a,12)).fill(icon),Array(Math.min(b,12)).fill(icon)],operator:"+"},visual=kind==="add"?(level>=6?`${a} + ${b}`:""):`${a} − ${b}`;out.push(make(kind==="add"?`כמה הם ${a} ועוד ${b}?`:`כמה נשארו אם מורידים ${b} מתוך ${a}?`,String(answer),numberOptions(answer),visual,{skill:kind==="add"?"חיבור":"חיסור",type:kind==="add"?"חיבור":"חיסור",word:kind==="subtract"||level>=6,pictureMath:kind==="add"&&level<6?pictureVisual:null}));}}
+    for(let a=minA;a<=max;a++){for(let b=minB;b<=Math.min(a,8);b++){const answer=kind==="add"?a+b:a-b;if(answer<0)continue;if(kind!=="add"&&level>=4&&answer===0)continue;const icon=pictures[(a+b)%pictures.length],pictureVisual={groups:[Array(Math.min(a,12)).fill(icon),Array(Math.min(b,12)).fill(icon)],operator:"+"},expression=kind==="add"?`${a} + ${b}`:`${a} − ${b}`;out.push(make(expression,String(answer),numberOptions(answer),"",{skill:kind==="add"?"חיבור":"חיסור",type:kind==="add"?"חיבור":"חיסור",word:true,pictureMath:kind==="add"&&level<6?pictureVisual:null}));}}
     return out;
   }
   function numberLine(level){
@@ -325,7 +325,7 @@
   function memoryEnglish(level){
     const active=englishWords.slice(0,clamp(8+level,10,englishWords.length));
     const pairCount=level>=7?4:3;
-    return Array.from({length:12},(_,i)=>{const selected=Array.from({length:pairCount},(_,j)=>active[(i*2+j)%active.length]);return make("מצאו את כל זוגות התמונה והמילה","הושלם",[],"",{skill:"זיכרון",type:"משחק זיכרון",mode:"memory",pairs:selected.map(x=>[x[0],x[1]])});});
+    return Array.from({length:12},(_,i)=>{const selected=Array.from({length:pairCount},(_,j)=>active[(i*2+j)%active.length]);return make("התאימו בין כל תמונה למילה שלה","הושלם",[],"",{skill:"זיכרון",type:"משחק זיכרון",mode:"memory",pairs:selected.map(x=>[x[0],x[1]])});});
   }
   function sentenceEnglish(level){
     const sentences=[["I","SEE","A","CAT"],["THE","DOG","CAN","RUN"],["I","LIKE","RED","APPLES"],["THE","SUN","IS","HOT"],["A","FROG","CAN","JUMP"],["THE","BIRD","CAN","FLY"],["WE","PLAY","WITH","A","BALL"],["THE","LION","IS","BIG"]];

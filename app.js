@@ -1,11 +1,12 @@
-const APP_VERSION = "0.1.12";
+const APP_VERSION = "0.1.13";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
 const INTRO_STEPS = [
   {icon:"🌟",image:"assets/app-icon-star-forest.png",tone:"forest",eyebrow:"ברוכים הבאים",title:"היער הזוהר מחכה לכם",text:"יוצאים להרפתקת למידה קצרה, צבעונית וכיפית. בכל פעם משחקים קצת, מתקדמים קצת, ומגלים עוד מהיער."},
   {icon:"🏆",tone:"trophy",eyebrow:"כוכבים וגביעים",title:"אוספים כוכבים וזוכים בגביעים",text:"בכל משחק אוספים כוכבים. כל 5 כוכבים הופכים לגביע חדש, ואפשר להמשיך לאסוף עוד ועוד גביעים."},
   {icon:"🦊",tone:"buddy",eyebrow:"חברי מסע",title:"בוחרים חבר שמלווה את ההרפתקה",text:"בתחילת הדרך בוחרים חבר למסע. בהמשך מתגלים חברים נוספים, וכל ילד יכול לבחור מי יצא איתו למסע ולהחליף חבר בדרך."},
-  {icon:"⚙️",tone:"settings",eyebrow:"מתאים לכל ילד",title:"אפשר להתאים נושאים ורמות קושי",text:"ההורים יכולים לבחור נושאים, להסתיר משחקים, ולהעלות או להוריד רמת קושי לפי מה שמתאים לילד."}
+  {icon:"⚙️",tone:"settings",eyebrow:"מתאים לכל ילד",title:"אפשר להתאים נושאים ורמות קושי",text:"ההורים יכולים לבחור נושאים, להסתיר משחקים, ולהעלות או להוריד רמת קושי לפי מה שמתאים לילד."},
+  {icon:"📲",tone:"install",eyebrow:"פותחים בקלות",title:"אפשר להתקין את המשחק",text:"בהגדרות אפשר להתקין את היער הזוהר על המכשיר, כדי לפתוח אותו בקלות כמו אפליקציה. אפשר לעשות זאת גם אחר כך."}
 ];
 
 const SUBJECTS = {
@@ -111,6 +112,7 @@ const BUDDY_UNLOCK_BASE = 4;
 const TROPHY_ACCESSORY_UPGRADES = ["✨ תרמיל מסע זוהר","🌟 כובע הרפתקה מוזהב","💫 צעיף כוכבים","🔭 משקפת אור","👑 כתר יהלומים","🧭 מצפן ירח","☀️ אבקת אור מנצנצת","💎 אבן קשת"];
 const TROPHY_UPGRADE_TIERS = ["שדרוג זהב","שדרוג כוכבים","שדרוג ירח","שדרוג קשת"];
 const TROPHY_ACCESSORIES = ["🎒 תרמיל מסע","🧢 כובע הרפתקה","🧣 צעיף זוהר","🔭 משקפת כוכבים","👑 כתר היער","🧭 מצפן קסום","☀️ אבקת אור","💎 אבן זוהרת"];
+const MILESTONE_TITLES = ["היער כולו זוהר!","עוד שביל נפתח באור!","הכוכבים הובילו לגביע!","קסם חדש התעורר ביער!","הרפתקה נהדרת הושלמה!","היער חוגג איתכם!"];
 const SAMPLE_NAMES = ["הראל","גבע","גוני","ים","אודי","עומר","מיכל","גילי","שושי"];
 const STAR_GOAL = 5;
 const MOSAIC_TILES = 48;
@@ -400,6 +402,7 @@ function buildQuestionPool(subject,level,p){
 const storeKey = "brightwood-quest-v1";
 let state = JSON.parse(localStorage.getItem(storeKey) || '{"profiles":[],"activeId":null,"sound":true}');
 let session = null;
+let sharedAudioContext = null;
 let deferredInstallPrompt = null;
 let selectedAge = 5;
 let selectedBuddy = "🦊";
@@ -1108,12 +1111,12 @@ function playQuestionAudio(){
     utterance.lang="en-US"; utterance.rate=.82; utterance.pitch=1.05; speechSynthesis.speak(utterance);
     return;
   }
-  const C=window.AudioContext||window.webkitAudioContext,ctx=new C(),patterns={
+  const patterns={
     woof:[180,125,180],meow:[420,600,480],moo:[120,95,110],baa:[280,220,280],neigh:[500,380,620],
     cluck:[650,420,700],roar:[90,75,110],trumpet:[360,520,700],grunt:[115,90,120],squawk:[700,420,760],
     click:[900,1200,950],croak:[130,100,130],buzz:[190,205,195,210],hoot:[260,210,260],whale:[180,260,340]
   },notes=patterns[q.audio.key]||[300,420,300];
-  notes.forEach((freq,index)=>{const o=ctx.createOscillator(),g=ctx.createGain(),start=ctx.currentTime+index*.18;o.type=index%2?"triangle":"sine";o.frequency.setValueAtTime(freq,start);g.gain.setValueAtTime(.001,start);g.gain.exponentialRampToValueAtTime(.18,start+.03);g.gain.exponentialRampToValueAtTime(.001,start+.16);o.connect(g);g.connect(ctx.destination);o.start(start);o.stop(start+.18);});
+  playToneSequence(notes,{interval:.18,duration:.18,volume:.18,type:index=>index%2?"triangle":"sine"});
 }
 
 function answer(value,button){
@@ -1161,9 +1164,10 @@ function finishGame(){
     const newFriend=BUDDIES[BUDDY_UNLOCK_BASE+newTrophies-1];
     const accessory=latestAccessory(p);
     $("#milestoneTrophyNumber").textContent=newTrophies;
-    $("#milestoneTitle").textContent=newFriend ? `נפתח חבר חדש למסע!` : `היער כולו זוהר!`;
+    $("#milestoneTitle").textContent=newFriend ? `נפתח חבר חדש למסע!` : MILESTONE_TITLES[(newTrophies-1)%MILESTONE_TITLES.length];
+    const milestoneStarsText = newTrophies === 1 ? `אספתם ${STAR_GOAL} כוכבים` : `אספתם עוד ${STAR_GOAL} כוכבים`;
     $("#milestoneText").textContent=[
-      `אספתם עוד 5 כוכבים וזכיתם בגביע מספר ${newTrophies}.`,
+      `${milestoneStarsText} וזכיתם בגביע מספר ${newTrophies}.`,
       accessory?`קיבלתם גם אביזר חדש: ${accessory}.`:null,
       newFriend?`החבר החדש שנפתח: ${newFriend} ${BUDDY_PROFILES[newFriend]?.name||BUDDY_TITLES[newFriend]}.`:null
     ].filter(Boolean).join(" ");
@@ -1319,22 +1323,37 @@ function resetProgress(){
 
 function playMilestoneMelody(){
   if(!state.sound)return;
-  const C=window.AudioContext||window.webkitAudioContext,ctx=new C();
   const notes=[523,659,784,1047,784,880,988,1175,1047,1319];
-  notes.forEach((freq,index)=>{
-    const start=ctx.currentTime+index*.13,o=ctx.createOscillator(),g=ctx.createGain();
-    o.type=index<4?"triangle":"sine";o.frequency.value=freq;
-    g.gain.setValueAtTime(.001,start);
-    g.gain.exponentialRampToValueAtTime(.2,start+.025);
-    g.gain.exponentialRampToValueAtTime(.001,start+.24);
-    o.connect(g);g.connect(ctx.destination);o.start(start);o.stop(start+.26);
-  });
+  playToneSequence(notes,{interval:.13,duration:.26,volume:.2,type:index=>index<4?"triangle":"sine"});
 }
 
 function chime(success){
   if(!state.sound)return;
-  const C=window.AudioContext||window.webkitAudioContext,ctx=new C(),notes=success?[523,659,784]:[260,196];
-  notes.forEach((freq,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=success?"sine":"triangle";o.frequency.value=freq;g.gain.setValueAtTime(.001,ctx.currentTime+i*.11);g.gain.exponentialRampToValueAtTime(.18,ctx.currentTime+i*.11+.02);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.11+.2);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+i*.11);o.stop(ctx.currentTime+i*.11+.22)});
+  playToneSequence(success?[523,659,784]:[260,196],{interval:.11,duration:.22,volume:.18,type:success?"sine":"triangle"});
+}
+
+function getAudioContext(){
+  const C=window.AudioContext||window.webkitAudioContext;
+  if(!C)return null;
+  if(!sharedAudioContext||sharedAudioContext.state==="closed")sharedAudioContext=new C();
+  if(sharedAudioContext.state==="suspended")sharedAudioContext.resume().catch(()=>{});
+  return sharedAudioContext;
+}
+
+function playToneSequence(notes,{interval=.12,duration=.22,volume=.18,type="sine"}={}){
+  const ctx=getAudioContext(); if(!ctx)return;
+  const base=ctx.currentTime+.01;
+  notes.forEach((freq,index)=>{
+    try{
+      const start=base+index*interval,o=ctx.createOscillator(),g=ctx.createGain();
+      o.type=typeof type==="function"?type(index):type;
+      o.frequency.setValueAtTime(freq,start);
+      g.gain.setValueAtTime(.001,start);
+      g.gain.exponentialRampToValueAtTime(volume,start+.02);
+      g.gain.exponentialRampToValueAtTime(.001,start+duration);
+      o.connect(g);g.connect(ctx.destination);o.start(start);o.stop(start+duration+.02);
+    }catch{}
+  });
 }
 
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}

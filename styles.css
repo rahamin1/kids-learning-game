@@ -356,7 +356,9 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   .answer-btn{font-size:clamp(18px,6.2vw,30px);line-height:1.08;padding:10px 5px}
   .answer-grid.image-answers .answer-btn{font-size:72px;min-height:118px}
   .answer-grid.image-answers .answer-btn.text-answer{font-size:clamp(18px,6.2vw,30px)}
-  .number-line-visual{font-size:clamp(34px,11vw,54px);gap:8px}
+  .number-line-visual{font-size:clamp(24px,7.8vw,38px);gap:2px;padding-left:0;padding-right:0;max-width:100%;overflow:visible}
+  .number-line-visual .number-line-missing{width:.62em;height:.62em}
+  .number-line-dash{width:.48em;overflow:hidden}
   .question-visual.clock-visual{min-height:170px}
   .analog-clock{width:min(180px,62vw);height:min(180px,62vw)}
 }
@@ -402,7 +404,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   .picture-math-group{grid-template-columns:repeat(4,1fr);gap:5px 6px;max-width:210px}
   .picture-math-group span{font-size:42px}
   .picture-math-operator{font-size:48px}
-  .question-visual.no-visual{min-height:4px;padding:0}
+  .question-visual.no-visual{min-height:56px;padding:8px}
   .answer-grid.roomy-image-answers .answer-btn{font-size:clamp(86px,20vw,118px);min-height:150px}
   .answer-grid.roomy-object-grid-answers .answer-btn{font-size:clamp(24px,8vw,34px);min-height:126px}
   .answer-grid.large-object-grid-answers .answer-btn{font-size:clamp(19px,6.5vw,25px);min-height:124px}
@@ -413,4 +415,13 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   .pip-accessories{max-width:116px}
   .pip-accessories span{font-size:13px}
   .pip-accessories small{font-size:8px}
+}
+
+.orientation-hint{display:none}
+@media (orientation:landscape) and (max-width:1024px) and (hover:none) and (pointer:coarse){
+  .orientation-hint{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:24px;background:linear-gradient(135deg,rgba(15,49,82,.82),rgba(21,88,189,.58));backdrop-filter:blur(5px);direction:rtl;text-align:center}
+  .orientation-card{max-width:520px;border-radius:28px;background:linear-gradient(180deg,#fff,#fffaf0);padding:28px 30px;box-shadow:0 24px 70px rgba(0,0,0,.28);color:var(--ink)}
+  .orientation-icon{display:inline-grid;place-items:center;width:76px;height:76px;margin-bottom:14px;border-radius:24px;background:#fff4c9;font-size:34px;box-shadow:0 8px 0 rgba(28,62,95,.12)}
+  .orientation-card h2{font-size:30px;line-height:1.15;margin-bottom:10px;color:var(--blue-dark)}
+  .orientation-card p{margin:0;color:#536b82;font-weight:800;line-height:1.55}
 }
