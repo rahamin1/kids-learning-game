@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.15";
+const APP_VERSION = "0.1.16";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
 const INTRO_STEPS = [
@@ -543,6 +543,7 @@ function prepareProfile(p){
   p.recentGames ||= {};
   p.gameProgress ||= {};
   p.hiddenGames ||= [];
+  p.updatesPromptShown ??= false;
   applyDefaultHiddenGames(p);
   if(p.gameLevelAge!==p.age){
     KIDS_GAMES.catalog.forEach(game=>p.gameLevels[game.id]=defaultGameLevel(game.id,p.age));
@@ -741,7 +742,9 @@ function renderHero(){
   const p=activeProfile();
   const stars=p?.stars||0;
   const firstGoalProgress=Math.min(stars,STAR_GOAL)/STAR_GOAL;
-  const darkness=.62*(1-firstGoalProgress)+.06;
+  // Reveal more light early in the journey: by roughly 25 stars the scene
+  // should already be recognisable, while a new adventure still feels dark.
+  const darkness=.55*Math.pow(1-firstGoalProgress,2)+.05;
   const age=p?.age||3;
   const set=age>=6?BUDDY_IMAGES_OLDER:BUDDY_IMAGES;
   const image=set[p?.buddy]||set["🦊"];
@@ -1179,11 +1182,18 @@ function finishGame(){
       accessory?`קיבלתם גם אביזר חדש: ${accessory}.`:null,
       newFriend?`החבר החדש שנפתח: ${newFriend} ${BUDDY_PROFILES[newFriend]?.name||BUDDY_TITLES[newFriend]}.`:null
     ].filter(Boolean).join(" ");
+    const showUpdatesPrompt=newTrophies===1&&!p.updatesPromptShown;
+    $("#milestoneUpdatesButton").classList.toggle("hidden",!showUpdatesPrompt);
+    if(showUpdatesPrompt)p.updatesPromptShown=true;
     openModal("milestoneModal");
     playMilestoneMelody();
+  } else if(newTrophies>=1&&!p.updatesPromptShown){
+    p.updatesPromptShown=true;
+    openModal("updatesModal");
   } else {
     openModal("celebrationModal");
   }
+  save();
   renderAll();
 }
 
@@ -1323,7 +1333,7 @@ function importProgressFile(file){
 function resetProgress(){
   const p=activeProfile(); if(!p)return;
   if(!confirm(`לאפס את כל ההתקדמות של ${p.name}? הפעולה אינה ניתנת לביטול.`))return;
-  Object.assign(p,{stars:0,streak:0,progress:{},log:[],correct:0,answered:0,minutes:0,daily:0,dailyDate:"",skillLevels:{},skillFeedback:{},recentQuestions:{},gameLevels:{},gameFeedback:{},recentGames:{},gameProgress:{},gameLevelAge:null});
+  Object.assign(p,{stars:0,streak:0,progress:{},log:[],correct:0,answered:0,minutes:0,daily:0,dailyDate:"",skillLevels:{},skillFeedback:{},recentQuestions:{},gameLevels:{},gameFeedback:{},recentGames:{},gameProgress:{},gameLevelAge:null,updatesPromptShown:false});
   prepareProfile(p); save(); renderAll();
   if($("#dashboardScreen").classList.contains("active"))renderDashboard();
   if($("#settingsScreen").classList.contains("active"))renderSettings();
@@ -1480,7 +1490,8 @@ function bindEvents(){
     const name=$("#contactName").value.trim();
     const email=$("#contactEmail").value.trim();
     const message=$("#contactMessage").value.trim();
-    if(!message)return;
+    const updates=$("#contactUpdates").checked;
+    if(!message&&!updates)return;
     if(!FORMSPREE_ENDPOINT){
       status.textContent="הטופס כמעט מוכן. צריך להגדיר בקוד את כתובת ה-Formspree לפני שאפשר לשלוח.";
       status.className="contact-status error";
@@ -1497,8 +1508,9 @@ function bindEvents(){
           name,
           email,
           _replyto:email,
-          _subject:"היער הזוהר - בקשה",
+          _subject:updates?(message?"היער הזוהר - תגובה או פנייה ובקשה לעדכונים":"היער הזוהר - בקשה לעדכונים"):"היער הזוהר - תגובה או פנייה",
           message,
+          updatesRequested:updates?"כן":"לא",
           appVersion:APP_VERSION,
           pageUrl:location.href,
           userAgent:navigator.userAgent
@@ -1530,6 +1542,8 @@ function bindEvents(){
     ].join("\n");
     throw new Error("Legacy mail fallback disabled");
   };
+  $("#milestoneUpdatesButton").onclick=()=>{closeModal("milestoneModal");openModal("updatesModal")};
+  $("#updatesSignupButton").onclick=()=>{closeModal("updatesModal");$("#contactUpdates").checked=true;showScreen("contactScreen");$("#contactEmail").focus()};
   $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&m.id!=="introModal"&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
 }
 

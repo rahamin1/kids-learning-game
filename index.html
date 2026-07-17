@@ -10,11 +10,11 @@
   <title>ההרפתקה ביער הזוהר</title>
   <link rel="icon" type="image/png" href="assets/app-icon-star-forest.png">
   <link rel="apple-touch-icon" href="assets/app-icon-star-forest.png">
-  <link rel="manifest" href="manifest.webmanifest?v=0.1.15">
+  <link rel="manifest" href="manifest.webmanifest?v=0.1.16">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?build=local163">
+  <link rel="stylesheet" href="styles.css?build=local167">
 </head>
 <body>
   <div id="app">
@@ -236,7 +236,7 @@
         <div class="dashboard-wrap">
           <div class="dashboard-head">
             <button class="back-btn" data-go="home">→</button>
-            <div><span class="eyebrow blue">כתבו אלינו</span><h1>הערות? בקשות? מצאתם שגיאות במשחק?</h1><p>נשמח לשמוע כדי לשפר את היער הזוהר.</p></div>
+            <div><span class="eyebrow blue">כתבו אלינו</span><h1>הערות? רעיונות לעוד משחקים? מצאתם שגיאות במשחק?</h1><p>נשמח לשמוע כדי לשפר את היער הזוהר.</p></div>
           </div>
 
           <article class="panel contact-panel">
@@ -247,8 +247,9 @@
               <label>כתובת מייל
                 <input id="contactEmail" name="email" type="email" autocomplete="email" placeholder="name@example.com">
               </label>
+              <label class="contact-updates-choice"><input id="contactUpdates" name="updates" type="checkbox"><span><b>אפשר לשלוח לי עדכונים משמעותיים על היער הזוהר</b><small>נשתמש בכתובת המייל רק לעדכונים האלה.</small></span></label>
               <label class="contact-message-label">מה תרצו לכתוב לנו?
-                <textarea id="contactMessage" name="message" rows="8" required placeholder="כתבו כאן הערה, בקשה או תיאור של שגיאה שמצאתם במשחק"></textarea>
+                <textarea id="contactMessage" name="message" rows="8" placeholder="כתבו כאן הערה, בקשה או תיאור של שגיאה שמצאתם במשחק"></textarea>
               </label>
               <p class="formspree-note">ההודעה תישלח אלינו דרך Formspree. כתובת המייל שמילאתם תשמש לחזרה אליכם.</p>
               <p id="contactStatus" class="contact-status" aria-live="polite"></p>
@@ -348,7 +349,20 @@
         <span class="eyebrow">הגעת ליעד!</span>
         <h2 id="milestoneTitle">היער כולו זוהר!</h2>
         <p id="milestoneText">אספתם 5 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
+        <button class="outline-btn full hidden" id="milestoneUpdatesButton" type="button">רוצים לקבל עדכונים משמעותיים?</button>
         <button class="primary-btn full" data-game-finished-return data-close="milestoneModal">ממשיכים למשחק הבא <span>←</span></button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="updatesModal">
+      <div class="modal updates-modal">
+        <button class="modal-close" data-close="updatesModal">×</button>
+        <span class="eyebrow blue">נשארים בקשר</span>
+        <h2>הגיע הגביע הראשון!</h2>
+        <p>רוצים לקבל עדכונים משמעותיים על היער הזוהר?</p>
+        <p class="updates-privacy">נשתמש בכתובת המייל רק לצורך עדכונים אלה.</p>
+        <button class="primary-btn full" id="updatesSignupButton" type="button">להירשם לעדכונים</button>
+        <button class="outline-btn full" data-close="updatesModal" type="button">לא עכשיו</button>
       </div>
     </div>
 
@@ -375,7 +389,7 @@
       <p>היער הזוהר בנוי למסך עומד (אנכי). כך רואים טוב יותר את השאלות, הכפתורים והחבר למסע.</p>
     </div>
   </div>
-  <script src="games.js?build=local163"></script>
-  <script src="app.js?build=local163"></script>
+  <script src="games.js?build=local167"></script>
+  <script src="app.js?build=local167"></script>
 </body>
 </html>
