@@ -20,7 +20,7 @@
     {id:"picture-word-memory",subject:"english",minAge:6,name:"זיכרון תמונה ומילה",icon:"🧠",desc:"מוצאים זוגות מתאימים",kind:"memoryEnglish"},
     {id:"first-letter",subject:"english",minAge:6,name:"האות הראשונה",icon:"🔤",desc:"בוחרים באיזו אות המילה מתחילה",kind:"firstLetter"},
     {id:"image-word",subject:"english",minAge:6,name:"תמונה ומילה",icon:"🖼️",desc:"בוחרים מילה מתוך ארבע אפשרויות",kind:"imageWord"},
-    {id:"drag-word-picture",subject:"english",minAge:6,name:"גרירה והתאמה",icon:"↔️",desc:"גוררים מילה אל התמונה",kind:"dragEnglish"},
+    {id:"drag-word-picture",subject:"english",minAge:6,name:"מילה ותמונה",icon:"🖼️",desc:"לוחצים על התמונה המתאימה למילה",kind:"dragEnglish"},
     {id:"listen-animal",subject:"english",minAge:6,name:"לחצו ושמעו",icon:"🔊",desc:"שומעים שם של בעל חיים ובוחרים תמונה",kind:"listenEnglish",disabled:true},
     {id:"missing-letter-en",subject:"english",minAge:6,name:"אות חסרה",icon:"❓",desc:"משלימים אות חסרה במילה",kind:"missingEnglish"},
     {id:"word-categories",subject:"english",minAge:6,name:"קטגוריות מילים",icon:"🗂️",desc:"ממיינים חיות, אוכל וחפצים",kind:"englishCategories"},
@@ -317,7 +317,7 @@
     if(kind==="imageWord")return repeatPool(active.map(([icon,word])=>make("איזו מילה מתאימה לתמונה?",word,options(word,active.map(x=>x[1])),icon,{skill:"אוצר מילים",type:"תמונה ומילה",word:true})));
     if(kind==="missingEnglish"||kind==="crosswordEnglish")return repeatPool(active.filter(x=>x[1].length<=clamp(3+Math.floor(level/2),4,8)).map(([icon,word])=>{const pos=level>=7?1+word.length%Math.max(1,word.length-2):word.length-1,correct=word[pos],masked=word.slice(0,pos)+"_"+word.slice(pos+1);return make("איזו אות חסרה?",correct,options(correct,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),`${icon}  ${masked}`,{skill:"איות",type:kind==="crosswordEnglish"?"תשבץ תמונות":"אות חסרה",word:true});}));
     if(kind==="buildEnglish")return repeatPool(active.filter(x=>x[1].length<=clamp(3+Math.floor(level/2),4,8)).map(([icon,word])=>make("בנו את המילה מהאותיות",word,[],icon,{skill:"איות",type:"בונים מילה",mode:"build",tokens:shuffle([...word,...shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")).slice(0,clamp(level-3,1,4))]),joinWith:"",word:true})));
-    if(kind==="dragEnglish")return repeatPool(active.map(([icon,word])=>make(`גררו את המילה ${word} אל התמונה המתאימה`,icon,options(icon,active.map(x=>x[0])),icon,{skill:"התאמה",type:"גרירה ושחרור",mode:"drag",dragSource:word})));
+    if(kind==="dragEnglish")return repeatPool(active.map(([icon,word])=>make(`לחצו על התמונה המתאימה למילה ${word}`,icon,options(icon,active.map(x=>x[0])),"",{skill:"התאמה",type:"מילה ותמונה"})));
     if(kind==="listenEnglish")return repeatPool(animals.slice(0,count).map(animal=>make("לחצו על הרמקול ובחרו את בעל החיים ששמעתם",animal.icon,options(animal.icon,animals.map(x=>x.icon)),"🔊",{skill:"האזנה",type:"לחצו ושמעו",audio:{kind:"speech",text:animal.en}})));
     if(kind==="englishCategories"){const categoryPools={ANIMAL:["DOG","CAT","BEAR","FISH","LION","FROG","OWL"],FOOD:["APPLE","EGG","JUICE","BANANA","MANGO","CHEESE"],OBJECT:["GIFT","HAT","KEY","CAR","DRUM"],NATURE:["SUN","MOON","TREE","STAR"]},categoryIcons={ANIMAL:"🐾",FOOD:"🍎",OBJECT:"🎒",NATURE:"🌿"};return repeatPool(active.map(([icon,word,letter,cat])=>{const distractors=Object.entries(categoryPools).filter(([key])=>key!==cat).flatMap(([,words])=>words);return make(`איזו מילה שייכת לקטגוריה ${cat}?`,word,options(word,distractors),categoryIcons[cat]||"✨",{skill:"קטגוריות",type:"מיון מילים"});}));}
     return [];
@@ -358,22 +358,22 @@
   }
   function alphabetOrder(level){
     const length=clamp(3+Math.floor(level/3),3,6);
-    return Array.from({length:18},(_,i)=>{const start=i%(heAlphabet.length-length),tokens=heAlphabet.slice(start,start+length),correct=tokens.join("");return make("סדרו את האותיות לפי האלף־בית",correct,[],tokens.join(" "),{skill:"סדר האותיות",type:"אלף־בית",mode:"build",tokens:shuffle(tokens),joinWith:"",word:true});});
+    return Array.from({length:18},(_,i)=>{const start=i%(heAlphabet.length-length),tokens=heAlphabet.slice(start,start+length),correct=tokens.join("");return make("סדרו את האותיות לפי האלף־בית",correct,[],"",{skill:"סדר האותיות",type:"אלף־בית",mode:"build",tokens:shuffle(tokens),joinWith:"",word:true});});
   }
   const readingStories = [
-    {text:"נועה לקחה מטרייה ונעלה מגפיים.",inference:"ירד גשם",event:"נועה נעלה מגפיים",info:"נועה",title:"יום גשום"},
-    {text:"אורי שתל זרע, השקה אותו ולאחר כמה ימים הופיע נבט.",inference:"הזרע קיבל מים",event:"הופיע נבט",info:"אורי",title:"הזרע שצמח"},
-    {text:"מיה מצאה גור קטן ורועד והביאה לו שמיכה.",inference:"לגור היה קר",event:"מיה הביאה שמיכה",info:"מיה",title:"עוזרים לגור"},
-    {text:"דן סיים לאכול, צחצח שיניים ונכנס למיטה.",inference:"הגיע זמן השינה",event:"דן נכנס למיטה",info:"דן",title:"לפני השינה"},
-    {text:"תמר ארזה מים, כובע ומפה ויצאה עם משפחתה.",inference:"המשפחה יצאה לטיול",event:"תמר ארזה מים",info:"תמר",title:"יוצאים לטיול"},
-    {text:"רון שמע רעם, ראה ברק וסגר את החלון.",inference:"הייתה סערה",event:"רון סגר את החלון",info:"רון",title:"הסערה"},
-    {text:"יעל אפתה עוגה והניחה עליה שבעה נרות.",inference:"למישהו היה יום הולדת",event:"יעל הניחה נרות",info:"שבעה",title:"עוגת יום הולדת"},
-    {text:"גיל ראה שהעציץ יבש והשקה אותו.",inference:"הצמח היה זקוק למים",event:"גיל השקה",info:"העציץ",title:"משקים את הצמח"}
+    {text:"נועה לקחה מטרייה ונעלה מגפיים.",inference:"ירד גשם",inferenceOptions:["ירד גשם","נועה יצאה לשחות","נועה שכחה את התיק","היה חם מאוד"],event:"נועה נעלה מגפיים",info:"נועה",title:"יום גשום"},
+    {text:"אורי זרע את הזרע, השקה אותו ולאחר כמה ימים הופיע נבט.",inference:"הזרע קיבל מים",inferenceOptions:["הזרע קיבל מים","אורי שכח את הזרע","הזרע היה צעצוע","אורי קטף פרחים"],event:"הופיע נבט",info:"אורי",title:"הזרע שצמח"},
+    {text:"מיה מצאה גור קטן ורועד והביאה לו שמיכה.",inference:"לגור היה קר",inferenceOptions:["לגור היה קר","הגור רצה לרוץ","הגור חיפש אוכל","מיה יצאה לטיול"],event:"מיה הביאה שמיכה",info:"מיה",title:"עוזרים לגור"},
+    {text:"דן סיים לאכול, צחצח שיניים ונכנס למיטה.",inference:"הגיע זמן השינה",inferenceOptions:["הגיע זמן השינה","דן עומד לצאת לבית הספר","דן מתכונן לארוחת בוקר","דן הולך לשחק בחצר"],event:"דן נכנס למיטה",info:"דן",title:"לפני השינה"},
+    {text:"תמר ארזה מים, כובע ומפה ויצאה עם משפחתה.",inference:"המשפחה יצאה לטיול",inferenceOptions:["המשפחה יצאה לטיול","תמר הייתה צמאה","תמר השתעממה בבית","המשפחה של תמר מגובשת"],event:"תמר ארזה מים",info:"תמר",title:"יוצאים לטיול"},
+    {text:"רון שמע רעם, ראה ברק וסגר את החלון.",inference:"הייתה סערה",inferenceOptions:["הייתה סערה","רון הדליק אור","רון רצה לצאת לטיול","היה יום בהיר"],event:"רון סגר את החלון",info:"רון",title:"הסערה"},
+    {text:"יעל אפתה עוגה והניחה עליה שבעה נרות.",inference:"למישהו היה יום הולדת",inferenceOptions:["למישהו היה יום הולדת","יעל הכינה ארוחת ערב","יעל פתחה מאפייה","מישהו איבד שבעה נרות"],event:"יעל הניחה נרות",info:"שבעה",title:"עוגת יום הולדת"},
+    {text:"גיל ראה שהעציץ יבש והשקה אותו.",inference:"הצמח היה זקוק למים",inferenceOptions:["הצמח היה זקוק למים","הצמח קיבל יותר מדי מים","גיל רצה לקטוף את הצמח","העציץ היה חדש מאוד"],event:"גיל השקה",info:"העציץ",title:"משקים את הצמח"}
   ];
   function readingQuestions(kind,level){
     const out=[];
     readingStories.forEach((story,i)=>{
-      if(kind==="inference")out.push(make(`${story.text} מה אפשר להבין?`,story.inference,options(story.inference,readingStories.map(x=>x.inference)), "📖",{skill:"הסקת מסקנות",type:"רמזים מהטקסט"}));
+      if(kind==="inference")out.push(make(`${story.text} מה אפשר להבין?`,story.inference,options(story.inference,story.inferenceOptions||[]), "📖",{skill:"הסקת מסקנות",type:"רמזים מהטקסט"}));
       if(kind==="findInfo")out.push(make(`${story.text} איזה פרט מופיע בטקסט?`,story.info,options(story.info,readingStories.map(x=>x.info)),"📖",{skill:"איתור מידע",type:"מוצאים פרט"}));
       if(kind==="storyTitle")out.push(make(`${story.text} איזו כותרת מתאימה?`,story.title,options(story.title,readingStories.map(x=>x.title)),"📰",{skill:"כותרת",type:"כותרת לסיפור"}));
       if(kind==="trueFalse"){const trueStatement=i%2===0,statement=trueStatement?story.event:"הסיפור התרחש בים";out.push(make(`${story.text} האם נכון לומר: “${statement}”?`,trueStatement?"נכון":"לא נכון",["נכון","לא נכון","אין מספיק מידע","אולי"],"✅",{skill:"הבנת הנקרא",type:"נכון או לא נכון"}));}

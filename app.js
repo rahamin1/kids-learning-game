@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.14";
+const APP_VERSION = "0.1.15";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
 const INTRO_STEPS = [
@@ -113,10 +113,8 @@ const TROPHY_ACCESSORY_UPGRADES = ["✨ תרמיל מסע זוהר","🌟 כוב
 const TROPHY_UPGRADE_TIERS = ["שדרוג זהב","שדרוג כוכבים","שדרוג ירח","שדרוג קשת"];
 const TROPHY_ACCESSORIES = ["🎒 תרמיל מסע","🧢 כובע הרפתקה","🧣 צעיף זוהר","🔭 משקפת כוכבים","👑 כתר היער","🧭 מצפן קסום","☀️ אבקת אור","💎 אבן זוהרת"];
 const MILESTONE_TITLES = ["היער כולו זוהר!","עוד שביל נפתח באור!","הכוכבים הובילו לגביע!","קסם חדש התעורר ביער!","הרפתקה נהדרת הושלמה!","היער חוגג איתכם!"];
-const SAMPLE_NAMES = ["הראל","גבע","גוני","ים","אודי","עומר","מיכל","גילי","שושי"];
-const STAR_GOAL = 5;
-const MOSAIC_TILES = 48;
-const MOSAIC_REVEAL_ORDER = Array.from({length:MOSAIC_TILES},(_,index)=>(index*17+11)%MOSAIC_TILES);
+const SAMPLE_NAMES = ["הראל","גבע","גוני","ים"];
+const STAR_GOAL = 100;
 const BUDDY_IMAGES = {
   "🦊": "assets/brightwood-fox.png",
   "🐼": "assets/brightwood-panda.png",
@@ -751,8 +749,6 @@ function renderHero(){
   $(".hero").style.backgroundImage=`linear-gradient(90deg,rgba(224,249,255,.94) 0%,rgba(224,249,255,.76) 35%,rgba(224,249,255,0) 63%),linear-gradient(${ageTint},${ageTint}),url("${image}")`;
   $(".hero").style.setProperty("--forest-darkness",darkness.toFixed(2));
   $(".hero").dataset.ageWorld=age===3?"preschool":age<=5?"middle":"older";
-  const revealed=Math.min(MOSAIC_TILES,Math.max(2,Math.ceil(firstGoalProgress*MOSAIC_TILES)));
-  $("#forestMosaic").innerHTML=Array.from({length:MOSAIC_TILES},(_,index)=>`<span class="${MOSAIC_REVEAL_ORDER.indexOf(index)<revealed?"revealed":""}"></span>`).join("");
   $(".speech-bubble").innerHTML=stars
     ? `${buddyLine(p?.buddy||"🦊","return",stars)}<br><b>אספנו ${stars} ${stars===1?"כוכב":"כוכבים"}</b>`
     : `${buddyLine(p?.buddy||"🦊","home",age)}<br><b>בואו נאיר את היער!</b>`;
@@ -866,7 +862,7 @@ function submitProfile(name){
     prepareProfile(p); save(); closeModal("createModal"); renderAll(); showScreen("homeScreen");
     editingId=null;
   } else {
-    const defaultSubjects=selectedAge>=6?["math","english"]:["math","thinking"];
+    const defaultSubjects=Object.keys(SUBJECTS);
     const p=prepareProfile({id:Date.now().toString(),name:name.trim(),age:selectedAge,buddy:selectedBuddy,subjects:defaultSubjects,stars:0,streak:0,progress:{},log:[],correct:0,answered:0,minutes:0,daily:0,dailyDate:""});
     state.profiles.push(p); state.activeId=p.id; session=null; save(); closeModal("createModal"); renderAll(); showScreen("homeScreen"); openModal("subjectModal");
   }
@@ -903,6 +899,7 @@ function questionSignature(q){
     q.dragSource||"",
     q.audio?.key||q.audio?.text||"",
     q.clock?`${q.clock.hour}:${q.clock.minutes}`:"",
+    q.pairs?q.pairs.map(pair=>pair.join("=")).join("|"):"",
     q.mode||""
   ].join("::");
 }
@@ -987,9 +984,14 @@ function renderQuestion(){
   $("#questionLabel").textContent=`${session.index+1} מתוך ${session.questions.length}`;
   $("#questionBar").style.width=`${session.index/session.questions.length*100}%`;
   $("#questionType").textContent=q.type; $("#questionText").textContent=q.q;
-  $("#questionVisual").textContent=q.audio || q.patternTiles || q.clock || q.pictureMath || q.numberLine ? "" : (q.visual||"");
-  $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"");
-  $("#questionVisual").classList.toggle("no-visual",!q.visual&&!q.audio&&!q.patternTiles&&!q.clock&&!q.pictureMath&&!q.numberLine);
+  const isMathExpression=q.type==="חיסור"||q.type==="חיבור";
+  // In letter-order activities, the visual contains the answer itself.
+  // Keep its space, but do not reveal the sequence before the child chooses.
+  const hideCategoryVisual=q.type==="מיון מילים"||q.mode==="build";
+  $("#questionVisual").textContent=hideCategoryVisual || q.audio || q.patternTiles || q.clock || q.pictureMath || q.numberLine ? "" : (q.visual||"");
+  $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"")+(isMathExpression?" math-expression":"");
+  $("#questionVisual").dir=isMathExpression?"ltr":"auto";
+  $("#questionVisual").classList.toggle("no-visual",hideCategoryVisual||(!q.visual&&!q.audio&&!q.patternTiles&&!q.clock&&!q.pictureMath&&!q.numberLine));
   if(q.clock){
     $("#questionVisual").classList.add("clock-visual");
     $("#questionVisual").innerHTML=renderClockFace(q.clock.hour,q.clock.minutes);
@@ -1128,6 +1130,11 @@ function answer(value,button){
   if(right){
     p.correct++; session.correct++; session.results[q.skill].correct++;
     button.classList.add("correct"); chime(true);
+    if(typeof q.visual==="string"&&q.visual.includes("_")){
+      const visual=$("#questionVisual");
+      visual.textContent=q.visual.replace("_",q.correct);
+      visual.classList.add("letter-revealed");
+    }
     $("#feedback").textContent=session.correct%2===0 ? buddyLine(p.buddy,"correct",p.correct+session.index) : "כן! בדיוק! ★";
     $("#feedback").className="feedback good";
   } else {

@@ -10,11 +10,11 @@
   <title>ההרפתקה ביער הזוהר</title>
   <link rel="icon" type="image/png" href="assets/app-icon-star-forest.png">
   <link rel="apple-touch-icon" href="assets/app-icon-star-forest.png">
-  <link rel="manifest" href="manifest.webmanifest?v=0.1.14">
+  <link rel="manifest" href="manifest.webmanifest?v=0.1.15">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?build=local141">
+  <link rel="stylesheet" href="styles.css?build=local163">
 </head>
 <body>
   <div id="app">
@@ -45,7 +45,6 @@
     <main>
       <section id="homeScreen" class="screen active">
         <div class="hero">
-          <div class="forest-mosaic" id="forestMosaic" aria-hidden="true"></div>
           <div class="hero-copy">
             <span class="eyebrow">ההרפתקה של היום</span>
             <h1>מוכנים לעשות<br><em>קסמים</em> עם הראש?</h1>
@@ -207,6 +206,8 @@
           <div class="help-grid">
             <article class="panel help-card"><span class="help-icon">👤</span><div><h2>שחקנים</h2><p>לכל ילד וילדה אפשר ליצור שחקן נפרד עם שם, גיל וחבר למסע. ההתקדמות, הכוכבים ורמות הקושי נשמרים בנפרד לכל שחקן.</p><p>בחירה בשחקן אחר תעביר לדף הבית שלו. בחירה מחדש בשחקן הפעיל תשאיר אתכם במסך הנוכחי.</p></div></article>
 
+            <article class="panel help-card"><span class="help-icon">💾</span><div><h2>שמירת ההתקדמות</h2><p>השחקנים וההתקדמות נשמרים בדפדפן ובמכשיר שבו משחקים. במכשיר או בדפדפן אחר יהיה צורך ליצור את השחקנים מחדש, משום שכרגע אין סנכרון בין מכשירים.</p></div></article>
+
             <article class="panel help-card"><span class="help-icon">🧭</span><div><h2>בחירת נושאים</h2><p>אפשר לבחור מספרים או חשבון, אנגלית, עברית, טבע וחשיבה. המשחקים מותאמים לגיל, ומשחקים חדשים נפתחים ככל שעולים בגיל.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">🎮</span><div><h2>משחקים ורמות</h2><p>לכל משחק יש תשע רמות קושי. נקודת ההתחלה נקבעת לפי גיל הילד.</p><p>במסך ההגדרות אפשר לבחור לכל משחק <b>קל יותר</b>, <b>מתאים</b> או <b>קשה יותר</b>. ברמה הראשונה או התשיעית האפשרות שאינה זמינה תופיע מעומעמת.</p></div></article>
@@ -224,8 +225,6 @@
             <article class="panel help-card"><span class="help-icon">👁️</span><div><h2>הסתרה והחזרה של משחקים</h2><p>במסך ההגדרות אפשר לבחור „הסתרת המשחק”. המשחק לא יופיע בבחירת המשחקים או ב„הפתיעו אותי”, אך הוא אינו נמחק וההתקדמות בו נשמרת.</p><p>כדי להציג אותו שוב, לחצו על „החזרת המשחק”. ההסתרה וההחזרה נשמרות בנפרד לכל ילד.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">🔊</span><div><h2>צלילים</h2><p>אפשר להפעיל או להשתיק את צלילי המשחק באמצעות סמל הרמקול. במשחקי אנגלית מסוימים אפשר ללחוץ על סמל השמע כדי לשמוע מילה או צליל באנגלית.</p></div></article>
-
-            <article class="panel help-card"><span class="help-icon">💾</span><div><h2>שמירת ההתקדמות</h2><p>השחקנים וההתקדמות נשמרים בדפדפן ובמכשיר שבו משחקים. במכשיר או בדפדפן אחר יהיה צורך ליצור את השחקנים מחדש, משום שכרגע אין סנכרון בין מכשירים.</p></div></article>
 
             <article class="panel help-card install-help-card"><span class="help-icon">📲</span><div><h2>התקנת האפליקציה</h2><p>אפשר להתקין את היער הזוהר במסך הבית ולפתוח אותו כמו אפליקציה רגילה.</p><p>ב־Chrome באנדרואיד, לפעמים אפשר להתקין מיד מתוך האפליקציה, ולפעמים האפשרות מופיעה רק בתפריט ⋮ של הדפדפן. אם האפליקציה הוסרה לאחרונה, ייתכן שהדפדפן עדיין יזכור אותה לזמן קצר. במקרה כזה כדאי לרענן את הדף או לנסות שוב מאוחר יותר.</p><ul class="help-steps"><li><b>ב־Chrome באנדרואיד:</b> לחצו על כפתור „התקנת האפליקציה” למטה. אם הוא אינו מופיע, פתחו את תפריט שלוש הנקודות ⋮ ובחרו „התקנת האפליקציה” או „הוספה למסך הבית”.</li><li><b>ב־Safari באייפון:</b> לחצו על כפתור השיתוף ובחרו „הוספה למסך הבית”.</li></ul><button class="outline-btn install-help-button" data-install-app><span data-install-label>התקנת האפליקציה</span></button></div></article>
             <article class="panel help-card"><span class="help-icon">🌱</span><div><h2>איך נולד המשחק</h2><p>היער הזוהר נולד מרעיון של יוסי גלס, ופותח יחד עם Codex של OpenAI. המשחק התפתח צעד אחר צעד בעזרת הכוונה, בדיקות, שבחים, תיקונים — וגם כמה גערות ידידותיות כשהיה צריך.</p></div></article>
@@ -376,7 +375,7 @@
       <p>היער הזוהר בנוי למסך עומד (אנכי). כך רואים טוב יותר את השאלות, הכפתורים והחבר למסע.</p>
     </div>
   </div>
-  <script src="games.js?build=local141"></script>
-  <script src="app.js?build=local141"></script>
+  <script src="games.js?build=local163"></script>
+  <script src="app.js?build=local163"></script>
 </body>
 </html>
