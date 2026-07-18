@@ -33,6 +33,12 @@ body{font-family:Heebo,system-ui,sans-serif}
 .primary-btn span{margin-left:0;margin-right:20px}
 .question-visual{direction:ltr}
 .question-visual.math-expression{direction:ltr;unicode-bidi:isolate}
+.question-visual.math-expression{flex-direction:row;unicode-bidi:embed}
+.math-expression .math-number,.math-expression .math-operator{direction:ltr;unicode-bidi:isolate}
+.fraction-visual{min-height:140px;gap:10px;direction:ltr}
+.fraction-piece{width:42px;height:42px;border:3px solid var(--ink);background:#fff;border-radius:3px}
+.fraction-piece.filled{background:var(--fraction-color)}
+.fraction-blue{--fraction-color:#2376d1}.fraction-red{--fraction-color:#e64b46}.fraction-purple{--fraction-color:#854bc8}.fraction-green{--fraction-color:#35a75d}.fraction-orange{--fraction-color:#ef922f}
 .question-visual.letter-revealed{color:var(--blue);transform:scale(1.04);transition:transform .18s ease}
 .question-visual.object-grid{white-space:pre-line;font-size:30px;line-height:1.18}
 .answer-grid.object-grid-answers{max-width:760px}
@@ -210,6 +216,8 @@ body{font-family:Heebo,system-ui,sans-serif}
 .drag-targets{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%}
 .drag-target{font-size:31px}
 .build-result,.word-selection{min-height:58px;border:3px solid #dce8f0;border-radius:16px;background:#f8fbfd;padding:13px;text-align:center;color:var(--blue-dark);font-size:22px;font-weight:900}
+.build-result.correct-answer-reveal,.word-selection.correct-answer-reveal{border-color:#35b983;background:#d8f5e9;color:#137251}
+.question-visual.correct-answer-reveal{color:#137251}
 .token-bank{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
 .token-btn{min-width:48px;min-height:48px;border:2px solid #bdd2e5;border-radius:13px;background:#fff;color:var(--blue-dark);font-size:20px;font-weight:900;padding:7px 11px}
 .token-btn:disabled{opacity:.3;transform:scale(.92)}
@@ -245,6 +253,10 @@ body{font-family:Heebo,system-ui,sans-serif}
 .help-icon{width:58px;min-width:58px;height:58px;border-radius:18px;background:#eef5ff;display:grid;place-items:center;font-size:30px}
 .help-card h2{font-size:20px;margin:2px 0 8px}
 .help-card p{margin:6px 0;color:var(--muted);font-size:13px;line-height:1.65}
+.privacy-help-card{background:linear-gradient(135deg,#f0f8ff,#fff)}
+.privacy-settings-panel{margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:20px;background:linear-gradient(135deg,#f4fbff,#fff)}
+.privacy-settings-panel p{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.55;max-width:680px}
+.privacy-policy{display:grid;gap:18px;margin-top:28px}.privacy-policy h2{font-size:22px;margin:0 0 9px}.privacy-policy p{margin:7px 0;color:var(--muted);line-height:1.75}.privacy-policy a{color:var(--blue);font-weight:900}
 .reward-help-card{background:linear-gradient(135deg,#fff8d4,#fff)}
 .help-reward-example{width:max-content;margin-top:14px;padding:9px 14px;border-radius:20px;background:#fff;display:flex;align-items:center;gap:7px;color:#8b6500;box-shadow:0 5px 14px rgba(100,65,0,.1)}
 .help-reward-example span{font-size:20px}
@@ -253,6 +265,7 @@ body{font-family:Heebo,system-ui,sans-serif}
 @media(max-width:800px){.help-grid{grid-template-columns:1fr}}
 @media(max-width:520px){
   .help-card{gap:12px;padding:18px}
+  .privacy-settings-panel{align-items:flex-start;flex-direction:column}
   .help-icon{width:48px;min-width:48px;height:48px;font-size:25px}
   .star-chip{display:flex;height:36px;padding:0 7px;gap:4px;font-size:11px}
   .star-chip span{font-size:16px}
@@ -338,6 +351,17 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .answer-btn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:clip!important;overflow-wrap:normal;word-break:keep-all;direction:rtl;unicode-bidi:plaintext}
 .answer-btn.text-answer{font-size:23px}
 .answer-btn.fit-text-answer{padding-inline:8px}
+
+/* Player photo: a small local-only portrait in the header and profile form. */
+.mini-avatar.has-photo,.profile-photo-preview.has-photo{overflow:hidden;background:#edf5ff}
+.mini-avatar img,.profile-photo-preview img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.profile-photo-control{margin:18px 0;color:var(--muted);font-size:12px;font-weight:900}
+.profile-photo-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.profile-photo-preview{width:54px;height:54px;flex:0 0 54px;display:grid;place-items:center;border:2px solid var(--line);border-radius:50%;background:#dff5ed;font-size:29px}
+.photo-picker-btn{display:inline-flex!important;width:auto!important;margin:0!important;padding:10px 13px;border:2px solid var(--blue);border-radius:12px;color:var(--blue)!important;background:#fff;cursor:pointer}
+.photo-picker-btn input{display:none}
+.profile-photo-control small{display:block;margin-top:7px;color:var(--muted);font-weight:700}
+@media(max-width:520px){.profile-photo-preview{width:48px;height:48px;flex-basis:48px;font-size:25px}.profile-photo-row{flex-wrap:wrap}.profile-photo-row .text-btn{padding:7px 0}}
 .question-visual.clock-visual{min-height:190px;padding:18px;display:grid;place-items:center}
 .analog-clock{width:min(210px,58vw);height:min(210px,58vw);margin:auto}
 .analog-clock svg{width:100%;height:100%;display:block;filter:drop-shadow(0 8px 14px rgba(23,49,83,.12))}
@@ -419,7 +443,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 }
 
 .orientation-hint{display:none}
-@media (orientation:landscape) and (max-width:1024px){
+@media (orientation:landscape) and (hover:none) and (pointer:coarse){
   .orientation-hint{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:24px;background:linear-gradient(135deg,rgba(15,49,82,.82),rgba(21,88,189,.58));backdrop-filter:blur(5px);direction:rtl;text-align:center}
   .orientation-card{max-width:520px;border-radius:28px;background:linear-gradient(180deg,#fff,#fffaf0);padding:28px 30px;box-shadow:0 24px 70px rgba(0,0,0,.28);color:var(--ink)}
   .orientation-icon{display:inline-grid;place-items:center;width:76px;height:76px;margin-bottom:14px;border-radius:24px;background:#fff4c9;font-size:34px;box-shadow:0 8px 0 rgba(28,62,95,.12)}

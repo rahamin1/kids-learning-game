@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?build=local167">
+<link rel="stylesheet" href="styles.css?build=local190">
 </head>
 <body>
   <div id="app">
@@ -54,8 +54,8 @@
               <button class="round-btn" id="randomButton" aria-label="הפתיעו אותי">✦</button>
             </div>
             <div class="goal-progress">
-              <div><span>🏆 היעד הבא</span><b id="homeGoalLabel">5 כוכבים</b></div>
-              <strong id="homeGoalCount">0 / 10</strong>
+              <div><span>🏆 היעד הבא</span><b id="homeGoalLabel">100 כוכבים</b></div>
+              <strong id="homeGoalCount">0 / 100</strong>
               <div class="bar"><i id="homeGoalBar"></i></div>
             </div>
           </div>
@@ -134,7 +134,7 @@
           </div>
           <article class="panel trophy-panel">
             <div class="trophy-stack"><b id="trophyCount">0</b><span>🏆</span></div>
-            <div class="trophy-copy"><span class="eyebrow blue">יעד הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 5 כוכבים והגביע הראשון שלכם!</p><div class="bar"><i id="trophyBar"></i></div></div>
+            <div class="trophy-copy"><span class="eyebrow blue">יעד הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 100 כוכבים והגביע הראשון שלכם!</p><div class="bar"><i id="trophyBar"></i></div></div>
           </article>
           <article class="panel buddy-progress-panel">
             <div class="buddy-progress-icon" id="dashboardBuddyIcon">🦊</div>
@@ -161,12 +161,18 @@
             <div><span class="eyebrow blue">הגדרות</span><h1>מתאימים את המסע</h1><p id="settingsSubtitle">ההגדרות של ההרפתקן או ההרפתקנית.</p></div>
           </div>
 
+          <article class="panel privacy-settings-panel privacy-settings-first">
+            <div><span class="eyebrow blue">פרטיות ונתוני שימוש</span><h2>עוזרים לשפר את היער הזוהר?</h2><p id="analyticsConsentText">נתוני שימוש אינם נאספים. באישור של מבוגר אפשר לאסוף נתונים כלליים בלבד כדי לעזור לשפר את המשחק.</p></div>
+            <div class="settings-data-actions"><button class="outline-btn" id="analyticsConsentButton">בחירה לגבי נתוני שימוש</button><button class="text-btn" id="privacyPolicyButton">מדיניות הפרטיות</button></div>
+          </article>
+
           <div class="settings-shortcuts">
             <button class="settings-shortcut install-shortcut" data-install-app><span>📲</span><b data-install-label>התקנת האפליקציה</b><small data-install-hint>הוספה למסך הבית</small></button>
             <button class="settings-shortcut" id="settingsSubjects"><span>🧭</span><b>בחירת נושאים</b><small>בוחרים במה משחקים ומה לומדים</small></button>
             <button class="settings-shortcut" id="settingsProfile"><span>🦊</span><b>פרטי ההרפתקן</b><small>שם, גיל וחבר למסע</small></button>
             <button class="settings-shortcut" id="settingsSound"><span>🔊</span><b>צלילים</b><small id="settingsSoundLabel">הצלילים פעילים</small></button>
             <button class="settings-shortcut" id="settingsHelp"><span>❓</span><b>עזרה ומידע</b><small>איך משחקים, מתקדמים וזוכים</small></button>
+            <button class="settings-shortcut" id="settingsPrivacy"><span>🔒</span><b>פרטיות</b><small>מדיניות פרטיות ונתוני שימוש</small></button>
             <button class="settings-shortcut" id="settingsIntro"><span>🌟</span><b>הצגת ההסבר שוב</b><small>מסכי פתיחה קצרים על המשחק</small></button>
           </div>
 
@@ -191,8 +197,10 @@
               <button class="outline-btn" id="importReport">ייבוא נתונים</button>
               <input class="hidden" id="importReportFile" type="file" accept="application/json,.json">
               <button class="quiet-danger" id="resetProgress">איפוס התקדמות</button>
+              <button class="quiet-danger" id="deleteAllData">מחיקת כל הנתונים מהמכשיר</button>
             </div>
           </article>
+
         </div>
       </section>
 
@@ -205,16 +213,18 @@
 
           <div class="help-grid">
             <article class="panel help-card"><span class="help-icon">👤</span><div><h2>שחקנים</h2><p>לכל ילד וילדה אפשר ליצור שחקן נפרד עם שם, גיל וחבר למסע. ההתקדמות, הכוכבים ורמות הקושי נשמרים בנפרד לכל שחקן.</p><p>בחירה בשחקן אחר תעביר לדף הבית שלו. בחירה מחדש בשחקן הפעיל תשאיר אתכם במסך הנוכחי.</p></div></article>
+            <article class="panel help-card"><span class="help-icon">💾</span><div><h2>שמירה במכשיר</h2><p>פרטי השחקנים וההתקדמות נשמרים רק בדפדפן ובמכשיר שבו משחקים. במכשיר או בדפדפן אחר יהיה צורך ליצור את השחקנים מחדש, משום שכרגע אין סנכרון בין מכשירים.</p><p>אפשר לייצא עותק גיבוי מההגדרות ולייבא אותו למכשיר אחר. אפשר גם למחוק את כל הנתונים מהמכשיר בכל עת.</p></div></article>
+            <article class="panel help-card"><span class="help-icon">📷</span><div><h2>תמונת השחקן/ית</h2><p>אפשר להוסיף תמונה של השחקן או השחקנית בעת יצירת שחקן חדש או בעריכת הפרטים בהגדרות. התמונה תוצג למעלה במקום אייקון חבר המסע.</p><p>התמונה נשמרת רק במכשיר שבו נוספה, ואינה נשלחת לאתר או לאף שירות חיצוני. אפשר להחליף או להסיר אותה בכל עת. חבר המסע ימשיך להופיע במהלך המשחקים.</p></div></article>
 
-            <article class="panel help-card"><span class="help-icon">💾</span><div><h2>שמירת ההתקדמות</h2><p>השחקנים וההתקדמות נשמרים בדפדפן ובמכשיר שבו משחקים. במכשיר או בדפדפן אחר יהיה צורך ליצור את השחקנים מחדש, משום שכרגע אין סנכרון בין מכשירים.</p></div></article>
+            <article class="panel help-card"><span class="help-icon">🗑️</span><div><h2>מחיקת נתונים</h2><p>במסך ההגדרות אפשר לאפס את ההתקדמות של שחקן אחד, או למחוק את כל הנתונים מהמכשיר. מחיקה מלאה כוללת שחקנים, תמונות, התקדמות והגדרות ואינה ניתנת לביטול.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">🧭</span><div><h2>בחירת נושאים</h2><p>אפשר לבחור מספרים או חשבון, אנגלית, עברית, טבע וחשיבה. המשחקים מותאמים לגיל, ומשחקים חדשים נפתחים ככל שעולים בגיל.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">🎮</span><div><h2>משחקים ורמות</h2><p>לכל משחק יש תשע רמות קושי. נקודת ההתחלה נקבעת לפי גיל הילד.</p><p>במסך ההגדרות אפשר לבחור לכל משחק <b>קל יותר</b>, <b>מתאים</b> או <b>קשה יותר</b>. ברמה הראשונה או התשיעית האפשרות שאינה זמינה תופיע מעומעמת.</p></div></article>
 
-            <article class="panel help-card reward-help-card"><span class="help-icon">⭐</span><div><h2>כוכבים וגביעים</h2><p>המטרה במשחק היא לאסוף 5 כוכבים. כשמגיעים ל־5 כוכבים זוכים בגביע!</p><p>אפשר להמשיך ל־10 כוכבים כדי לזכות בגביע נוסף, וכן הלאה. בראש המסך מוצגים מספר הכוכבים ומספר הגביעים של הילד.</p><div class="help-reward-example"><span>★</span><b>8</b><i></i><span>🏆</span><b>1</b></div></div></article>
+            <article class="panel help-card reward-help-card"><span class="help-icon">⭐</span><div><h2>כוכבים וגביעים</h2><p>המטרה במשחק היא לאסוף 100 כוכבים. כשמגיעים ל־100 כוכבים זוכים בגביע!</p><p>אפשר להמשיך ל־200 כוכבים כדי לזכות בגביע נוסף, וכן הלאה. בראש המסך מוצגים מספר הכוכבים ומספר הגביעים של הילד.</p><div class="help-reward-example"><span>★</span><b>108</b><i></i><span>🏆</span><b>1</b></div></div></article>
 
-            <article class="panel help-card"><span class="help-icon">🏆</span><div><h2>הדרך לגביע הבא</h2><p>במסך ההתקדמות מוצג כמה כוכבים חסרים עד לגביע הבא. לדוגמה: לאחר איסוף 8 כוכבים יוצגו גביע אחד והתקדמות של 3 מתוך 5 לקראת הגביע השני.</p></div></article>
+            <article class="panel help-card"><span class="help-icon">🏆</span><div><h2>הדרך לגביע הבא</h2><p>במסך ההתקדמות מוצג כמה כוכבים חסרים עד לגביע הבא. לדוגמה: לאחר איסוף 108 כוכבים יוצגו גביע אחד והתקדמות של 8 מתוך 100 לקראת הגביע השני.</p></div></article>
 
             <article class="panel help-card"><span class="help-icon">🔥</span><div><h2>רצף ימי תרגול</h2><p>סמל האש מציג כמה ימים ברצף תרגל הילד באפליקציה. תרגול קצר בכל יום עוזר לשמור על הרצף ולחזק את מה שנלמד.</p></div></article>
 
@@ -227,7 +237,20 @@
             <article class="panel help-card"><span class="help-icon">🔊</span><div><h2>צלילים</h2><p>אפשר להפעיל או להשתיק את צלילי המשחק באמצעות סמל הרמקול. במשחקי אנגלית מסוימים אפשר ללחוץ על סמל השמע כדי לשמוע מילה או צליל באנגלית.</p></div></article>
 
             <article class="panel help-card install-help-card"><span class="help-icon">📲</span><div><h2>התקנת האפליקציה</h2><p>אפשר להתקין את היער הזוהר במסך הבית ולפתוח אותו כמו אפליקציה רגילה.</p><p>ב־Chrome באנדרואיד, לפעמים אפשר להתקין מיד מתוך האפליקציה, ולפעמים האפשרות מופיעה רק בתפריט ⋮ של הדפדפן. אם האפליקציה הוסרה לאחרונה, ייתכן שהדפדפן עדיין יזכור אותה לזמן קצר. במקרה כזה כדאי לרענן את הדף או לנסות שוב מאוחר יותר.</p><ul class="help-steps"><li><b>ב־Chrome באנדרואיד:</b> לחצו על כפתור „התקנת האפליקציה” למטה. אם הוא אינו מופיע, פתחו את תפריט שלוש הנקודות ⋮ ובחרו „התקנת האפליקציה” או „הוספה למסך הבית”.</li><li><b>ב־Safari באייפון:</b> לחצו על כפתור השיתוף ובחרו „הוספה למסך הבית”.</li></ul><button class="outline-btn install-help-button" data-install-app><span data-install-label>התקנת האפליקציה</span></button></div></article>
+            <article class="panel help-card privacy-help-card"><span class="help-icon">🔒</span><div><h2>פרטיות ונתוני שימוש</h2><p>נתוני שימוש כלליים נאספים רק אם מבוגר אישר זאת בהגדרות. לא נשלחים שמות שחקנים, גיל, תמונות, תשובות או תוכן הודעות.</p><button class="text-btn" id="helpPrivacyButton">למדיניות הפרטיות</button></div></article>
             <article class="panel help-card"><span class="help-icon">🌱</span><div><h2>איך נולד המשחק</h2><p>היער הזוהר נולד מרעיון של יוסי גלס, ופותח יחד עם Codex של OpenAI. המשחק התפתח צעד אחר צעד בעזרת הכוונה, בדיקות, שבחים, תיקונים — וגם כמה גערות ידידותיות כשהיה צריך.</p></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="privacyScreen" class="screen dashboard-screen privacy-screen">
+        <div class="dashboard-wrap">
+          <div class="dashboard-head"><button class="back-btn" id="privacyBack">→</button><div><span class="eyebrow blue">פרטיות</span><h1>מדיניות הפרטיות</h1><p>עודכן לאחרונה: 18 ביולי 2026</p></div></div>
+          <div class="privacy-policy">
+            <article class="panel"><h2>מה נשמר במכשיר?</h2><p>המשחק שומר בדפדפן ובמכשיר בלבד את פרטי השחקנים, ההתקדמות, ההגדרות ותמונת שחקן שנבחרה. הנתונים אינם נשלחים אלינו ואינם מסתנכרנים למכשירים אחרים.</p><p>אפשר לייצא גיבוי, לייבא אותו למכשיר אחר, או למחוק את כל הנתונים מהמכשיר בהגדרות.</p></article>
+            <article class="panel"><h2>נתוני שימוש כלליים</h2><p>איסוף נתוני שימוש באמצעות Google Analytics נעשה רק לאחר אישור מפורש של מבוגר בהגדרות. הנתונים עוזרים להבין אילו מסכים ומשחקים משמשים יותר, למשל פתיחת האפליקציה, מעבר מסך, התחלת וסיום משחק, לחיצה על התקנה ושליחת פנייה.</p><p>לא נשלחים ל־Google Analytics שמות שחקנים, גיל, תמונות, תשובות, תוכן הודעות או מזהים אישיים של ילדים. אפשר להפסיק את האיסוף בכל עת בהגדרות.</p></article>
+            <article class="panel"><h2>פניות ועדכונים</h2><p>בטופס „כתבו אלינו” אפשר לשלוח שם, כתובת מייל והודעה. הטופס נשלח דרך Formspree, ולכן מידע שתבחרו לשלוח עשוי להיות מעובד גם מחוץ לישראל. אל תשלחו פרטים אישיים על ילדים.</p><p>כתובת מייל תשמש למענה לפנייה, ורק אם תסמנו זאת — גם לעדכונים משמעותיים על המשחק. אפשר לבקש להסיר את הכתובת מרשימת העדכונים בכל עת.</p></article>
+            <article class="panel"><h2>פנייה בנושא פרטיות</h2><p>לשאלות, בקשה לעיון, תיקון או מחיקה של מידע שנשלח בטופס, אפשר לפנות ליוסי גלס בכתובת <a href="mailto:yossi.glass@gmail.com">yossi.glass@gmail.com</a>.</p><p>המדיניות נועדה להסביר בפשטות את אופן השימוש במידע. לפני השקה רחבה מומלץ לקבל ייעוץ משפטי מותאם.</p></article>
           </div>
         </div>
       </section>
@@ -247,11 +270,11 @@
               <label>כתובת מייל
                 <input id="contactEmail" name="email" type="email" autocomplete="email" placeholder="name@example.com">
               </label>
-              <label class="contact-updates-choice"><input id="contactUpdates" name="updates" type="checkbox"><span><b>אפשר לשלוח לי עדכונים משמעותיים על היער הזוהר</b><small>נשתמש בכתובת המייל רק לעדכונים האלה.</small></span></label>
+              <label class="contact-updates-choice"><input id="contactUpdates" name="updates" type="checkbox"><span><b>אפשר לשלוח לי עדכונים משמעותיים על היער הזוהר</b><small>נשתמש בכתובת המייל רק לעדכונים האלה. אפשר לבקש להסיר את הכתובת בכל עת.</small></span></label>
               <label class="contact-message-label">מה תרצו לכתוב לנו?
                 <textarea id="contactMessage" name="message" rows="8" placeholder="כתבו כאן הערה, בקשה או תיאור של שגיאה שמצאתם במשחק"></textarea>
               </label>
-              <p class="formspree-note">ההודעה תישלח אלינו דרך Formspree. כתובת המייל שמילאתם תשמש לחזרה אליכם.</p>
+              <p class="formspree-note">ההודעה תישלח אלינו דרך Formspree. אל תכתבו מידע אישי על ילדים. כתובת המייל תשמש לחזרה אליכם, ורק לעדכונים אם בחרתם בכך.</p>
               <p id="contactStatus" class="contact-status" aria-live="polite"></p>
               <button class="primary-btn contact-submit" type="submit">שלח</button>
             </form>
@@ -286,7 +309,7 @@
         <div class="intro-icon" id="introIcon">🌟</div>
         <span class="eyebrow blue" id="introEyebrow">ברוכים הבאים</span>
         <h2 id="introTitle">היער הזוהר מחכה לכם</h2>
-        <p id="introText">יוצאים להרפתקת למידה קצרה, צבעונית וכיפית.</p>
+        <p id="introText">יוצאים להרפתקת למידה צבעונית וכיפית.</p>
         <div class="intro-dots" id="introDots"></div>
         <div class="intro-actions">
           <button type="button" class="text-btn" data-intro-skip>דלגו על ההקדמה והתחילו</button>
@@ -313,8 +336,17 @@
         <span class="eyebrow blue" id="profileFormEyebrow">הרפתקן חדש!</span>
         <h2 id="profileFormTitle">יוצרים פרופיל לילד/ה</h2>
         <label>שם:<input id="childName" maxlength="16" placeholder="למשל: הראל" required></label>
+        <div class="profile-photo-control">
+          <b>תמונה של השחקן/ית</b>
+          <div class="profile-photo-row">
+            <span class="profile-photo-preview" id="profilePhotoPreview" aria-hidden="true">🦊</span>
+            <label class="photo-picker-btn">בחירת תמונה<input id="profilePhotoInput" type="file" accept="image/*"></label>
+            <button type="button" class="text-btn hidden" id="removeProfilePhoto">הסרת התמונה</button>
+          </div>
+          <small>התמונה נשמרת רק במכשיר הזה.</small>
+        </div>
         <label>גיל:<div class="age-options" id="ageOptions"></div></label>
-        <label>בוחרים חבר למסע<div class="buddy-options" id="buddyOptions"></div><p class="buddy-unlock-hint" id="buddyUnlockHint">מתחילים עם 4 חברים. כל 5 כוכבים פותחים חבר נוסף למסע.</p></label>
+        <label>בוחרים חבר למסע<div class="buddy-options" id="buddyOptions"></div><p class="buddy-unlock-hint" id="buddyUnlockHint">מתחילים עם 4 חברים. כל גביע פותח חבר נוסף למסע.</p></label>
         <button class="primary-btn full" id="profileSubmit" type="submit">יוצאים לדרך <span>←</span></button>
         <button class="danger-btn hidden" id="deleteProfile" type="button">מחיקת הפרופיל</button>
       </form>
@@ -348,7 +380,7 @@
         <div class="milestone-trophy"><b id="milestoneTrophyNumber">1</b><span>🏆</span></div>
         <span class="eyebrow">הגעת ליעד!</span>
         <h2 id="milestoneTitle">היער כולו זוהר!</h2>
-        <p id="milestoneText">אספתם 5 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
+        <p id="milestoneText">אספתם 100 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
         <button class="outline-btn full hidden" id="milestoneUpdatesButton" type="button">רוצים לקבל עדכונים משמעותיים?</button>
         <button class="primary-btn full" data-game-finished-return data-close="milestoneModal">ממשיכים למשחק הבא <span>←</span></button>
       </div>
@@ -363,6 +395,17 @@
         <p class="updates-privacy">נשתמש בכתובת המייל רק לצורך עדכונים אלה.</p>
         <button class="primary-btn full" id="updatesSignupButton" type="button">להירשם לעדכונים</button>
         <button class="outline-btn full" data-close="updatesModal" type="button">לא עכשיו</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="analyticsConsentModal">
+      <div class="modal analytics-consent-modal">
+        <span class="eyebrow blue">פרטיות ונתוני שימוש</span>
+        <h2>עוזרים לשפר את היער הזוהר?</h2>
+        <p>באישור של מבוגר בלבד, אפשר לאסוף נתוני שימוש כלליים כדי להבין מה עובד טוב באפליקציה.</p>
+        <p class="updates-privacy">לא נשלחים שמות שחקנים, גיל, תמונות, תשובות או תוכן הודעות.</p>
+        <button class="primary-btn full" id="analyticsConsentAccept" type="button">מאשר/ת נתוני שימוש כלליים</button>
+        <button class="outline-btn full" id="analyticsConsentDecline" type="button">לא עכשיו</button>
       </div>
     </div>
 
@@ -389,7 +432,7 @@
       <p>היער הזוהר בנוי למסך עומד (אנכי). כך רואים טוב יותר את השאלות, הכפתורים והחבר למסע.</p>
     </div>
   </div>
-  <script src="games.js?build=local167"></script>
-  <script src="app.js?build=local167"></script>
+<script src="games.js?build=local190"></script>
+<script src="app.js?build=local190"></script>
 </body>
 </html>

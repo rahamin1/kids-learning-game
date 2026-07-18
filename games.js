@@ -13,7 +13,7 @@
     {id:"clock",subject:"thinking",minAge:6,name:"שעון",icon:"🕒",desc:"קוראים שעות ודקות",kind:"clock"},
     {id:"multiplication",subject:"math",minAge:7,name:"כפל בקבוצות",icon:"✖️",desc:"סופרים קבוצות שוות",kind:"multiplication"},
     {id:"word-problems",subject:"math",minAge:7,name:"בעיות מילוליות",icon:"🧠",desc:"פותרים בעיה מתוך סיפור",kind:"wordProblems"},
-    {id:"fractions",subject:"math",minAge:7,name:"שברים",icon:"🍕",desc:"חצי, שליש ורבע",kind:"fractions"},
+    {id:"fractions",subject:"math",minAge:7,name:"איזה חלק זה?",icon:"🍕",desc:"מזהים חלקים צבועים",kind:"fractions"},
 
     {id:"uppercase-letter",subject:"english",minAge:6,name:"אות גדולה",icon:"🔠",desc:"מזהים CAPITAL LETTERS",kind:"uppercase",disabled:true},
     {id:"letter-picture",subject:"english",minAge:6,name:"אות ותמונה",icon:"🅰️",desc:"מתאימים אות גדולה לתמונה",kind:"letterPicture"},
@@ -26,7 +26,6 @@
     {id:"word-categories",subject:"english",minAge:6,name:"קטגוריות מילים",icon:"🗂️",desc:"ממיינים חיות, אוכל וחפצים",kind:"englishCategories"},
     {id:"build-word-en",subject:"english",minAge:7,name:"בונים מילה",icon:"🧱",desc:"מרכיבים מילה מאותיות",kind:"buildEnglish"},
     {id:"sentence-order-en",subject:"english",minAge:7,name:"בונים משפט",icon:"💬",desc:"מסדרים מילים למשפט קצר",kind:"sentenceEnglish"},
-    {id:"picture-crossword",subject:"english",minAge:7,name:"תשבץ תמונות",icon:"🧩",desc:"משלימים מילה לפי תמונה",kind:"crosswordEnglish"},
 
     {id:"same-picture",subject:"thinking",minAge:3,maxAge:4,name:"תמונות זהות",icon:"🖼️",desc:"מוצאים את התמונה הזהה",kind:"samePicture"},
     {id:"hebrew-letter",subject:"reading",minAge:4,name:"זיהוי אות",icon:"אבג",desc:"מזהים אות עברית",kind:"hebrewLetter",disabled:true},
@@ -301,12 +300,23 @@
   }
   function wordProblems(level){
     const max=clamp(8+level*2,12,28);
-    return Array.from({length:24},(_,i)=>{const a=2+i%max,b=1+(i*3)%Math.min(9,a),add=i%2===0,answer=add?a+b:a-b,q=add?`לנועה היו ${a} מדבקות והיא קיבלה עוד ${b}. כמה יש לה עכשיו?`:`ליואב היו ${a} גולות והוא נתן ${b}. כמה נשארו?`;return make(q,String(answer),numberOptions(answer),"🧠",{skill:"בעיות מילוליות",type:"בעיה מילולית"});});
+    const thinkingVisuals=["💡","🔍","🧭","✨","🦉"];
+    return Array.from({length:24},(_,i)=>{const a=2+i%max,b=1+(i*3)%Math.min(9,a),add=i%2===0,answer=add?a+b:a-b,q=add?`לנועה היו ${a} מדבקות והיא קיבלה עוד ${b}. כמה יש לה עכשיו?`:`ליואב היו ${a} גולות והוא נתן ${b}. כמה נשארו?`;return make(q,String(answer),numberOptions(answer),thinkingVisuals[i%thinkingVisuals.length],{skill:"בעיות מילוליות",type:"בעיה מילולית"});});
   }
   function fractions(level){
     const data=[["חצי","1/2","◼◼◻◻"],["רבע","1/4","◼◻◻◻"],["שלושה רבעים","3/4","◼◼◼◻"],["שליש","1/3","◼◻◻"],["שני שלישים","2/3","◼◼◻"],["חמישית","1/5","◼◻◻◻◻"],["שתי חמישיות","2/5","◼◼◻◻◻"],["ארבע חמישיות","4/5","◼◼◼◼◻"],["שמינית","1/8","◼◻◻◻◻◻◻◻"]];
     const active=data.slice(0,clamp(2+Math.floor(level/2),2,data.length));
-    return repeatPool(active.map(([name,fraction,visual])=>make(`איזה שבר צבוע?`,fraction,options(fraction,data.map(x=>x[1])),visual,{skill:"שברים",type:name})));
+    const colors=[
+      {name:"בכחול",className:"blue"},
+      {name:"באדום",className:"red"},
+      {name:"בסגול",className:"purple"},
+      {name:"בירוק",className:"green"},
+      {name:"בכתום",className:"orange"}
+    ];
+    return repeatPool(active.map(([name,fraction,visual],index)=>{
+      const color=colors[index%colors.length];
+      return make(`איזה חלק צבוע ${color.name}?`,fraction,options(fraction,data.map(x=>x[1])),visual,{skill:"איזה חלק זה?",type:name,fractionColor:color.className});
+    }));
   }
 
   function wordQuestions(kind,level){
@@ -315,7 +325,7 @@
     if(kind==="letterPicture")return repeatPool(active.map(([icon,word,letter])=>{const correct=`${icon} ${word}`;return make(`איזו תמונה מתחילה באות ${letter}?`,correct,options(correct,active.map(x=>`${x[0]} ${x[1]}`)),"",{skill:"אות וצליל",type:"אות ותמונה"});}));
     if(kind==="firstLetter")return repeatPool(active.map(([icon,word,letter])=>make(`באיזו אות מתחילה המילה ${word}?`,letter,options(letter,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),icon,{skill:"אות ראשונה",type:"צליל ראשון"})));
     if(kind==="imageWord")return repeatPool(active.map(([icon,word])=>make("איזו מילה מתאימה לתמונה?",word,options(word,active.map(x=>x[1])),icon,{skill:"אוצר מילים",type:"תמונה ומילה",word:true})));
-    if(kind==="missingEnglish"||kind==="crosswordEnglish")return repeatPool(active.filter(x=>x[1].length<=clamp(3+Math.floor(level/2),4,8)).map(([icon,word])=>{const pos=level>=7?1+word.length%Math.max(1,word.length-2):word.length-1,correct=word[pos],masked=word.slice(0,pos)+"_"+word.slice(pos+1);return make("איזו אות חסרה?",correct,options(correct,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),`${icon}  ${masked}`,{skill:"איות",type:kind==="crosswordEnglish"?"תשבץ תמונות":"אות חסרה",word:true});}));
+    if(kind==="missingEnglish")return repeatPool(active.filter(x=>x[1].length<=clamp(3+Math.floor(level/2),4,8)).map(([icon,word])=>{const pos=level>=7?1+word.length%Math.max(1,word.length-2):word.length-1,correct=word[pos],masked=word.slice(0,pos)+"_"+word.slice(pos+1);return make("איזו אות חסרה?",correct,options(correct,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),`${icon}  ${masked}`,{skill:"איות",type:"אות חסרה",word:true});}));
     if(kind==="buildEnglish")return repeatPool(active.filter(x=>x[1].length<=clamp(3+Math.floor(level/2),4,8)).map(([icon,word])=>make("בנו את המילה מהאותיות",word,[],icon,{skill:"איות",type:"בונים מילה",mode:"build",tokens:shuffle([...word,...shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")).slice(0,clamp(level-3,1,4))]),joinWith:"",word:true})));
     if(kind==="dragEnglish")return repeatPool(active.map(([icon,word])=>make(`לחצו על התמונה המתאימה למילה ${word}`,icon,options(icon,active.map(x=>x[0])),"",{skill:"התאמה",type:"מילה ותמונה"})));
     if(kind==="listenEnglish")return repeatPool(animals.slice(0,count).map(animal=>make("לחצו על הרמקול ובחרו את בעל החיים ששמעתם",animal.icon,options(animal.icon,animals.map(x=>x.icon)),"🔊",{skill:"האזנה",type:"לחצו ושמעו",audio:{kind:"speech",text:animal.en}})));
@@ -361,14 +371,14 @@
     return Array.from({length:18},(_,i)=>{const start=i%(heAlphabet.length-length),tokens=heAlphabet.slice(start,start+length),correct=tokens.join("");return make("סדרו את האותיות לפי האלף־בית",correct,[],"",{skill:"סדר האותיות",type:"אלף־בית",mode:"build",tokens:shuffle(tokens),joinWith:"",word:true});});
   }
   const readingStories = [
-    {text:"נועה לקחה מטרייה ונעלה מגפיים.",inference:"ירד גשם",inferenceOptions:["ירד גשם","נועה יצאה לשחות","נועה שכחה את התיק","היה חם מאוד"],event:"נועה נעלה מגפיים",info:"נועה",title:"יום גשום"},
-    {text:"אורי זרע את הזרע, השקה אותו ולאחר כמה ימים הופיע נבט.",inference:"הזרע קיבל מים",inferenceOptions:["הזרע קיבל מים","אורי שכח את הזרע","הזרע היה צעצוע","אורי קטף פרחים"],event:"הופיע נבט",info:"אורי",title:"הזרע שצמח"},
-    {text:"מיה מצאה גור קטן ורועד והביאה לו שמיכה.",inference:"לגור היה קר",inferenceOptions:["לגור היה קר","הגור רצה לרוץ","הגור חיפש אוכל","מיה יצאה לטיול"],event:"מיה הביאה שמיכה",info:"מיה",title:"עוזרים לגור"},
-    {text:"דן סיים לאכול, צחצח שיניים ונכנס למיטה.",inference:"הגיע זמן השינה",inferenceOptions:["הגיע זמן השינה","דן עומד לצאת לבית הספר","דן מתכונן לארוחת בוקר","דן הולך לשחק בחצר"],event:"דן נכנס למיטה",info:"דן",title:"לפני השינה"},
-    {text:"תמר ארזה מים, כובע ומפה ויצאה עם משפחתה.",inference:"המשפחה יצאה לטיול",inferenceOptions:["המשפחה יצאה לטיול","תמר הייתה צמאה","תמר השתעממה בבית","המשפחה של תמר מגובשת"],event:"תמר ארזה מים",info:"תמר",title:"יוצאים לטיול"},
-    {text:"רון שמע רעם, ראה ברק וסגר את החלון.",inference:"הייתה סערה",inferenceOptions:["הייתה סערה","רון הדליק אור","רון רצה לצאת לטיול","היה יום בהיר"],event:"רון סגר את החלון",info:"רון",title:"הסערה"},
-    {text:"יעל אפתה עוגה והניחה עליה שבעה נרות.",inference:"למישהו היה יום הולדת",inferenceOptions:["למישהו היה יום הולדת","יעל הכינה ארוחת ערב","יעל פתחה מאפייה","מישהו איבד שבעה נרות"],event:"יעל הניחה נרות",info:"שבעה",title:"עוגת יום הולדת"},
-    {text:"גיל ראה שהעציץ יבש והשקה אותו.",inference:"הצמח היה זקוק למים",inferenceOptions:["הצמח היה זקוק למים","הצמח קיבל יותר מדי מים","גיל רצה לקטוף את הצמח","העציץ היה חדש מאוד"],event:"גיל השקה",info:"העציץ",title:"משקים את הצמח"}
+    {text:"נועה לקחה מטרייה ונעלה מגפיים.",inference:"ירד גשם",inferenceOptions:["ירד גשם","נועה יצאה לשחות","נועה שכחה את התיק","היה חם מאוד"],check:"כנראה ירד גשם",falseCheck:"כנראה היה חם מאוד",info:"נועה",title:"יום גשום"},
+    {text:"אורי זרע את הזרע, השקה אותו ולאחר כמה ימים הופיע נבט.",inference:"הזרע קיבל מים",inferenceOptions:["הזרע קיבל מים","אורי שכח את הזרע","הזרע היה צעצוע","אורי קטף פרחים"],check:"הזרע קיבל מים",falseCheck:"אורי שכח להשקות את הזרע",info:"אורי",title:"הזרע שצמח"},
+    {text:"מיה מצאה גור קטן ורועד והביאה לו שמיכה.",inference:"לגור היה קר",inferenceOptions:["לגור היה קר","הגור רצה לרוץ","הגור חיפש אוכל","מיה יצאה לטיול"],check:"כנראה היה לגור קר",falseCheck:"מיה השאירה את הגור בלי עזרה",info:"מיה",title:"עוזרים לגור"},
+    {text:"דן סיים לאכול, צחצח שיניים ונכנס למיטה.",inference:"הגיע זמן השינה",inferenceOptions:["הגיע זמן השינה","דן עומד לצאת לבית הספר","דן מתכונן לארוחת בוקר","דן הולך לשחק בחצר"],check:"הגיע זמן השינה",falseCheck:"דן התכונן לצאת לבית הספר",info:"דן",title:"לפני השינה"},
+    {text:"תמר ארזה בקבוק מים, כובע ומפה ויצאה עם משפחתה.",inference:"המשפחה יצאה לטיול",inferenceOptions:["המשפחה יצאה לטיול","תמר הייתה צמאה","תמר השתעממה בבית","המשפחה של תמר מגובשת"],check:"המשפחה יצאה לטיול",falseCheck:"המשפחה נשארה בבית",info:"תמר",title:"יוצאים לטיול"},
+    {text:"רון שמע רעם, ראה ברק וסגר את החלון.",inference:"הייתה סערה",inferenceOptions:["הייתה סערה","רון הדליק אור","רון רצה לצאת לטיול","היה יום בהיר"],check:"בחוץ הייתה סערה",falseCheck:"בחוץ היה יום בהיר ושמשי",info:"רון",title:"הסערה"},
+    {text:"יעל אפתה עוגה והניחה עליה שבעה נרות.",inference:"למישהו היה יום הולדת",inferenceOptions:["למישהו היה יום הולדת","יעל הכינה ארוחת ערב","יעל פתחה מאפייה","מישהו איבד שבעה נרות"],check:"כנראה חגגו יום הולדת",falseCheck:"יעל הכינה עוגה לארוחת ערב רגילה",info:"שבעה",title:"עוגת יום הולדת"},
+    {text:"גיל ראה שהעציץ יבש והשקה אותו.",inference:"הצמח היה זקוק למים",inferenceOptions:["הצמח היה זקוק למים","הצמח קיבל יותר מדי מים","גיל רצה לקטוף את הצמח","העציץ היה חדש מאוד"],check:"הצמח היה זקוק למים",falseCheck:"הצמח קיבל יותר מדי מים",info:"העציץ",title:"משקים את הצמח"}
   ];
   function readingQuestions(kind,level){
     const out=[];
@@ -376,12 +386,12 @@
       if(kind==="inference")out.push(make(`${story.text} מה אפשר להבין?`,story.inference,options(story.inference,story.inferenceOptions||[]), "📖",{skill:"הסקת מסקנות",type:"רמזים מהטקסט"}));
       if(kind==="findInfo")out.push(make(`${story.text} איזה פרט מופיע בטקסט?`,story.info,options(story.info,readingStories.map(x=>x.info)),"📖",{skill:"איתור מידע",type:"מוצאים פרט"}));
       if(kind==="storyTitle")out.push(make(`${story.text} איזו כותרת מתאימה?`,story.title,options(story.title,readingStories.map(x=>x.title)),"📰",{skill:"כותרת",type:"כותרת לסיפור"}));
-      if(kind==="trueFalse"){const trueStatement=i%2===0,statement=trueStatement?story.event:"הסיפור התרחש בים";out.push(make(`${story.text} האם נכון לומר: “${statement}”?`,trueStatement?"נכון":"לא נכון",["נכון","לא נכון","אין מספיק מידע","אולי"],"✅",{skill:"הבנת הנקרא",type:"נכון או לא נכון"}));}
+      if(kind==="trueFalse"){const trueStatement=i%2===0,statement=trueStatement?story.check:story.falseCheck;out.push(make(`${story.text} האם נכון לומר: “${statement}”?`,trueStatement?"נכון":"לא נכון",["נכון","לא נכון","אין מספיק מידע","אולי"],"✅",{skill:"הבנת הנקרא",type:"נכון או לא נכון"}));}
     });
     return repeatPool(out);
   }
   function eventOrder(){
-    const sequences=[["שותלים זרע","משקים","צומח נבט"],["לובשים גרביים","נועלים נעליים","יוצאים"],["מערבבים בצק","אופים","אוכלים עוגה"],["שוטפים ידיים","מתיישבים","אוכלים"],["פותחים ספר","קוראים","מסיימים סיפור"],["אורזים תיק","יוצאים מהבית","מגיעים לבית הספר"],["קמים בבוקר","מצחצחים שיניים","אוכלים ארוחת בוקר"],["מציירים ציור","צובעים","תולים על הקיר"],["ממלאים בקבוק","יוצאים לטיול","שותים מים"],["אוספים צעצועים","מסדרים במדף","החדר נקי"],["מכניסים כביסה","מפעילים מכונה","תולים לייבוש"],["שמים קסדה","עולים על אופניים","מתחילים לרכוב"]];
+    const sequences=[["זורעים זרע","משקים","נובט נבט"],["לובשים גרביים","נועלים נעליים","יוצאים"],["מערבבים בצק","אופים","אוכלים עוגה"],["שוטפים ידיים","מתיישבים","אוכלים"],["פותחים ספר","קוראים","מסיימים סיפור"],["אורזים תיק","יוצאים מהבית","מגיעים לבית הספר"],["קמים בבוקר","מצחצחים שיניים","אוכלים ארוחת בוקר"],["מציירים ציור","צובעים","תולים על הקיר"],["ממלאים בקבוק","יוצאים לטיול","שותים מים"],["אוספים צעצועים","מסדרים במדף","החדר נקי"],["מכניסים כביסה","מפעילים מכונה","תולים לייבוש"],["שמים קסדה","עולים על אופניים","מתחילים לרכוב"]];
     return repeatPool(sequences.map(tokens=>make("סדרו את האירועים",tokens.join(" ← "),[],tokens.join(" · "),{skill:"רצף אירועים",type:"מה קודם?",mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));
   }
   function sentenceHebrew(){

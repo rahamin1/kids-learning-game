@@ -1,11 +1,11 @@
-const APP_VERSION = "0.1.16";
+const APP_VERSION = "0.1.17";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
 const INTRO_STEPS = [
-  {icon:"🌟",image:"assets/app-icon-star-forest.png",tone:"forest",eyebrow:"ברוכים הבאים",title:"היער הזוהר מחכה לכם",text:"יוצאים להרפתקת למידה קצרה, צבעונית וכיפית. בכל פעם משחקים קצת, מתקדמים קצת, ומגלים עוד מהיער."},
-  {icon:"🏆",tone:"trophy",eyebrow:"כוכבים וגביעים",title:"אוספים כוכבים וזוכים בגביעים",text:"בכל משחק אוספים כוכבים. כל 5 כוכבים הופכים לגביע חדש, ואפשר להמשיך לאסוף עוד ועוד גביעים."},
+  {icon:"🌟",image:"assets/app-icon-star-forest.png",tone:"forest",eyebrow:"ברוכים הבאים",title:"היער הזוהר מחכה לכם",text:"יוצאים להרפתקת למידה צבעונית וכיפית. בכל פעם משחקים קצת, מתקדמים קצת, ומגלים עוד מהיער."},
+  {icon:"🏆",tone:"trophy",eyebrow:"כוכבים וגביעים",title:"אוספים כוכבים וזוכים בגביעים",text:"בכל משחק אוספים כוכבים. כל 100 כוכבים הופכים לגביע חדש, ואפשר להמשיך לאסוף עוד ועוד גביעים."},
   {icon:"🦊",tone:"buddy",eyebrow:"חברי מסע",title:"בוחרים חבר שמלווה את ההרפתקה",text:"בתחילת הדרך בוחרים חבר למסע. בהמשך מתגלים חברים נוספים, וכל ילד יכול לבחור מי יצא איתו למסע ולהחליף חבר בדרך."},
-  {icon:"⚙️",tone:"settings",eyebrow:"מתאים לכל ילד",title:"אפשר להתאים נושאים ורמות קושי",text:"ההורים יכולים לבחור נושאים, להסתיר משחקים, ולהעלות או להוריד רמת קושי לפי מה שמתאים לילד."},
+  {icon:"⚙️",tone:"settings",eyebrow:"מתאים לכל ילד",title:"אפשר להתאים נושאים ורמות קושי",text:"אפשר לבחור נושאים, להסתיר משחקים, ולהעלות או להוריד רמת קושי לפי מה שמתאים לילד."},
   {icon:"📲",tone:"install",eyebrow:"פותחים בקלות",title:"אפשר להתקין את המשחק",text:"בהגדרות אפשר להתקין את היער הזוהר על המכשיר, כדי לפתוח אותו בקלות כמו אפליקציה. אפשר לעשות זאת גם אחר כך."}
 ];
 
@@ -14,7 +14,7 @@ const SUBJECTS = {
   english: { name: "אנגלית", icon: "🔤", class: "english", desc: "אותיות, צלילים ומילים", trail: "יער המילים" },
   reading: { name: "עברית", icon: "📖", class: "reading", desc: "אותיות, מילים והבנת הנקרא", trail: "מפרץ הסיפורים" },
   nature: { name: "טבע", icon: "🌿", class: "nature", desc: "חיות, מזג אוויר והעולם", trail: "גן התגליות" },
-  thinking: { name: "חשיבה", icon: "🧠", class: "thinking", desc: "זיכרון, התאמה והבחנה חזותית", trail: "שביל החשיבה" }
+  thinking: { name: "חשיבה", icon: "🦉", class: "thinking", desc: "זיכרון, התאמה והבחנה חזותית", trail: "שביל החשיבה" }
 };
 
 const BUDDIES = ["🦊", "🐼", "🐰", "🦁", "🐶", "🐱", "🦉", "🐧", "🐿️", "🦔", "🧸", "🦝"];
@@ -165,7 +165,7 @@ const BANK = {
   ],
   reading: [
     { skill:"הסקת מסקנות", type:"רמז מהסיפור", q:"פיפ ארז מטרייה. איזה מזג אוויר צפוי?", visual:"🦊 🎒 ☂️", a:["גשום","שמשי","מושלג","סוער"], correct:"גשום", explain:"מטרייה היא רמז לכך שצפוי גשם."},
-    { skill:"רצף אירועים", type:"סדר בסיפור", q:"קודם שותלים זרע. מה קורה אחר כך?", visual:"🌰 → ?", a:["הוא נובט","הוא עף","הוא נמס","הוא שואג"], correct:"הוא נובט", explain:"כשמשקים זרע, הוא מתחיל לנבוט."},
+    { skill:"רצף אירועים", type:"סדר בסיפור", q:"קודם זורעים זרע. מה קורה אחר כך?", visual:"🌰 → ?", a:["הוא נובט","הוא עף","הוא נמס","הוא שואג"], correct:"הוא נובט", explain:"כשמשקים זרע, הוא מתחיל לנבוט."},
     { skill:"איתור מידע", type:"מי עשה זאת?", q:"מיה האכילה חתול קטן. מי האכיל את החתול?", visual:"👧 🥣 🐱", a:["מיה","פיפ","החתול","ציפור"], correct:"מיה", explain:"במשפט כתוב שמיה האכילה את החתול."},
     { skill:"הבנת רגשות", type:"רגשות", q:"סם מצא את הצעצוע שאבד לו. איך הוא מרגיש?", visual:"🧸 ✨", a:["שמח","כועס","עייף","מפוחד"], correct:"שמח", explain:"כשמוצאים משהו שאבד, בדרך כלל מרגישים שמחה."},
     { skill:"איתור מידע", type:"פרט מהסיפור", q:"הציפור הכחולה ישבה על עץ גבוה. מה היה צבעה?", visual:"🐦 🌳", a:["כחול","אדום","ירוק","צהוב"], correct:"כחול", explain:"הסיפור מספר שהציפור הייתה כחולה."}
@@ -252,7 +252,7 @@ function generatedEnglish(level){
 function generatedReading(level){
   const stories=[
     ["נועה לבשה מעיל ולקחה מטרייה. מה כנראה קרה בחוץ?","ירד גשם",["היה חם","ירד שלג","היה לילה"],"הסקת מסקנות","🌧️"],
-    ["אורי שתל זרע והשקה אותו בכל יום. מה צפוי לצמוח?","צמח",["סלע","כיסא","כדור"],"רצף אירועים","🌱"],
+    ["אורי זרע זרע והשקה אותו בכל יום. מה צפוי לצמוח?","צמח",["סלע","כיסא","כדור"],"רצף אירועים","🌱"],
     ["דנה נתנה לכלב קערת מים. מי קיבל מים?","הכלב",["דנה","החתול","הציפור"],"איתור מידע","🐶"],
     ["יואב מצא את הכדור שאבד לו. איך הוא הרגיש?","שמח",["כועס","רעב","עייף"],"הבנת רגשות","⚽"],
     ["הפרפר הסגול נח על פרח צהוב. מה היה צבע הפרפר?","סגול",["צהוב","אדום","כחול"],"איתור מידע","🦋"],
@@ -399,21 +399,27 @@ function buildQuestionPool(subject,level,p){
 
 const storeKey = "brightwood-quest-v1";
 let state = JSON.parse(localStorage.getItem(storeKey) || '{"profiles":[],"activeId":null,"sound":true}');
+if(!Object.prototype.hasOwnProperty.call(state,"analyticsConsent"))state.analyticsConsent=null;
+if(!Object.prototype.hasOwnProperty.call(state,"analyticsConsentAsked"))state.analyticsConsentAsked=false;
 let session = null;
 let sharedAudioContext = null;
 let deferredInstallPrompt = null;
 let selectedAge = 5;
 let selectedBuddy = "🦊";
 let editingId = null;
+let pendingProfilePhoto = "";
 let sampleNameIndex = 0;
 let gamePickerBackTarget = "home";
+let privacyBackTarget = "settingsScreen";
+let pendingAnalyticsConsentAction = null;
+let restoringScreenFromHistory = false;
 let introIndex = 0;
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
 
 function analyticsReady(){
-  return Boolean(GA_MEASUREMENT_ID && /^G-[A-Z0-9]+$/i.test(GA_MEASUREMENT_ID));
+  return state.analyticsConsent===true && Boolean(GA_MEASUREMENT_ID && /^G-[A-Z0-9]+$/i.test(GA_MEASUREMENT_ID));
 }
 
 function initAnalytics(){
@@ -432,6 +438,41 @@ function initAnalytics(){
 function trackEvent(name,params={}){
   if(!analyticsReady() || typeof window.gtag!=="function")return;
   window.gtag("event",name,{app_version:APP_VERSION,...params});
+}
+
+function setAnalyticsConsent(value){
+  state.analyticsConsent=Boolean(value);
+  state.analyticsConsentAsked=true;
+  save();
+  if(state.analyticsConsent){
+    initAnalytics();
+    trackEvent("analytics_consent_granted");
+  }else if(typeof window.gtag==="function"){
+    window.gtag("consent","update",{analytics_storage:"denied"});
+  }
+  renderSettings();
+}
+
+function maybePromptAnalyticsConsent(afterChoice){
+  if(state.analyticsConsentAsked){
+    afterChoice?.();
+    return;
+  }
+  pendingAnalyticsConsentAction=afterChoice || null;
+  setTimeout(()=>openModal("analyticsConsentModal"),180);
+}
+
+function finishAnalyticsConsent(value){
+  setAnalyticsConsent(value);
+  closeModal("analyticsConsentModal");
+  const afterChoice=pendingAnalyticsConsentAction;
+  pendingAnalyticsConsentAction=null;
+  afterChoice?.();
+}
+
+function openPrivacyScreen(from="settingsScreen"){
+  privacyBackTarget=from;
+  showScreen("privacyScreen");
 }
 
 function activeProfile(){ return state.profiles.find(p => p.id === state.activeId); }
@@ -531,6 +572,7 @@ function renderGameBuddyPanel(){
   ].join("");
 }
 function prepareProfile(p){
+  p.photo ||= "";
   p.subjects ||= ["math","english"];
   p.progress ||= {};
   p.log ||= [];
@@ -622,13 +664,39 @@ function setupPWA(){
   }
   updateInstallUI();
 }
-function showScreen(id){
+function showScreen(id,{history=true,historyData={}}={}){
+  const current=$$(".screen.active")[0]?.id;
+  if(history&&!restoringScreenFromHistory&&current!==id){
+    window.history.pushState({brightwoodScreen:id,...historyData},"",window.location.href);
+  }
   $$(".screen").forEach(x=>x.classList.remove("active"));
   $("#"+id).classList.add("active");
   window.scrollTo({top:0,behavior:"smooth"});
   if(id==="dashboardScreen") renderDashboard();
-  if(id==="settingsScreen") renderSettings();
+  if(id==="settingsScreen"){
+    renderSettings();
+  }
   trackEvent("screen_view",{screen_name:id});
+}
+
+function setupScreenHistory(){
+  const initial=$$(".screen.active")[0]?.id||"homeScreen";
+  if(!window.history.state?.brightwoodScreen){
+    window.history.replaceState({brightwoodScreen:initial},"",window.location.href);
+  }
+  window.addEventListener("popstate",event=>{
+    const target=event.state?.brightwoodScreen;
+    if(!target)return;
+    if(target==="gamePickerScreen"&&event.state.subject){
+      gamePickerBackTarget=event.state.gamePickerBackTarget||"home";
+      renderGameChoices(event.state.subject);
+    }
+    if(target==="adventureScreen")renderAdventureChoices();
+    if(target==="gameScreen"&&session)renderQuestion();
+    restoringScreenFromHistory=true;
+    showScreen(target,{history:false});
+    restoringScreenFromHistory=false;
+  });
 }
 
 function renderIntro(){
@@ -671,6 +739,61 @@ function init(){
   if(!state.hasSeenIntro) openIntro();
   else if(!activeProfile()) openCreate();
   renderAll();
+  setupScreenHistory();
+}
+
+function renderProfilePhotoPreview(){
+  const preview=$("#profilePhotoPreview");
+  if(!preview)return;
+  preview.replaceChildren();
+  if(pendingProfilePhoto){
+    const img=document.createElement("img");
+    img.src=pendingProfilePhoto;
+    img.alt="תמונה של השחקן/ית";
+    preview.append(img);
+    preview.classList.add("has-photo");
+  } else {
+    preview.textContent=selectedBuddy||"🦊";
+    preview.classList.remove("has-photo");
+  }
+  $("#removeProfilePhoto").classList.toggle("hidden",!pendingProfilePhoto);
+}
+
+function renderHeaderAvatar(p){
+  const avatar=$("#miniAvatar");
+  avatar.replaceChildren();
+  if(p?.photo){
+    const img=document.createElement("img");
+    img.src=p.photo;
+    img.alt=`תמונה של ${p.name}`;
+    avatar.append(img);
+    avatar.classList.add("has-photo");
+  } else {
+    avatar.textContent=p?.buddy||"🦊";
+    avatar.classList.remove("has-photo");
+  }
+}
+
+function resizeProfilePhoto(file){
+  if(!file?.type?.startsWith("image/"))return Promise.reject(new Error("not-image"));
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error("read-failed"));
+    reader.onload=()=>{
+      const image=new Image();
+      image.onerror=()=>reject(new Error("image-failed"));
+      image.onload=()=>{
+        const size=192, scale=Math.max(size/image.width,size/image.height);
+        const width=Math.max(1,Math.round(image.width*scale)),height=Math.max(1,Math.round(image.height*scale));
+        const canvas=document.createElement("canvas"); canvas.width=size; canvas.height=size;
+        const context=canvas.getContext("2d");
+        context.drawImage(image,(size-width)/2,(size-height)/2,width,height);
+        resolve(canvas.toDataURL("image/jpeg",.84));
+      };
+      image.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function renderChoiceButtons(){
@@ -686,9 +809,10 @@ function renderChoiceButtons(){
   }).join("");
   if($("#buddyUnlockHint")){
     $("#buddyUnlockHint").textContent=next
-      ? `מתחילים עם 4 חברים. כל 5 כוכבים פותחים חבר נוסף. החבר הבא: ${BUDDY_PROFILES[next]?.name||BUDDY_TITLES[next]}.`
+      ? `מתחילים עם 4 חברים. כל גביע פותח חבר נוסף. החבר הבא: ${BUDDY_PROFILES[next]?.name||BUDDY_TITLES[next]}.`
       : `כל חברי המסע פתוחים! אפשר לבחור את מי שהכי מתאים להרפתקה היום.`;
   }
+  renderProfilePhotoPreview();
 }
 
 function rotateNamePlaceholder(){
@@ -700,7 +824,7 @@ function rotateNamePlaceholder(){
 function renderAll(){
   const p=activeProfile();
   $("#profileName").textContent=p?.name||"שחקן חדש";
-  $("#miniAvatar").textContent=p?.buddy||"🦊";
+  renderHeaderAvatar(p);
   $("#starCount").textContent=p?.stars||0;
   const trophies=trophyCount(p);
   $("#headerTrophyCount").textContent=trophies;
@@ -791,7 +915,7 @@ function canChooseAdventureSubject(){
 function openGamePicker(subject,{backToAdventure=false}={}){
   const p=activeProfile(); if(!p)return openCreate();
   gamePickerBackTarget=backToAdventure&&canChooseAdventureSubject()?"adventure":"home";
-  renderGameChoices(subject); showScreen("gamePickerScreen");
+  renderGameChoices(subject); showScreen("gamePickerScreen",{historyData:{subject,gamePickerBackTarget}});
 }
 
 function backFromAdventure(){
@@ -799,6 +923,10 @@ function backFromAdventure(){
 }
 
 function backFromGamePicker(){
+  if(window.history.state?.brightwoodScreen==="gamePickerScreen"){
+    window.history.back();
+    return;
+  }
   if(gamePickerBackTarget==="adventure"&&canChooseAdventureSubject()){
     renderAdventureChoices();
     showScreen("adventureScreen");
@@ -809,7 +937,12 @@ function backFromGamePicker(){
 
 function renderSubjects(){
   const p=activeProfile(), chosen=p?.subjects||["math","english","reading","nature"];
-  $("#subjectGrid").innerHTML=chosen.map(key=>{
+  // A subject is useful on the home screen only when this player has at
+  // least one currently available game in it.  This prevents a player from
+  // reaching an empty game-picker screen after all of a subject's games
+  // have been hidden or are outside the player's age range.
+  const playable=chosen.filter(key=>!p||availableGames(p,key).length);
+  $("#subjectGrid").innerHTML=playable.map(key=>{
     const s=SUBJECTS[key], level=p?subjectLevel(p,key):1;
     return `<button class="subject-card ${s.class}" data-subject="${key}"><span class="level-chip">רמה ${level}</span><span class="icon">${s.icon}</span><h3>${subjectName(p,key)}</h3><p>${subjectDescription(p,key)}</p><span class="go">←</span></button>`;
   }).join("");
@@ -838,10 +971,12 @@ function openAdventureFlow(){
 
 function openCreate(){
   editingId=null; selectedAge=5; selectedBuddy="🦊";
+  pendingProfilePhoto="";
   $("#profileFormEyebrow").textContent="הרפתקן חדש!";
   $("#profileFormTitle").textContent="יוצרים פרופיל לילד/ה";
   $("#profileSubmit").innerHTML=`יוצאים לדרך <span>←</span>`;
   $("#childName").value="";
+  $("#profilePhotoInput").value="";
   rotateNamePlaceholder();
   $("#deleteProfile").classList.add("hidden");
   renderChoiceButtons(); openModal("createModal");
@@ -850,10 +985,12 @@ function openCreate(){
 function openEdit(id){
   const p=state.profiles.find(x=>x.id===id); if(!p)return;
   editingId=id; selectedAge=p.age; selectedBuddy=p.buddy;
+  pendingProfilePhoto=p.photo||"";
   $("#profileFormEyebrow").textContent="עריכת פרופיל";
   $("#profileFormTitle").textContent="הפרטים של "+p.name;
   $("#profileSubmit").innerHTML="שמירת השינויים";
   $("#childName").value=p.name;
+  $("#profilePhotoInput").value="";
   $("#deleteProfile").classList.remove("hidden");
   renderChoiceButtons(); closeModal("profileModal"); openModal("createModal");
 }
@@ -861,13 +998,14 @@ function openEdit(id){
 function submitProfile(name){
   if(editingId){
     const p=state.profiles.find(x=>x.id===editingId);
-    p.name=name.trim(); p.age=selectedAge; p.buddy=selectedBuddy;
+    p.name=name.trim(); p.age=selectedAge; p.buddy=selectedBuddy; p.photo=pendingProfilePhoto||"";
     prepareProfile(p); save(); closeModal("createModal"); renderAll(); showScreen("homeScreen");
     editingId=null;
   } else {
     const defaultSubjects=Object.keys(SUBJECTS);
-    const p=prepareProfile({id:Date.now().toString(),name:name.trim(),age:selectedAge,buddy:selectedBuddy,subjects:defaultSubjects,stars:0,streak:0,progress:{},log:[],correct:0,answered:0,minutes:0,daily:0,dailyDate:""});
-    state.profiles.push(p); state.activeId=p.id; session=null; save(); closeModal("createModal"); renderAll(); showScreen("homeScreen"); openModal("subjectModal");
+    const p=prepareProfile({id:Date.now().toString(),name:name.trim(),age:selectedAge,buddy:selectedBuddy,photo:pendingProfilePhoto||"",subjects:defaultSubjects,stars:0,streak:0,progress:{},log:[],correct:0,answered:0,minutes:0,daily:0,dailyDate:""});
+    state.profiles.push(p); state.activeId=p.id; session=null; save(); closeModal("createModal"); renderAll(); showScreen("homeScreen");
+    maybePromptAnalyticsConsent(()=>openModal("subjectModal"));
   }
 }
 
@@ -930,10 +1068,14 @@ function startGame(gameId){
   p.recentGames[gameId]=[...(p.recentGames[gameId]||[]),...questions.map(questionSignature)].slice(-Math.min(40,Math.max(12,pool.length-5)));
   save();
   session={subject,gameId,game,level,questions,index:0,correct:0,start:Date.now(),locked:false,results:{}};
-  showScreen("gameScreen"); renderQuestion();
+  showScreen("gameScreen",{historyData:{subject,gameId}}); renderQuestion();
 }
 
 function gameBack(){
+  if(window.history.state?.brightwoodScreen==="gameScreen"){
+    window.history.back();
+    return;
+  }
   if(session?.subject){
     const subject=session.subject;
     session=null;
@@ -988,12 +1130,21 @@ function renderQuestion(){
   $("#questionBar").style.width=`${session.index/session.questions.length*100}%`;
   $("#questionType").textContent=q.type; $("#questionText").textContent=q.q;
   const isMathExpression=q.type==="חיסור"||q.type==="חיבור";
-  // In letter-order activities, the visual contains the answer itself.
-  // Keep its space, but do not reveal the sequence before the child chooses.
-  const hideCategoryVisual=q.type==="מיון מילים"||q.mode==="build";
+  // In word-category activities, the visual would reveal the answer.
+  // Word-building activities use a picture, so keep that picture visible.
+  const hideCategoryVisual=q.type==="מיון מילים";
   $("#questionVisual").textContent=hideCategoryVisual || q.audio || q.patternTiles || q.clock || q.pictureMath || q.numberLine ? "" : (q.visual||"");
   $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"")+(isMathExpression?" math-expression":"");
   $("#questionVisual").dir=isMathExpression?"ltr":"auto";
+  // Keep arithmetic in an explicit visual left-to-right order.  Plain text
+  // can be reordered by the surrounding Hebrew/RTL context on some Android
+  // browsers, which made e.g. 8 − 6 appear as 6 − 8.
+  if(isMathExpression){
+    const parts=String(q.visual||"").match(/^(\d+)\s*([+−-])\s*(\d+)$/);
+    if(parts){
+      $("#questionVisual").innerHTML=`<span class="math-number">${parts[1]}</span><span class="math-operator">${parts[2]}</span><span class="math-number">${parts[3]}</span>`;
+    }
+  }
   $("#questionVisual").classList.toggle("no-visual",hideCategoryVisual||(!q.visual&&!q.audio&&!q.patternTiles&&!q.clock&&!q.pictureMath&&!q.numberLine));
   if(q.clock){
     $("#questionVisual").classList.add("clock-visual");
@@ -1002,6 +1153,10 @@ function renderQuestion(){
   if(q.patternTiles){
     $("#questionVisual").classList.add("pattern-visual");
     $("#questionVisual").innerHTML=q.patternTiles.map(tile=>`<span class="${tile==="?"?"pattern-missing":"pattern-tile"}">${escapeHtml(tile)}</span>`).join("");
+  }
+  if(q.fractionColor){
+    $("#questionVisual").classList.add("fraction-visual",`fraction-${q.fractionColor}`);
+    $("#questionVisual").innerHTML=Array.from(String(q.visual||"")).map(piece=>`<span class="fraction-piece ${piece==="◼"?"filled":""}"></span>`).join("");
   }
   if(q.pictureMath){
     $("#questionVisual").classList.add("picture-math-visual");
@@ -1143,14 +1298,38 @@ function answer(value,button){
   } else {
     button.classList.add("wrong"); chime(false);
     $("#feedback").textContent="לא בדיוק"; $("#feedback").className="feedback bad";
-    $$(".answer-btn").find(b=>b.dataset.answer===q.correct)?.classList.add("correct");
-    const genericExplanation=`התשובה הנכונה היא ${q.correct}.`;
-    if(q.explain&&q.explain!==genericExplanation){
-      $("#explanation").textContent=q.explain; $("#explanation").className="explanation show";
-    }
+    $$(".answer-btn").find(b=>String(b.dataset.answer)===String(q.correct))?.classList.add("correct");
+    revealCorrectAnswer(q);
+    $("#explanation").textContent=`התשובה הנכונה: ${q.correct}`;
+    $("#explanation").className="explanation show";
   }
   save();
-  setTimeout(()=>{session.index++;session.index<session.questions.length?renderQuestion():finishGame()},right?1050:2400);
+  setTimeout(()=>{session.index++;session.index<session.questions.length?renderQuestion():finishGame()},right?1050:4000);
+}
+
+function revealCorrectAnswer(q){
+  const visual=$("#questionVisual");
+  if(q.numberLine){
+    const items=q.numberLine.items.map(item=>/^\d+$/.test(String(item))?item:String(q.correct));
+    visual.innerHTML=items.map(item=>`<span class="number-line-number">${escapeHtml(item)}</span>`).join(`<span class="number-line-dash">−</span>`);
+    visual.classList.add("number-line-visual","correct-answer-reveal");
+  }else if(q.patternTiles){
+    visual.innerHTML=q.patternTiles.map(tile=>`<span class="pattern-tile">${escapeHtml(tile==="?"?q.correct:tile)}</span>`).join("");
+    visual.classList.add("pattern-visual","correct-answer-reveal");
+  }else if(typeof q.visual==="string"&&q.visual.includes("_")){
+    visual.textContent=q.visual.replace("_",q.correct);
+    visual.classList.add("letter-revealed","correct-answer-reveal");
+  }
+  if(q.mode==="build"){
+    const result=$("#buildResult");
+    if(result){result.textContent=q.correct;result.classList.add("correct-answer-reveal");}
+    $$(".token-btn,[data-build-undo],[data-build-check]").forEach(item=>item.disabled=true);
+  }
+  if(q.mode==="wordsearch"){
+    const result=$("#wordSelection");
+    if(result){result.textContent=q.correct;result.classList.add("correct-answer-reveal");}
+    $$("[data-grid-index],[data-grid-clear],[data-grid-check]").forEach(item=>item.disabled=true);
+  }
 }
 
 function finishGame(){
@@ -1242,6 +1421,16 @@ function renderSettings(){
   $("#settingsProfile span").textContent=p.buddy;
   $("#settingsSound span").textContent=state.sound?"🔊":"🔇";
   $("#settingsSoundLabel").textContent=state.sound?"הצלילים פעילים":"הצלילים כבויים";
+  const analyticsText=$("#analyticsConsentText"),analyticsButton=$("#analyticsConsentButton");
+  if(analyticsText&&analyticsButton){
+    if(state.analyticsConsent===true){
+      analyticsText.textContent="איסוף נתוני שימוש כלליים פעיל. לא נשלחים שמות, גיל, תמונות, תשובות או תוכן הודעות.";
+      analyticsButton.textContent="הפסקת איסוף נתוני שימוש";
+    }else{
+      analyticsText.textContent="נתוני שימוש אינם נאספים. אפשר לאשר איסוף נתונים כלליים בלבד כדי לעזור לשפר את המשחק.";
+      analyticsButton.textContent="בחירה לגבי נתוני שימוש";
+    }
+  }
   renderDifficulty(p);
 }
 
@@ -1281,13 +1470,16 @@ function adjustDifficulty(data){
 
 function exportProgress(){
   const p=activeProfile(); if(!p)return;
+  const backupState={...state};
+  delete backupState.analyticsConsent;
+  delete backupState.analyticsConsentAsked;
   const report={
     app:"brightwood-quest",
     exportType:"backup",
     version:APP_VERSION,
     exportedAt:new Date().toISOString(),
     starGoal:STAR_GOAL,
-    backup:{state},
+    backup:{state:backupState},
     child:{name:p.name,age:p.age,buddy:p.buddy},
     summary:{stars:p.stars,trophies:trophyCount(p),answered:p.answered,correct:p.correct,minutes:p.minutes},
     topics:p.subjects.map(key=>({topic:subjectName(p,key),level:subjectLevel(p,key),completed:p.progress[key]?.completed||0,games:availableGames(p,key).map(game=>({name:game.name,level:p.gameLevels[game.id],progress:p.gameProgress[game.id]}))})),
@@ -1312,7 +1504,9 @@ function importProgressFile(file){
         profiles:importedState.profiles,
         activeId:importedState.activeId || importedState.profiles[0]?.id || null,
         sound:typeof importedState.sound==="boolean" ? importedState.sound : state.sound,
-        introSeen:Boolean(importedState.introSeen)
+        introSeen:Boolean(importedState.introSeen),
+        analyticsConsent:null,
+        analyticsConsentAsked:false
       };
       state.profiles.forEach(prepareProfile);
       save();
@@ -1337,6 +1531,13 @@ function resetProgress(){
   prepareProfile(p); save(); renderAll();
   if($("#dashboardScreen").classList.contains("active"))renderDashboard();
   if($("#settingsScreen").classList.contains("active"))renderSettings();
+}
+
+function clearAllLocalData(){
+  if(!confirm("למחוק את כל השחקנים, התמונות, ההתקדמות וההגדרות מהמכשיר הזה? הפעולה אינה ניתנת לביטול."))return;
+  if(!confirm("זו מחיקה סופית של כל הנתונים במכשיר הזה. להמשיך?"))return;
+  localStorage.removeItem(storeKey);
+  location.reload();
 }
 
 function playMilestoneMelody(){
@@ -1456,6 +1657,12 @@ function bindEvents(){
   $("#profileButton").onclick=()=>openModal("profileModal");
   $("#addProfileButton").onclick=()=>{closeModal("profileModal");openCreate()};
   $("#createForm").onsubmit=e=>{e.preventDefault();submitProfile($("#childName").value)};
+  $("#profilePhotoInput").onchange=async e=>{
+    const file=e.currentTarget.files?.[0]; if(!file)return;
+    try{pendingProfilePhoto=await resizeProfilePhoto(file);renderProfilePhotoPreview()}
+    catch{alert("לא הצלחנו לקרוא את התמונה. נסו לבחור תמונה אחרת.")}
+  };
+  $("#removeProfilePhoto").onclick=()=>{pendingProfilePhoto="";$("#profilePhotoInput").value="";renderProfilePhotoPreview()};
   $("#deleteProfile").onclick=deleteCurrentProfile;
   $("#customizeSubjects").onclick=()=>activeProfile()?openModal("subjectModal"):openCreate();
   $("#saveSubjects").onclick=()=>{const chosen=$$(".subject-toggle.selected").map(x=>x.dataset.toggleSubject);if(!chosen.length)return;activeProfile().subjects=chosen;save();closeModal("subjectModal");renderAll()};
@@ -1473,12 +1680,24 @@ function bindEvents(){
   $("#settingsDeleteUser").onclick=deleteActiveProfileFromSettings;
   $("#settingsSound").onclick=()=>{$(".sound-toggle").click();renderSettings()};
   $("#settingsHelp").onclick=()=>showScreen("helpScreen");
+  $("#settingsPrivacy").onclick=()=>openPrivacyScreen("settingsScreen");
+  $("#analyticsConsentButton").onclick=()=>{
+    if(state.analyticsConsent===true){
+      if(confirm("להפסיק את איסוף נתוני השימוש הכלליים?"))setAnalyticsConsent(false);
+    }else openModal("analyticsConsentModal");
+  };
+  $("#privacyPolicyButton").onclick=()=>openPrivacyScreen("settingsScreen");
+  $("#helpPrivacyButton").onclick=()=>openPrivacyScreen("helpScreen");
+  $("#privacyBack").onclick=()=>showScreen(privacyBackTarget);
   $("#settingsIntro").onclick=openIntro;
   $("#printReport").onclick=()=>window.print();
   $("#exportReport").onclick=exportProgress;
   $("#importReport").onclick=()=>$("#importReportFile").click();
   $("#importReportFile").onchange=e=>importProgressFile(e.target.files?.[0]);
   $("#resetProgress").onclick=resetProgress;
+  $("#deleteAllData").onclick=clearAllLocalData;
+  $("#analyticsConsentAccept").onclick=()=>finishAnalyticsConsent(true);
+  $("#analyticsConsentDecline").onclick=()=>finishAnalyticsConsent(false);
   $(".sound-toggle").onclick=()=>{state.sound=!state.sound;renderSoundToggle();save();if(state.sound)chime(true)};
   $("#continueButton").onclick=openAdventureFlow;
   $("#randomButton").onclick=()=>{const p=activeProfile();if(!p)return openCreate();const games=p.subjects.flatMap(subject=>availableGames(p,subject));if(games.length)startGame(games[Math.floor(Math.random()*games.length)].id)};
@@ -1511,9 +1730,7 @@ function bindEvents(){
           _subject:updates?(message?"היער הזוהר - תגובה או פנייה ובקשה לעדכונים":"היער הזוהר - בקשה לעדכונים"):"היער הזוהר - תגובה או פנייה",
           message,
           updatesRequested:updates?"כן":"לא",
-          appVersion:APP_VERSION,
-          pageUrl:location.href,
-          userAgent:navigator.userAgent
+          appVersion:APP_VERSION
         })
       });
       if(!response.ok)throw new Error(`Formspree ${response.status}`);
@@ -1544,7 +1761,7 @@ function bindEvents(){
   };
   $("#milestoneUpdatesButton").onclick=()=>{closeModal("milestoneModal");openModal("updatesModal")};
   $("#updatesSignupButton").onclick=()=>{closeModal("updatesModal");$("#contactUpdates").checked=true;showScreen("contactScreen");$("#contactEmail").focus()};
-  $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&m.id!=="introModal"&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
+  $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&m.id!=="introModal"&&m.id!=="analyticsConsentModal"&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
 }
 
 init();
