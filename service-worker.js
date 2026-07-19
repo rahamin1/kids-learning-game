@@ -1,11 +1,11 @@
-const CACHE_NAME = "brightwood-pwa-local190";
+const CACHE_NAME = "brightwood-pwa-local191";
 const CORE_FILES = [
   "./",
   "./index.html",
-  "./styles.css?build=local190",
-  "./games.js?build=local190",
-  "./app.js?build=local190",
-  "./manifest.webmanifest?v=0.1.16",
+  "./styles.css?build=local191",
+  "./games.js?build=local191",
+  "./app.js?build=local191",
+  "./manifest.webmanifest?v=0.1.18",
   "./assets/app-icon-192.png",
   "./assets/app-icon-512.png",
   "./assets/app-icon-star-forest.png",

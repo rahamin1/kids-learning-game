@@ -32,9 +32,8 @@ body{font-family:Heebo,system-ui,sans-serif}
 .pip-accessories small{font-size:9px;color:#8a6400;font-weight:900;white-space:nowrap}
 .primary-btn span{margin-left:0;margin-right:20px}
 .question-visual{direction:ltr}
-.question-visual.math-expression{direction:ltr;unicode-bidi:isolate}
-.question-visual.math-expression{flex-direction:row;unicode-bidi:embed}
-.math-expression .math-number,.math-expression .math-operator{direction:ltr;unicode-bidi:isolate}
+.question-visual.math-expression{direction:ltr!important;flex-direction:row!important;unicode-bidi:isolate}
+.math-equation{display:inline-block;direction:ltr!important;unicode-bidi:isolate-override;white-space:nowrap}
 .fraction-visual{min-height:140px;gap:10px;direction:ltr}
 .fraction-piece{width:42px;height:42px;border:3px solid var(--ink);background:#fff;border-radius:3px}
 .fraction-piece.filled{background:var(--fraction-color)}
@@ -216,7 +215,9 @@ body{font-family:Heebo,system-ui,sans-serif}
 .drag-targets{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%}
 .drag-target{font-size:31px}
 .build-result,.word-selection{min-height:58px;border:3px solid #dce8f0;border-radius:16px;background:#f8fbfd;padding:13px;text-align:center;color:var(--blue-dark);font-size:22px;font-weight:900}
+.build-result{unicode-bidi:isolate}
 .build-result.correct-answer-reveal,.word-selection.correct-answer-reveal{border-color:#35b983;background:#d8f5e9;color:#137251}
+.build-result.wrong-answer-reveal,.word-selection.wrong-answer-reveal{border-color:#ed665b;background:#ffe4e0;color:#a52d26}
 .question-visual.correct-answer-reveal{color:#137251}
 .token-bank{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
 .token-btn{min-width:48px;min-height:48px;border:2px solid #bdd2e5;border-radius:13px;background:#fff;color:var(--blue-dark);font-size:20px;font-weight:900;padding:7px 11px}

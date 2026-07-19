@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.17";
+const APP_VERSION = "0.1.18";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
 const INTRO_STEPS = [
@@ -1136,13 +1136,12 @@ function renderQuestion(){
   $("#questionVisual").textContent=hideCategoryVisual || q.audio || q.patternTiles || q.clock || q.pictureMath || q.numberLine ? "" : (q.visual||"");
   $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"")+(isMathExpression?" math-expression":"");
   $("#questionVisual").dir=isMathExpression?"ltr":"auto";
-  // Keep arithmetic in an explicit visual left-to-right order.  Plain text
-  // can be reordered by the surrounding Hebrew/RTL context on some Android
-  // browsers, which made e.g. 8 − 6 appear as 6 − 8.
+  // Keep arithmetic as one isolated LTR unit. Separate number/operator spans
+  // were still reordered by some Android browsers inside the Hebrew UI.
   if(isMathExpression){
     const parts=String(q.visual||"").match(/^(\d+)\s*([+−-])\s*(\d+)$/);
     if(parts){
-      $("#questionVisual").innerHTML=`<span class="math-number">${parts[1]}</span><span class="math-operator">${parts[2]}</span><span class="math-number">${parts[3]}</span>`;
+      $("#questionVisual").innerHTML=`<bdi class="math-equation" dir="ltr">${parts[1]} ${parts[2]} ${parts[3]}</bdi>`;
     }
   }
   $("#questionVisual").classList.toggle("no-visual",hideCategoryVisual||(!q.visual&&!q.audio&&!q.patternTiles&&!q.clock&&!q.pictureMath&&!q.numberLine));
@@ -1260,7 +1259,12 @@ function fitTextAnswers(grid,q){
 
 function updateBuildResult(){
   const q=session.questions[session.index],joinWith=q.joinWith??"";
-  $("#buildResult").textContent=session.composed.length?session.composed.map(x=>x.token).join(joinWith):"בחרו לפי הסדר";
+  const result=$("#buildResult");
+  const value=session.composed.map(x=>x.token).join(joinWith);
+  // Keep the order in which the player pressed the buttons. Hebrew sequences
+  // must be rendered RTL; English sequences must stay LTR.
+  result.textContent=value||"בחרו לפי הסדר";
+  result.dir=/[\u0590-\u05FF]/.test(value)?"rtl":"ltr";
 }
 
 function playQuestionAudio(){
@@ -1322,12 +1326,19 @@ function revealCorrectAnswer(q){
   }
   if(q.mode==="build"){
     const result=$("#buildResult");
-    if(result){result.textContent=q.correct;result.classList.add("correct-answer-reveal");}
+    if(result){
+      // Never replace what the player built with the solution. The solution is
+      // shown separately below in the explanation area.
+      const submitted=session.lastBuildAnswer??result.textContent;
+      result.textContent=submitted;
+      result.dir=/[\u0590-\u05FF]/.test(submitted)?"rtl":"ltr";
+      result.classList.add("wrong-answer-reveal");
+    }
     $$(".token-btn,[data-build-undo],[data-build-check]").forEach(item=>item.disabled=true);
   }
   if(q.mode==="wordsearch"){
     const result=$("#wordSelection");
-    if(result){result.textContent=q.correct;result.classList.add("correct-answer-reveal");}
+    if(result){result.classList.add("wrong-answer-reveal");}
     $$("[data-grid-index],[data-grid-clear],[data-grid-check]").forEach(item=>item.disabled=true);
   }
 }
@@ -1590,6 +1601,7 @@ function undoBuildToken(){
 
 function checkBuild(button){
   const q=session.questions[session.index],value=session.composed.map(x=>x.token).join(q.joinWith??"");
+  session.lastBuildAnswer=value;
   answer(value,button);
 }
 
