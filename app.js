@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.20";
+const APP_VERSION = "0.1.21";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
 const INTRO_STEPS = [
@@ -1131,6 +1131,20 @@ function renderQuestion(){
   $("#questionBar").style.width=`${session.index/session.questions.length*100}%`;
   $("#questionType").textContent=q.type; $("#questionText").textContent=q.q;
   const isMathExpression=q.type==="חיסור"||q.type==="חיבור";
+  if(isMathExpression){
+    const values=(String(q.q||"").match(/\d+/g)||[]).map(Number);
+    if(values.length===2){
+      const equation=document.createElement("span");
+      equation.className="math-question-text"; equation.dir="ltr";
+      const operator=String(q.q).includes("+")?"+":"−";
+      [Math.max(...values),operator,Math.min(...values)].forEach(part=>{
+        const token=document.createElement("span");
+        token.dir="ltr"; token.textContent=String(part); equation.appendChild(token);
+      });
+      $("#questionText").dir="ltr";
+      $("#questionText").replaceChildren(equation);
+    }
+  }
   const isPictureChoice=session.game?.id==="drag-word-picture";
   // In word-category activities, the visual would reveal the answer.
   // Word-building activities use a picture, so keep that picture visible.
@@ -1144,6 +1158,21 @@ function renderQuestion(){
     const parts=String(q.visual||"").match(/^(\d+)\s*([+−-])\s*(\d+)$/);
     if(parts){
       $("#questionVisual").innerHTML=`<span class="math-equation" dir="ltr"><span>${parts[1]}</span><span>${parts[2]}</span><span>${parts[3]}</span></span>`;
+    }
+  }
+  // On RTL Android browsers, text direction alone can still reverse a math
+  // expression. Rebuild it from numbers and fixed LTR DOM tokens instead.
+  if(isMathExpression){
+    const values=(String(q.visual||"").match(/\d+/g)||[]).map(Number);
+    if(values.length===2){
+      const equation=document.createElement("span");
+      equation.className="math-equation"; equation.dir="ltr";
+      const operator=String(q.visual).includes("+")?"+":"−";
+      [Math.max(...values),operator,Math.min(...values)].forEach(part=>{
+        const token=document.createElement("span");
+        token.dir="ltr"; token.textContent=String(part); equation.appendChild(token);
+      });
+      $("#questionVisual").replaceChildren(equation);
     }
   }
   $("#questionVisual").classList.toggle("no-visual",hideCategoryVisual||(!q.visual&&!q.audio&&!q.patternTiles&&!q.clock&&!q.pictureMath&&!q.numberLine));
@@ -1173,8 +1202,6 @@ function renderQuestion(){
     $("#questionVisual").appendChild(listen);
   }
   $("#feedback").className="feedback"; $("#feedback").textContent="";
-  $("#answerReveal").className="answer-reveal"; $("#answerReveal").textContent="";
-  $("#explanation").className="explanation"; $("#explanation").textContent="";
   $(".pip-corner").innerHTML=`<span class="pip-buddy">${escapeHtml(p.buddy)}</span>${gameBuddyAccessoryMarkup(p)}`;
   renderGameBuddyPanel();
   renderQuestionInteraction(q);
@@ -1319,18 +1346,9 @@ function answer(value,button){
     $("#feedback").textContent="לא בדיוק"; $("#feedback").className="feedback bad";
     $$(".answer-btn").find(b=>String(b.dataset.answer)===String(q.correct))?.classList.add("correct");
     revealCorrectAnswer(q);
-    $("#explanation").textContent=`התשובה הנכונה: ${q.correct}`;
-    $("#explanation").className="explanation show";
   }
-  showAnswerReveal(value,q,right);
   save();
   setTimeout(()=>{session.index++;session.index<session.questions.length?renderQuestion():finishGame()},2600);
-}
-
-function showAnswerReveal(value,q,right){
-  const direction=session.subject==="english"?"ltr":"rtl";
-  $("#answerReveal").className=`answer-reveal ${right?"good":"bad"}`;
-  $("#answerReveal").innerHTML=`<b>${right?"נכון!":"כמעט!"}</b><span>התשובה שלכם: <bdi dir="${direction}">${escapeHtml(value)}</bdi></span><span>התשובה הנכונה: <bdi dir="${direction}">${escapeHtml(q.correct)}</bdi></span>`;
 }
 
 function revealCorrectAnswer(q){
@@ -1353,8 +1371,7 @@ function revealCorrectAnswer(q){
   if(q.mode==="build"){
     const result=$("#buildResult");
     if(result){
-      // Never replace what the player built with the solution. The solution is
-      // shown separately below in the explanation area.
+      // Never replace what the player built with the solution.
       const submitted=session.lastBuildAnswer??result.textContent;
       result.textContent=submitted;
       result.dir=/[\u0590-\u05FF]/.test(submitted)?"rtl":"ltr";
