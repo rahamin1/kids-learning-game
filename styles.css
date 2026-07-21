@@ -33,13 +33,15 @@ body{font-family:Heebo,system-ui,sans-serif}
 .primary-btn span{margin-left:0;margin-right:20px}
 .question-visual{direction:ltr}
 .question-visual.math-expression{direction:ltr!important;flex-direction:row!important;unicode-bidi:isolate}
-.math-equation{display:inline-block;direction:ltr!important;unicode-bidi:isolate-override;white-space:nowrap}
+.math-equation{display:inline-flex;flex-direction:row;align-items:center;gap:.24em;direction:ltr!important;unicode-bidi:isolate-override;white-space:nowrap}
+.math-equation span{display:inline-block;direction:ltr!important;unicode-bidi:isolate-override}
 .fraction-visual{min-height:140px;gap:10px;direction:ltr}
 .fraction-piece{width:42px;height:42px;border:3px solid var(--ink);background:#fff;border-radius:3px}
 .fraction-piece.filled{background:var(--fraction-color)}
 .fraction-blue{--fraction-color:#2376d1}.fraction-red{--fraction-color:#e64b46}.fraction-purple{--fraction-color:#854bc8}.fraction-green{--fraction-color:#35a75d}.fraction-orange{--fraction-color:#ef922f}
 .question-visual.letter-revealed{color:var(--blue);transform:scale(1.04);transition:transform .18s ease}
 .question-visual.object-grid{white-space:pre-line;font-size:30px;line-height:1.18}
+.question-visual.shape-visual{font-size:clamp(6.5rem,20vw,10rem);line-height:1;min-height:1.25em;display:grid;place-items:center}
 .answer-grid.object-grid-answers{max-width:760px}
 .answer-grid.object-grid-answers .answer-btn{white-space:pre-line;direction:ltr;min-height:110px;padding:12px;font-family:system-ui,sans-serif;font-size:16px;line-height:1.12}
 .hero{--forest-darkness:.42;transition:filter 3s ease,background-image 1.2s ease}
@@ -225,7 +227,7 @@ body{font-family:Heebo,system-ui,sans-serif}
 .build-actions{display:flex;justify-content:center;gap:12px}
 .memory-grid{grid-template-columns:repeat(4,1fr);max-width:680px}
 .memory-card{min-height:78px;border:2px solid #cbdbe8;border-radius:15px;background:var(--blue);color:#fff;position:relative;font-size:20px;font-weight:900}
-.memory-card b{display:none}.memory-card.open,.memory-card.matched{background:#fff;color:var(--ink)}.memory-card.open span,.memory-card.matched span{display:none}.memory-card.open b,.memory-card.matched b{display:block}.memory-card.matched{border-color:#35b983;background:#d8f5e9}
+.memory-card b{display:none}.memory-card.open,.memory-card.matched{background:#fff;color:var(--ink)}.memory-card.open span,.memory-card.matched span{display:none}.memory-card.open b,.memory-card.matched b{display:block}.memory-card.memory-picture.open b,.memory-card.memory-picture.matched b{font-size:clamp(3rem,9vw,5rem);line-height:1}.memory-card.matched{border-color:#35b983;background:#d8f5e9}
 .word-search-grid{display:grid;grid-template-columns:repeat(var(--grid-size),1fr);gap:5px;direction:rtl;width:min(430px,100%);margin:auto}
 .word-search-grid button{aspect-ratio:1;border:2px solid #cadbe9;border-radius:9px;background:#fff;color:var(--ink);font-size:18px;font-weight:900}
 .word-search-grid button.selected{background:#ffe38b;border-color:#d9a900}
@@ -418,6 +420,9 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 /* Smarter game spacing and larger visual choices when there is room. */
 .answer-grid{gap:13px}
 .question-visual.no-visual{min-height:150px;padding:18px 6px}
+.question-visual.picture-choice-visual.no-visual{min-height:0;padding:0;margin:0}
+.answer-grid.picture-choice-grid{margin-top:18px}
+.answer-grid.picture-choice-grid .answer-btn{min-height:clamp(132px,19vw,164px);font-size:clamp(76px,11vw,108px);line-height:1}
 .build-answer-grid{gap:18px}
 .answer-grid.roomy-image-answers .answer-btn{font-size:clamp(92px,12vw,132px);min-height:168px}
 .answer-grid.roomy-object-grid-answers .answer-btn{font-size:clamp(24px,4.8vw,38px);min-height:140px;line-height:1.25}
@@ -431,6 +436,9 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   .picture-math-group span{font-size:42px}
   .picture-math-operator{font-size:48px}
   .question-visual.no-visual{min-height:150px;padding:18px 8px}
+  .question-visual.picture-choice-visual.no-visual{min-height:0;padding:0}
+  .answer-grid.picture-choice-grid{margin-top:16px}
+  .answer-grid.picture-choice-grid .answer-btn{min-height:132px;font-size:clamp(72px,20vw,98px)}
   .answer-grid.roomy-image-answers .answer-btn{font-size:clamp(86px,20vw,118px);min-height:150px}
   .answer-grid.roomy-object-grid-answers .answer-btn{font-size:clamp(24px,8vw,34px);min-height:126px}
   .answer-grid.large-object-grid-answers .answer-btn{font-size:clamp(19px,6.5vw,25px);min-height:124px}

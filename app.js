@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.18";
+const APP_VERSION = "0.1.19";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
 const INTRO_STEPS = [
@@ -201,7 +201,8 @@ function generatedMath(level){
   for(let a=1;a<=Math.min(sumMax-1,8);a++){
     for(let b=1;b<=Math.min(sumMax-a,6);b++){
       const answer=a+b;
-      questions.push({id:`math-${level}-sum-${a}-${b}`,skill:"חיבור",type:"חיבור",q:`כמה הם ${a} ועוד ${b}?`,visual:`${a} + ${b}`,a:numberChoices(answer),correct:String(answer),explain:`${a} ועוד ${b} הם ${answer}.`,word:true});
+      const left=Math.max(a,b),right=Math.min(a,b);
+      questions.push({id:`math-${level}-sum-${a}-${b}`,skill:"חיבור",type:"חיבור",q:`כמה הם ${left} ועוד ${right}?`,visual:`${left} + ${right}`,a:numberChoices(answer),correct:String(answer),explain:`${left} ועוד ${right} הם ${answer}.`,word:true});
     }
   }
   const steps=level<=2?[1]:level<=4?[1,2]:[2,3,5];
@@ -1130,18 +1131,19 @@ function renderQuestion(){
   $("#questionBar").style.width=`${session.index/session.questions.length*100}%`;
   $("#questionType").textContent=q.type; $("#questionText").textContent=q.q;
   const isMathExpression=q.type==="חיסור"||q.type==="חיבור";
+  const isPictureChoice=session.game?.id==="drag-word-picture";
   // In word-category activities, the visual would reveal the answer.
   // Word-building activities use a picture, so keep that picture visible.
   const hideCategoryVisual=q.type==="מיון מילים";
   $("#questionVisual").textContent=hideCategoryVisual || q.audio || q.patternTiles || q.clock || q.pictureMath || q.numberLine ? "" : (q.visual||"");
-  $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"")+(isMathExpression?" math-expression":"");
+  $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"")+(isMathExpression?" math-expression":"")+(q.type==="צלעות וקודקודים"?" shape-visual":"")+(isPictureChoice?" picture-choice-visual":"");
   $("#questionVisual").dir=isMathExpression?"ltr":"auto";
   // Keep arithmetic as one isolated LTR unit. Separate number/operator spans
   // were still reordered by some Android browsers inside the Hebrew UI.
   if(isMathExpression){
     const parts=String(q.visual||"").match(/^(\d+)\s*([+−-])\s*(\d+)$/);
     if(parts){
-      $("#questionVisual").innerHTML=`<bdi class="math-equation" dir="ltr">${parts[1]} ${parts[2]} ${parts[3]}</bdi>`;
+      $("#questionVisual").innerHTML=`<span class="math-equation" dir="ltr"><span>${parts[1]}</span><span>${parts[2]}</span><span>${parts[3]}</span></span>`;
     }
   }
   $("#questionVisual").classList.toggle("no-visual",hideCategoryVisual||(!q.visual&&!q.audio&&!q.patternTiles&&!q.clock&&!q.pictureMath&&!q.numberLine));
@@ -1182,6 +1184,7 @@ function renderQuestion(){
 function renderQuestionInteraction(q){
   const grid=$("#answerGrid");
   grid.className="answer-grid";
+  if(session.game?.id==="drag-word-picture")grid.classList.add("picture-choice-grid");
   session.composed=[]; session.memoryOpen=[]; session.memoryMatched=new Set(); session.gridSelection=[];
   if(q.mode==="drag"){
     grid.classList.add("drag-answer-grid");
@@ -1195,9 +1198,9 @@ function renderQuestionInteraction(q){
   }
   if(q.mode==="memory"){
     grid.classList.add("memory-grid");
-    const cards=shuffled(q.pairs.flatMap(([picture,word],pair)=>[{text:picture,key:String(pair)},{text:word,key:String(pair)}]));
+    const cards=shuffled(q.pairs.flatMap(([picture,word],pair)=>[{text:picture,key:String(pair),picture:true},{text:word,key:String(pair),picture:false}]));
     session.memoryCards=cards;
-    grid.innerHTML=cards.map((card,index)=>`<button class="memory-card" data-memory-index="${index}" data-memory-key="${card.key}"><span>?</span><b>${escapeHtml(card.text)}</b></button>`).join("");
+    grid.innerHTML=cards.map((card,index)=>`<button class="memory-card${card.picture ? " memory-picture" : ""}" data-memory-index="${index}" data-memory-key="${card.key}"><span>?</span><b>${escapeHtml(card.text)}</b></button>`).join("");
     return;
   }
   if(q.mode==="wordsearch"){
@@ -1292,6 +1295,17 @@ function answer(value,button){
   if(right){
     p.correct++; session.correct++; session.results[q.skill].correct++;
     button.classList.add("correct"); chime(true);
+    if(q.numberLine){
+      const visual=$("#questionVisual");
+      const items=q.numberLine.items.map(item=>item==="□"?q.correct:item);
+      visual.innerHTML=items.map(item=>`<span class="number-line-number">${escapeHtml(item)}</span>`).join(`<span class="number-line-dash">—</span>`);
+      visual.classList.add("number-line-visual","correct-answer-reveal");
+    }
+    if(q.type==="רצף מספרים"&&typeof q.visual==="string"&&q.visual.includes("?")){
+      const visual=$("#questionVisual");
+      visual.textContent=q.visual.replace("?",q.correct);
+      visual.classList.add("correct-answer-reveal");
+    }
     if(typeof q.visual==="string"&&q.visual.includes("_")){
       const visual=$("#questionVisual");
       visual.textContent=q.visual.replace("_",q.correct);
@@ -1313,8 +1327,12 @@ function answer(value,button){
 
 function revealCorrectAnswer(q){
   const visual=$("#questionVisual");
+  if(q.type==="רצף מספרים"&&typeof q.visual==="string"&&q.visual.includes("?")){
+    visual.textContent=q.visual.replace("?",q.correct);
+    visual.classList.add("correct-answer-reveal");
+  }
   if(q.numberLine){
-    const items=q.numberLine.items.map(item=>/^\d+$/.test(String(item))?item:String(q.correct));
+    const items=q.numberLine.items.map(item=>item==="□"?q.correct:item);
     visual.innerHTML=items.map(item=>`<span class="number-line-number">${escapeHtml(item)}</span>`).join(`<span class="number-line-dash">−</span>`);
     visual.classList.add("number-line-visual","correct-answer-reveal");
   }else if(q.patternTiles){

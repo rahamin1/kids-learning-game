@@ -16,7 +16,7 @@
     {id:"fractions",subject:"math",minAge:7,name:"איזה חלק זה?",icon:"🍕",desc:"מזהים חלקים צבועים",kind:"fractions"},
 
     {id:"uppercase-letter",subject:"english",minAge:6,name:"אות גדולה",icon:"🔠",desc:"מזהים CAPITAL LETTERS",kind:"uppercase",disabled:true},
-    {id:"letter-picture",subject:"english",minAge:6,name:"אות ותמונה",icon:"🅰️",desc:"מתאימים אות גדולה לתמונה",kind:"letterPicture"},
+    {id:"letter-picture",subject:"english",minAge:6,name:"אות ומילה",icon:"🅰️",desc:"מתאימים אות למילה",kind:"letterPicture"},
     {id:"picture-word-memory",subject:"english",minAge:6,name:"זיכרון תמונה ומילה",icon:"🧠",desc:"מוצאים זוגות מתאימים",kind:"memoryEnglish"},
     {id:"first-letter",subject:"english",minAge:6,name:"האות הראשונה",icon:"🔤",desc:"בוחרים באיזו אות המילה מתחילה",kind:"firstLetter"},
     {id:"image-word",subject:"english",minAge:6,name:"תמונה ומילה",icon:"🖼️",desc:"בוחרים מילה מתוך ארבע אפשרויות",kind:"imageWord"},
@@ -94,7 +94,7 @@
     ["🌙","ירח","י"],["🧀","גבינה","ג"],["🥁","תוף","ת"],["🧩","פאזל","פ"],["💎","יהלום","י"]
   ];
   const shapes = [
-    ["○","עיגול",0,0],["△","משולש",3,3],["□","ריבוע",4,4],["⬟","מחומש",5,5],["⬡","משושה",6,6]
+    ["○","עיגול",0,0],["△","משולש",3,3],["□","ריבוע",4,4],["⬠","מחומש",5,5],["⬡","משושה",6,6]
   ];
   const seasons = [
     ["חורף","🌧️","מעיל","🧥"],["אביב","🌸","טיול בין פרחים","🌷"],["קיץ","☀️","כובע שמש","🧢"],["סתיו","🍂","עלים נושרים","🍂"]
@@ -255,7 +255,7 @@
     const max=clamp(5+level*3,8,32),out=[];
     const minA=level>=7?4:level>=5?2:1;
     const minB=level>=7?2:1;
-    for(let a=minA;a<=max;a++){for(let b=minB;b<=Math.min(a,8);b++){const answer=kind==="add"?a+b:a-b;if(answer<0)continue;if(kind!=="add"&&level>=4&&answer===0)continue;const icon=pictures[(a+b)%pictures.length],pictureVisual={groups:[Array(Math.min(a,12)).fill(icon),Array(Math.min(b,12)).fill(icon)],operator:"+"},left=kind==="add"?Math.max(a,b):a,right=kind==="add"?Math.min(a,b):b,expression=kind==="add"?`${left} + ${right}`:`${left} − ${right}`;out.push(make(expression,String(answer),numberOptions(answer),"",{skill:kind==="add"?"חיבור":"חיסור",type:kind==="add"?"חיבור":"חיסור",word:true,pictureMath:kind==="add"&&level<6?pictureVisual:null}));}}
+    for(let a=minA;a<=max;a++){for(let b=minB;b<=Math.min(a,8);b++){const answer=kind==="add"?a+b:a-b;if(answer<0)continue;if(kind!=="add"&&level>=4&&answer===0)continue;const icon=pictures[(a+b)%pictures.length],pictureVisual={groups:[Array(Math.min(a,12)).fill(icon),Array(Math.min(b,12)).fill(icon)],operator:"+"},left=Math.max(a,b),right=Math.min(a,b),expression=kind==="add"?`${left} + ${right}`:`${left} − ${right}`;out.push(make(expression,String(answer),numberOptions(answer),"",{skill:kind==="add"?"חיבור":"חיסור",type:kind==="add"?"חיבור":"חיסור",word:true,pictureMath:kind==="add"&&level<6?pictureVisual:null}));}}
     return out;
   }
   function numberLine(level){
@@ -301,7 +301,36 @@
   function wordProblems(level){
     const max=clamp(8+level*2,12,28);
     const thinkingVisuals=["💡","🔍","🧭","✨","🦉"];
-    return Array.from({length:24},(_,i)=>{const a=2+i%max,b=1+(i*3)%Math.min(9,a),add=i%2===0,answer=add?a+b:a-b,q=add?`לנועה היו ${a} מדבקות והיא קיבלה עוד ${b}. כמה יש לה עכשיו?`:`ליואב היו ${a} גולות והוא נתן ${b}. כמה נשארו?`;return make(q,String(answer),numberOptions(answer),thinkingVisuals[i%thinkingVisuals.length],{skill:"בעיות מילוליות",type:"בעיה מילולית"});});
+    const templates=[
+      {add:true, icon:"🏷️", question:(a,b)=>`לנועה היו ${a} מדבקות והיא קיבלה עוד ${b}. כמה מדבקות יש לה עכשיו?`},
+      {add:true, icon:"✏️", question:(a,b)=>`על השולחן היו ${a} עפרונות כחולים. הוסיפו עוד ${b} עפרונות. כמה עפרונות יש עכשיו?`},
+      {add:true, icon:"🍎", question:(a,b)=>`בסל היו ${a} תפוחים. הוסיפו לסל עוד ${b} תפוחים. כמה תפוחים יש בסל?`},
+      {add:true, icon:"📚", question:(a,b)=>`בכיתה היו ${a} ספרים חדשים. הגיעו עוד ${b} ספרים. כמה ספרים יש עכשיו?`},
+      {add:true, icon:"🎈", question:(a,b)=>`לדנה היו ${a} בלונים והיא קיבלה עוד ${b} בלונים. כמה בלונים יש לה?`},
+      {add:true, icon:"🐟", question:(a,b)=>`באקווריום שחו ${a} דגים. הוסיפו עוד ${b} דגים. כמה דגים שוחים באקווריום?`},
+      {add:true, icon:"🚗", question:(a,b)=>`לעומר היו ${a} מכוניות צעצוע והוא קיבל עוד ${b}. כמה מכוניות צעצוע יש לו?`},
+      {add:true, icon:"🐦", question:(a,b)=>`על העץ ישבו ${a} ציפורים. הגיעו עוד ${b} ציפורים. כמה ציפורים יש על העץ?`},
+      {add:true, icon:"🧊", question:(a,b)=>`בקופסה היו ${a} קוביות. הכניסו פנימה עוד ${b} קוביות. כמה קוביות יש בקופסה?`},
+      {add:true, icon:"🐚", question:(a,b)=>`רוני מצאה ${a} צדפים, ואחר כך מצאה עוד ${b}. כמה צדפים מצאה רוני בסך הכול?`},
+      {add:true, icon:"🌸", question:(a,b)=>`בגינה פרחו ${a} פרחים, ובהמשך פרחו עוד ${b}. כמה פרחים פורחים בגינה?`},
+      {add:false, icon:"🔵", question:(a,b)=>`ליואב היו ${a} גולות והוא נתן ${b} לחבר. כמה גולות נשארו לו?`},
+      {add:false, icon:"🍪", question:(a,b)=>`על הצלחת היו ${a} עוגיות. אכלו ${b} עוגיות. כמה עוגיות נשארו?`},
+      {add:false, icon:"📗", question:(a,b)=>`על המדף היו ${a} ספרים. לקחו ${b} ספרים. כמה ספרים נשארו על המדף?`},
+      {add:false, icon:"🖍️", question:(a,b)=>`לליאור היו ${a} צבעים. ${b} צבעים אבדו. כמה צבעים נשארו לליאור?`},
+      {add:false, icon:"🍓", question:(a,b)=>`בקערה היו ${a} תותים. אכלו ${b} תותים. כמה תותים נשארו בקערה?`},
+      {add:false, icon:"🏷️", question:(a,b)=>`לאורי היו ${a} מדבקות והוא נתן ${b} לאחותו. כמה מדבקות נשארו לו?`},
+      {add:false, icon:"⚽", question:(a,b)=>`בחצר שיחקו ${a} ילדים. ${b} ילדים הלכו הביתה. כמה ילדים נשארו בחצר?`},
+      {add:false, icon:"🎾", question:(a,b)=>`בחנות היו ${a} כדורים. מכרו ${b} כדורים. כמה כדורים נשארו בחנות?`},
+      {add:false, icon:"🌿", question:(a,b)=>`באדנית צמחו ${a} נבטים. ${b} נבטים נבלו. כמה נבטים נשארו?`}
+    ];
+    const questions=[];
+    templates.forEach((template,index)=>{
+      const a=template.add?2+(index*3)%max:4+(index*3)%(max-1);
+      const b=template.add?1+(index*2)%Math.min(9,max):1+(index*2)%Math.min(9,a-1);
+      const answer=template.add?a+b:a-b;
+      questions.push(make(template.question(a,b),String(answer),numberOptions(answer),template.icon||thinkingVisuals[index%thinkingVisuals.length],{skill:"בעיות מילוליות",type:"בעיה מילולית"}));
+    });
+    return repeatPool(questions,24);
   }
   function fractions(level){
     const data=[["חצי","1/2","◼◼◻◻"],["רבע","1/4","◼◻◻◻"],["שלושה רבעים","3/4","◼◼◼◻"],["שליש","1/3","◼◻◻"],["שני שלישים","2/3","◼◼◻"],["חמישית","1/5","◼◻◻◻◻"],["שתי חמישיות","2/5","◼◼◻◻◻"],["ארבע חמישיות","4/5","◼◼◼◼◻"],["שמינית","1/8","◼◻◻◻◻◻◻◻"]];
@@ -322,7 +351,7 @@
   function wordQuestions(kind,level){
     const count=clamp(8+level*2,10,englishWords.length),active=englishWords.slice(0,count);
     if(kind==="uppercase")return repeatPool(active.map(([icon,word,letter])=>make(`מצאו את האות ${letter}`,letter,options(letter,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),"",{skill:"אותיות גדולות",type:"CAPITAL LETTERS"})));
-    if(kind==="letterPicture")return repeatPool(active.map(([icon,word,letter])=>{const correct=`${icon} ${word}`;return make(`איזו תמונה מתחילה באות ${letter}?`,correct,options(correct,active.map(x=>`${x[0]} ${x[1]}`)),"",{skill:"אות וצליל",type:"אות ותמונה"});}));
+    if(kind==="letterPicture")return repeatPool(active.map(([icon,word,letter])=>{const correct=`${icon} ${word}`;return make(`איזו מילה מתחילה באות ${letter}?`,correct,options(correct,active.map(x=>`${x[0]} ${x[1]}`)),"",{skill:"אות ומילה",type:"אות ומילה"});}));
     if(kind==="firstLetter")return repeatPool(active.map(([icon,word,letter])=>make(`באיזו אות מתחילה המילה ${word}?`,letter,options(letter,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),icon,{skill:"אות ראשונה",type:"צליל ראשון"})));
     if(kind==="imageWord")return repeatPool(active.map(([icon,word])=>make("איזו מילה מתאימה לתמונה?",word,options(word,active.map(x=>x[1])),icon,{skill:"אוצר מילים",type:"תמונה ומילה",word:true})));
     if(kind==="missingEnglish")return repeatPool(active.filter(x=>x[1].length<=clamp(3+Math.floor(level/2),4,8)).map(([icon,word])=>{const pos=level>=7?1+word.length%Math.max(1,word.length-2):word.length-1,correct=word[pos],masked=word.slice(0,pos)+"_"+word.slice(pos+1);return make("איזו אות חסרה?",correct,options(correct,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),`${icon}  ${masked}`,{skill:"איות",type:"אות חסרה",word:true});}));
@@ -382,6 +411,41 @@
   ];
   function readingQuestions(kind,level){
     const out=[];
+    if(kind==="inference"){
+      const questions=[
+        ["נועה לקחה מטרייה ולבשה מגפיים. מה אפשר להבין?","ירד גשם",["נועה יצאה לטיול","נועה אוהבת מגפיים","נועה חזרה מבית הספר"]],
+        ["אורי זרע זרע, השקה אותו ולאחר כמה ימים הופיע נבט. מה אפשר להבין?","הזרע קיבל מים",["אורי אוהב צמחים","אורי עבד בגינה","הזרע היה באדמה"]],
+        ["מיה מצאה גור קטן ורועד והביאה לו שמיכה. מה אפשר להבין?","לגור היה קר",["מיה אוהבת לעזור","מיה מצאה שמיכה","הגור היה קטן"]],
+        ["דן סיים לאכול, צחצח שיניים ונכנס למיטה. מה אפשר להבין?","הגיע זמן השינה",["דן שמר על השיניים","דן אכל ארוחה","דן היה בבית"]],
+        ["תמר ארזה מים, כובע ומפה ויצאה עם משפחתה. מה אפשר להבין?","המשפחה יצאה לטיול",["תמר התכוננה מראש","היה יום שמשי","תמר אוהבת מפות"]],
+        ["רון שמע רעם, ראה ברק וסגר את החלון. מה אפשר להבין?","הייתה סערה",["רון היה בבית","רון נזהר מהגשם","בחוץ היה חשוך"]],
+        ["יעל אפתה עוגה והניחה עליה שבעה נרות. מה אפשר להבין?","למישהו היה יום הולדת",["יעל יודעת לאפות","העוגה הייתה חגיגית","יעל ספרה עד שבע"]],
+        ["גיל ראה שהעציץ יבש והשקה אותו. מה אפשר להבין?","הצמח קיבל מים",["גיל אחראי על הצמחים בבית","גיל אוהב לעזור","גיל היה משועמם"]],
+        ["אדם לבש מעיל, צעיף וכפפות לפני שיצא. מה אפשר להבין?","בחוץ היה קר",["אדם התכונן לצאת","אדם אוהב כפפות","אדם שמר על עצמו"]],
+        ["שירה שמעה את השעון המעורר, קמה והתלבשה לבית הספר. מה אפשר להבין?","התחיל הבוקר",["שירה התארגנה מהר","שירה הולכת לבית הספר","שירה שמעה צליל"]],
+        ["יואב לקח קופסת אוכל ובקבוק מים לפני שיצא לגן. מה אפשר להבין?","יואב התכונן ליום בגן",["יואב אוהב לשתות מים","יואב ארז דברים","יואב יצא מהבית"]],
+        ["נועה חיפשה את החתול בבית ולבסוף מצאה אותו מתחת למיטה. מה אפשר להבין?","החתול התחבא",["נועה חיפשה את החתול","החתול היה בבית","המיטה נמצאת בחדר"]],
+        ["אבא פתח מטרייה בזמן שהלך ברחוב. מה אפשר להבין?","ירד גשם",["אבא יצא לטיול","אבא הלך ברחוב","אבא התכונן למזג האוויר"]],
+        ["רומי לקחה ספר מהספרייה והתיישבה לקרוא בפינה שקטה. מה אפשר להבין?","רומי רצתה לקרוא",["רומי אוהבת ספרים","רומי מצאה מקום שקט","רומי הייתה בספרייה"]],
+        ["הילדים הכינו שלטים, שרו שירים ומחאו כפיים. מה אפשר להבין?","הייתה חגיגה או הופעה",["הילדים היו יחד","הילדים הכינו דברים","הילדים שמחו"]],
+        ["דוד מילא את האמבטיה במים, הכניס סירה קטנה והפליג אותה. מה אפשר להבין?","דוד שיחק במים",["דוד אוהב סירות","האמבטיה הייתה מלאה","דוד היה בבית"]],
+        ["מאיה ראתה ציפור עם כנף פצועה וקראה למבוגר. מה אפשר להבין?","מאיה רצתה לעזור לציפור",["הציפור נפצעה","מאיה שמה לב לציפור","מאיה הייתה ליד מבוגר"]],
+        ["איתי הכין כריך, חתך ירקות וסידר צלחת על השולחן. מה אפשר להבין?","איתי התכונן לארוחה",["איתי עזר במטבח","היו ירקות בבית","איתי השתמש בצלחת"]],
+        ["ליאור אסף עלים צבעוניים מהאדמה והכניס אותם לאלבום. מה אפשר להבין?","ליאור אסף עלים",["היו עלים על האדמה","ליאור אוהב טבע","ליאור הכין אלבום"]],
+        ["בכיתה כיבו את האורות והקרינו סרט על הקיר. מה אפשר להבין?","הכיתה צפתה בסרט",["היה קיר בכיתה","האורות היו דלוקים קודם","התלמידים למדו יחד"]],
+        ["אורי שמע את התינוק בוכה והביא לו מוצץ. מה אפשר להבין?","אורי ניסה להרגיע את התינוק",["התינוק בכה","אורי ידע איפה המוצץ","אורי עזר לתינוק"]],
+        ["רותם ראה שלוליות בדרך לבית הספר ונזהר לא לדרוך בהן. מה אפשר להבין?","ירד גשם קודם לכן",["רותם הלך לבית הספר","הדרך הייתה רטובה","רותם נזהר"]],
+        ["סבא הדליק נרות, ערך שולחן גדול והזמין את המשפחה. מה אפשר להבין?","המשפחה התכנסה לארוחה חגיגית",["סבא הכין את הבית","המשפחה הוזמנה","היו נרות על השולחן"]],
+        ["רוני השקה את הגינה בכל בוקר במשך שבוע. מה אפשר להבין?","רוני טיפל בצמחים",["רוני קם בבוקר","יש גינה בבית","הצמחים קיבלו מים"]],
+        ["נעמה לקחה דלי, את חפירה וזרעים אל החצר. מה אפשר להבין?","נעמה התכוננה לשתול",["נעמה יצאה לחצר","נעמה הביאה כלים","נעמה אוהבת גינון"]],
+        ["שחר פתח את החלון ושמע ציוץ חזק מהעץ. מה אפשר להבין?","הייתה ציפור על העץ",["שחר פתח חלון","היה עץ ליד הבית","שחר שמע צליל"]],
+        ["עומר מצא את הכדור שלו בפינת החצר אחרי שחיפש אותו זמן רב. מה אפשר להבין?","עומר איבד את הכדור קודם",["עומר חיפש בחצר","הכדור היה בפינה","עומר שמח למצוא אותו"]],
+        ["המשפחה ארזה מזוודות, בדקה דרכונים והגיעה לשדה התעופה. מה אפשר להבין?","המשפחה יצאה לנסיעה",["המשפחה ארזה דברים","היו להם דרכונים","המשפחה הגיעה לשדה התעופה"]],
+        ["איילת לבשה סינר, ערבבה קמח וביצים והכניסה תבנית לתנור. מה אפשר להבין?","איילת אפתה משהו",["איילת עבדה במטבח","היו קמח וביצים","התנור היה חם"]],
+        ["אורי כיבה את הטלוויזיה, סידר את המשחקים והלך להתקלח. מה אפשר להבין?","אורי התכונן לשינה",["אורי סידר את המשחקים","אורי היה בבית","אורי התקלח"]]
+      ];
+      return questions.map(([q,correct,wrong])=>make(q,correct,shuffle([correct,...wrong]),"📖",{skill:"הסקת מסקנות",type:"רמזים מהטקסט"}));
+    }
     readingStories.forEach((story,i)=>{
       if(kind==="inference")out.push(make(`${story.text} מה אפשר להבין?`,story.inference,options(story.inference,story.inferenceOptions||[]), "📖",{skill:"הסקת מסקנות",type:"רמזים מהטקסט"}));
       if(kind==="findInfo")out.push(make(`${story.text} איזה פרט מופיע בטקסט?`,story.info,options(story.info,readingStories.map(x=>x.info)),"📖",{skill:"איתור מידע",type:"מוצאים פרט"}));

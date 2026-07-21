@@ -5,7 +5,7 @@ const CORE_FILES = [
   "./styles.css?build=local191",
   "./games.js?build=local191",
   "./app.js?build=local191",
-  "./manifest.webmanifest?v=0.1.18",
+  "./manifest.webmanifest?v=0.1.19",
   "./assets/app-icon-192.png",
   "./assets/app-icon-512.png",
   "./assets/app-icon-star-forest.png",
