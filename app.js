@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.19";
+const APP_VERSION = "0.1.20";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
 const INTRO_STEPS = [
@@ -1173,6 +1173,7 @@ function renderQuestion(){
     $("#questionVisual").appendChild(listen);
   }
   $("#feedback").className="feedback"; $("#feedback").textContent="";
+  $("#answerReveal").className="answer-reveal"; $("#answerReveal").textContent="";
   $("#explanation").className="explanation"; $("#explanation").textContent="";
   $(".pip-corner").innerHTML=`<span class="pip-buddy">${escapeHtml(p.buddy)}</span>${gameBuddyAccessoryMarkup(p)}`;
   renderGameBuddyPanel();
@@ -1321,8 +1322,15 @@ function answer(value,button){
     $("#explanation").textContent=`התשובה הנכונה: ${q.correct}`;
     $("#explanation").className="explanation show";
   }
+  showAnswerReveal(value,q,right);
   save();
-  setTimeout(()=>{session.index++;session.index<session.questions.length?renderQuestion():finishGame()},right?1050:4000);
+  setTimeout(()=>{session.index++;session.index<session.questions.length?renderQuestion():finishGame()},2600);
+}
+
+function showAnswerReveal(value,q,right){
+  const direction=session.subject==="english"?"ltr":"rtl";
+  $("#answerReveal").className=`answer-reveal ${right?"good":"bad"}`;
+  $("#answerReveal").innerHTML=`<b>${right?"נכון!":"כמעט!"}</b><span>התשובה שלכם: <bdi dir="${direction}">${escapeHtml(value)}</bdi></span><span>התשובה הנכונה: <bdi dir="${direction}">${escapeHtml(q.correct)}</bdi></span>`;
 }
 
 function revealCorrectAnswer(q){

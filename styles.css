@@ -354,6 +354,10 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .answer-btn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:clip!important;overflow-wrap:normal;word-break:keep-all;direction:rtl;unicode-bidi:plaintext}
 .answer-btn.text-answer{font-size:23px}
 .answer-btn.fit-text-answer{padding-inline:8px}
+.answer-reveal{display:none;max-width:620px;margin:12px auto 0;padding:10px 14px;border-radius:14px;gap:5px 16px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:14px;font-weight:800;line-height:1.45}
+.answer-reveal.good{display:flex;background:#e6f8ef;color:#176a4d}
+.answer-reveal.bad{display:flex;background:#fff0ed;color:#9d3d34}
+.answer-reveal span{padding-inline:7px;border-inline-start:1px solid currentColor}
 
 /* Player photo: a small local-only portrait in the header and profile form. */
 .mini-avatar.has-photo,.profile-photo-preview.has-photo{overflow:hidden;background:#edf5ff}
