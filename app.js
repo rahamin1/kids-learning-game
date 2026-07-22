@@ -1,6 +1,17 @@
-const APP_VERSION = "0.1.21";
+const APP_VERSION = "0.1.22";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
+const CORRECT_FEEDBACK_LINES = [
+  "כל הכבוד! ⭐",
+  "נכון מאוד! 👏",
+  "מצוין! 🌟",
+  "נהדר! 🎉",
+  "תשובה מעולה! 🏆",
+  "צדקת! 💡",
+  "איזה אלוף/ה! 🥳",
+  "פגעת בול! 🎯",
+  "מעולה, ממשיכים! 🚀"
+];
 const INTRO_STEPS = [
   {icon:"🌟",image:"assets/app-icon-star-forest.png",tone:"forest",eyebrow:"ברוכים הבאים",title:"היער הזוהר מחכה לכם",text:"יוצאים להרפתקת למידה צבעונית וכיפית. בכל פעם משחקים קצת, מתקדמים קצת, ומגלים עוד מהיער."},
   {icon:"🏆",tone:"trophy",eyebrow:"כוכבים וגביעים",title:"אוספים כוכבים וזוכים בגביעים",text:"בכל משחק אוספים כוכבים. כל 100 כוכבים הופכים לגביע חדש, ואפשר להמשיך לאסוף עוד ועוד גביעים."},
@@ -558,6 +569,9 @@ function buddyLine(buddy,kind,salt=0){
   const lines=BUDDY_LINES[buddy]?.[kind]||BUDDY_LINES["🦊"][kind]||["מוכנים להרפתקה!"];
   return lines[Math.abs(salt)%lines.length];
 }
+function correctFeedbackLine(salt=0){
+  return CORRECT_FEEDBACK_LINES[Math.abs(salt)%CORRECT_FEEDBACK_LINES.length];
+}
 function renderGameBuddyPanel(){
   if(!$("#gameBuddyFriends"))return;
   const p=activeProfile(); if(!p)return;
@@ -867,9 +881,9 @@ function renderHero(){
   const p=activeProfile();
   const stars=p?.stars||0;
   const firstGoalProgress=Math.min(stars,STAR_GOAL)/STAR_GOAL;
-  // Reveal more light early in the journey: by roughly 25 stars the scene
-  // should already be recognisable, while a new adventure still feels dark.
-  const darkness=.55*Math.pow(1-firstGoalProgress,2)+.05;
+  // A new forest begins clearly dark, then brightens steadily as stars are
+  // collected. Keep a small shade even after the first goal is complete.
+  const darkness=.72*Math.pow(1-firstGoalProgress,2)+.08;
   const age=p?.age||3;
   const set=age>=6?BUDDY_IMAGES_OLDER:BUDDY_IMAGES;
   const image=set[p?.buddy]||set["🦊"];
@@ -1129,7 +1143,28 @@ function renderQuestion(){
   $("#gameLevel").textContent=`${session.game.name} · רמה ${session.level}`;
   $("#questionLabel").textContent=`${session.index+1} מתוך ${session.questions.length}`;
   $("#questionBar").style.width=`${session.index/session.questions.length*100}%`;
-  $("#questionType").textContent=q.type; $("#questionText").textContent=q.q;
+  $("#questionType").textContent=q.type;
+  const questionText=$("#questionText");
+  const questionLabel=String(q.q||"");
+  questionText.textContent=questionLabel;
+  questionText.dir=/[\u0590-\u05FF]/.test(questionLabel)?"rtl":"ltr";
+  // Keep Latin letters and their punctuation together inside a Hebrew question.
+  // For example, H? must stay at the end of the Hebrew sentence on Android.
+  if(questionText.dir==="rtl"){
+    const latinRun=/[A-Za-z0-9][A-Za-z0-9'._-]*[?!.,:;]?/g;
+    const fragment=document.createDocumentFragment();
+    let cursor=0,match;
+    while((match=latinRun.exec(questionLabel))){
+      fragment.append(document.createTextNode(questionLabel.slice(cursor,match.index)));
+      const isolated=document.createElement("bdi");
+      isolated.dir="ltr"; isolated.textContent=match[0]; fragment.append(isolated);
+      cursor=match.index+match[0].length;
+    }
+    if(cursor){
+      fragment.append(document.createTextNode(questionLabel.slice(cursor)));
+      questionText.replaceChildren(fragment);
+    }
+  }
   const isMathExpression=q.type==="חיסור"||q.type==="חיבור";
   if(isMathExpression){
     const values=(String(q.q||"").match(/\d+/g)||[]).map(Number);
@@ -1141,8 +1176,8 @@ function renderQuestion(){
         const token=document.createElement("span");
         token.dir="ltr"; token.textContent=String(part); equation.appendChild(token);
       });
-      $("#questionText").dir="ltr";
-      $("#questionText").replaceChildren(equation);
+      questionText.dir="ltr";
+      questionText.replaceChildren(equation);
     }
   }
   const isPictureChoice=session.game?.id==="drag-word-picture";
@@ -1150,7 +1185,7 @@ function renderQuestion(){
   // Word-building activities use a picture, so keep that picture visible.
   const hideCategoryVisual=q.type==="מיון מילים";
   $("#questionVisual").textContent=hideCategoryVisual || q.audio || q.patternTiles || q.clock || q.pictureMath || q.numberLine ? "" : (q.visual||"");
-  $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"")+(isMathExpression?" math-expression":"")+(q.type==="צלעות וקודקודים"?" shape-visual":"")+(isPictureChoice?" picture-choice-visual":"");
+  $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"")+(isMathExpression?" math-expression":"")+(q.type==="צלעות וקודקודים"?" shape-visual":"")+(q.shapeAnswers?" shape-question-visual":"")+(isPictureChoice?" picture-choice-visual":"");
   $("#questionVisual").dir=isMathExpression?"ltr":"auto";
   // Keep arithmetic as one isolated LTR unit. Separate number/operator spans
   // were still reordered by some Android browsers inside the Hebrew UI.
@@ -1245,6 +1280,7 @@ function renderQuestionInteraction(q){
   const answersAreIconOnly=q.a.every(answerIsIconOnly);
   const youngNatureImageAnswers=session.subject==="nature"&&activeProfile().age<=4&&answersAreIconOnly;
   grid.classList.toggle("object-grid-answers",Boolean(q.answerObjectGrid));
+  grid.classList.toggle("shape-answers",Boolean(q.shapeAnswers));
   grid.classList.toggle("image-answers",Boolean(q.imageAnswers)||youngNatureImageAnswers);
   grid.classList.toggle("scaled-image-answers",Boolean(q.answerScales));
   const imageLike=Boolean(q.imageAnswers)||youngNatureImageAnswers;
@@ -1339,7 +1375,7 @@ function answer(value,button){
       visual.textContent=q.visual.replace("_",q.correct);
       visual.classList.add("letter-revealed");
     }
-    $("#feedback").textContent=session.correct%2===0 ? buddyLine(p.buddy,"correct",p.correct+session.index) : "כן! בדיוק! ★";
+    $("#feedback").textContent=correctFeedbackLine(p.answered);
     $("#feedback").className="feedback good";
   } else {
     button.classList.add("wrong"); chime(false);

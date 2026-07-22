@@ -40,7 +40,10 @@ body{font-family:Heebo,system-ui,sans-serif}
 .math-equation span{display:block}
 .math-question-text{display:inline-flex;flex-direction:row;align-items:center;gap:.24em;direction:ltr!important;unicode-bidi:isolate-override;white-space:nowrap}
 .math-question-text span{display:block;direction:ltr!important;unicode-bidi:isolate-override}
-.question-visual.math-expression.no-visual{min-height:0!important;padding:0!important;margin:0!important}
+.question-visual.math-expression.no-visual{min-height:0!important;padding:0!important;margin:0 auto 18px!important}
+.game-card #questionText[dir="rtl"]{unicode-bidi:plaintext}
+.question-visual.shape-question-visual.no-visual{min-height:24px;padding:0;margin:0 auto 10px}
+.answer-grid.shape-answers .answer-btn{min-height:122px;font-size:clamp(72px,16vw,110px);line-height:1}
 .fraction-visual{min-height:140px;gap:10px;direction:ltr}
 .fraction-piece{width:42px;height:42px;border:3px solid var(--ink);background:#fff;border-radius:3px}
 .fraction-piece.filled{background:var(--fraction-color)}
@@ -423,7 +426,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 
 /* Smarter game spacing and larger visual choices when there is room. */
 .answer-grid{gap:13px}
-.question-visual.no-visual{min-height:150px;padding:18px 6px}
+.question-visual.no-visual{min-height:72px;padding:8px 6px}
 .question-visual.picture-choice-visual.no-visual{min-height:0;padding:0;margin:0}
 .answer-grid.picture-choice-grid{margin-top:18px}
 .answer-grid.picture-choice-grid .answer-btn{min-height:clamp(132px,19vw,164px);font-size:clamp(76px,11vw,108px);line-height:1}
@@ -439,7 +442,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   .picture-math-group{grid-template-columns:repeat(4,1fr);gap:5px 6px;max-width:210px}
   .picture-math-group span{font-size:42px}
   .picture-math-operator{font-size:48px}
-  .question-visual.no-visual{min-height:150px;padding:18px 8px}
+  .question-visual.no-visual{min-height:72px;padding:8px}
   .question-visual.picture-choice-visual.no-visual{min-height:0;padding:0}
   .answer-grid.picture-choice-grid{margin-top:16px}
   .answer-grid.picture-choice-grid .answer-btn{min-height:132px;font-size:clamp(72px,20vw,98px)}

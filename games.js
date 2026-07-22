@@ -265,7 +265,7 @@
   function shapeQuestions(level){
     const active=shapes.slice(0,clamp(3+Math.floor(level/2),3,shapes.length)),out=[];
     active.forEach(([icon,name,sides,corners])=>{
-      out.push(make(`איזו צורה היא ${name}?`,icon,options(icon,active.map(x=>x[0])),"",{skill:"צורות",type:"מזהים צורה"}));
+      out.push(make(`איזו צורה היא ${name}?`,icon,options(icon,active.map(x=>x[0])),"",{skill:"צורות",type:"מזהים צורה",shapeAnswers:true}));
       if(level>=4)out.push(make(`כמה צלעות יש ל${name}?`,String(sides),numberOptions(sides),icon,{skill:"צורות",type:"צלעות וקודקודים"}));
       if(level>=6)out.push(make(`כמה קודקודים יש ל${name}?`,String(corners),numberOptions(corners),icon,{skill:"צורות",type:"צלעות וקודקודים"}));
     });
