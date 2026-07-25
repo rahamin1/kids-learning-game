@@ -469,6 +469,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .contact-updates-choice{display:flex!important;align-items:flex-start;gap:10px;margin:14px 0!important;padding:13px 14px;border:1px solid #dce8f2;border-radius:14px;background:#f7fbff;color:var(--ink)!important;cursor:pointer}
 .contact-updates-choice input{width:18px!important;height:18px;margin:2px 0 0!important;accent-color:var(--blue)}
 .contact-updates-choice span{display:flex;flex-direction:column;gap:3px}.contact-updates-choice b{font-size:13px}.contact-updates-choice small,.updates-privacy{color:var(--muted);font-size:12px;line-height:1.45}.updates-modal{text-align:center}.updates-modal .outline-btn{margin-top:10px}
+.updates-direct-signup{display:block;margin:-4px 0 16px;padding:11px 13px;border-radius:13px;background:#eef7ff;color:var(--blue);font-size:13px;font-weight:900;text-decoration:none;text-align:center}.updates-direct-signup:hover{background:#dceeff}.updates-help-card{background:linear-gradient(135deg,#eef9ff,#fff)}.updates-signup-link{display:inline-block;margin-top:8px;text-decoration:none}
 
 /* Achievement tiers: compact enough for a small phone, celebratory at milestones. */
 .star-chip .star-symbol{color:var(--reward-color,#303842);text-shadow:0 0 8px var(--reward-glow,transparent)}
