@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.24-test.1";
+const APP_VERSION = "0.1.24-test.2";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -134,14 +134,14 @@ const STAR_GOAL = 20;
 const MEDAL_GOAL = 10;
 const REWARD_TIERS = [
   {min:0, name:"פחם", color:"#303842", glow:"rgba(48,56,66,.28)"},
-  {min:100, name:"כסף", color:"#aeb8c4", glow:"rgba(174,184,196,.42)"},
-  {min:200, name:"ברונזה", color:"#bd7850", glow:"rgba(189,120,80,.38)"},
-  {min:300, name:"זהב", color:"#e5ab1c", glow:"rgba(229,171,28,.42)"},
-  {min:400, name:"אמרלד", color:"#20a66d", glow:"rgba(32,166,109,.38)"},
-  {min:500, name:"ספיר", color:"#357bd8", glow:"rgba(53,123,216,.38)"},
-  {min:600, name:"אמטיסט", color:"#8b58c7", glow:"rgba(139,88,199,.4)"},
-  {min:800, name:"אודם", color:"#d94a4a", glow:"rgba(217,74,74,.38)"},
-  {min:1000, name:"אגדה", color:"#25b9b1", glow:"rgba(56,190,177,.48)"}
+  {min:20, name:"כסף", color:"#aeb8c4", glow:"rgba(174,184,196,.42)"},
+  {min:40, name:"ברונזה", color:"#bd7850", glow:"rgba(189,120,80,.38)"},
+  {min:60, name:"זהב", color:"#e5ab1c", glow:"rgba(229,171,28,.42)"},
+  {min:80, name:"אמרלד", color:"#20a66d", glow:"rgba(32,166,109,.38)"},
+  {min:100, name:"ספיר", color:"#357bd8", glow:"rgba(53,123,216,.38)"},
+  {min:120, name:"אמטיסט", color:"#8b58c7", glow:"rgba(139,88,199,.4)"},
+  {min:140, name:"אודם", color:"#d94a4a", glow:"rgba(217,74,74,.38)"},
+  {min:160, name:"אגדה", color:"#25b9b1", glow:"rgba(56,190,177,.48)"}
 ];
 const BUDDY_IMAGES = {
   "🦊": "assets/brightwood-fox.png",
