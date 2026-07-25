@@ -28,7 +28,7 @@
       </div>
       <div class="top-actions">
         <div class="streak-chip" title="רצף הרפתקאות"><span>🔥</span><b class="streak-text" id="streakText">0 ימים ברצף</b></div>
-        <div class="star-chip" title="כוכבים, מדליות וגביעים"><span class="star-symbol">★</span><b id="starCount">0</b><span class="reward-divider"></span><span class="medal-symbol">🏅</span><b id="headerMedalCount">0</b><span class="reward-divider"></span><span class="trophy-symbol">🏆</span><b id="headerTrophyCount">0</b></div>
+        <div class="star-chip" title="כוכבים, מדליות וגביעים"><span class="star-symbol">★</span><b id="starCount">0</b><span class="reward-divider"></span><span class="award-icon medal-symbol" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M12 3h11l2 14-9 6L8 8zM36 3H25l-2 14 9 6 8-15z"/><circle cx="24" cy="29" r="14"/><path class="award-cutout" d="m24 20 2.5 5 5.5.8-4 3.9.9 5.5-4.9-2.6-4.9 2.6.9-5.5-4-3.9 5.5-.8z"/></svg></span><b id="headerMedalCount">0</b><span class="reward-divider"></span><span class="award-icon trophy-symbol" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M13 5h22v7h7v4c0 7-4.8 11-11 11.7A12 12 0 0 1 27 33v5h8v6H13v-6h8v-5a12 12 0 0 1-4-5.3C10.8 27 6 23 6 16v-4h7zm0 11c0 3.4 1.9 5.5 4.9 6.5A13.2 13.2 0 0 1 17 16zm22 0c0 2.2-.3 4.4-.9 6.5 3-1 4.9-3.1 4.9-6.5z"/></svg></span><b id="headerTrophyCount">0</b></div>
         <button class="icon-btn sound-toggle" aria-label="הפעלת או השתקת צלילים"></button>
         <button class="icon-btn header-tool" id="headerProgressButton" aria-label="צפייה בהתקדמות" title="צפייה בהתקדמות"><span class="magic-icon magic-progress" aria-hidden="true"><i></i><i></i><i></i></span></button>
         <button class="icon-btn header-tool" id="headerSettingsButton" aria-label="הגדרות" title="הגדרות"><span class="magic-icon magic-settings" aria-hidden="true"></span></button>
@@ -54,8 +54,8 @@
               <button class="round-btn" id="randomButton" aria-label="הפתיעו אותי">✦</button>
             </div>
             <div class="goal-progress">
-              <div><span>🏆 היעד הבא</span><b id="homeGoalLabel">100 כוכבים</b></div>
-              <strong id="homeGoalCount">0 / 100</strong>
+              <div><span id="homeGoalEyebrow">🏅 היעד הבא · 🏆 גביע כל 100 כוכבים</span><b id="homeGoalLabel">מדליה ב־25 כוכבים</b></div>
+              <strong id="homeGoalCount">0 / 25</strong>
               <div class="bar"><i id="homeGoalBar"></i></div>
             </div>
           </div>
@@ -133,7 +133,7 @@
           </div>
           <article class="panel trophy-panel">
             <div class="trophy-stack"><b id="trophyCount">0</b><span>🏆</span></div>
-            <div class="trophy-copy"><span class="eyebrow blue">יעד הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 100 כוכבים והגביע הראשון שלכם!</p><small class="medal-total" id="dashboardMedalCount">🏅 0 מדליות</small><div class="bar"><i id="trophyBar"></i></div></div>
+            <div class="trophy-copy"><span class="eyebrow blue">יעדי הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 100 כוכבים והגביע הראשון שלכם!</p><div class="reward-goals"><small class="medal-total" id="dashboardMedalCount">🏅 0 מדליות</small><small class="next-medal-goal" id="dashboardNextMedal">עוד 25 כוכבים למדליה הבאה</small></div><div class="bar"><i id="trophyBar"></i></div></div>
           </article>
           <article class="panel buddy-progress-panel">
             <div class="buddy-progress-icon" id="dashboardBuddyIcon">🦊</div>
@@ -221,9 +221,7 @@
 
             <article class="panel help-card"><span class="help-icon">🎮</span><div><h2>משחקים ורמות</h2><p>לכל משחק יש תשע רמות קושי. נקודת ההתחלה נקבעת לפי גיל הילד.</p><p>במסך ההגדרות אפשר לבחור לכל משחק <b>קל יותר</b>, <b>מתאים</b> או <b>קשה יותר</b>. ברמה הראשונה או התשיעית האפשרות שאינה זמינה תופיע מעומעמת.</p></div></article>
 
-            <article class="panel help-card reward-help-card"><span class="help-icon">⭐</span><div><h2>כוכבים וגביעים</h2><p>המטרה במשחק היא לאסוף 100 כוכבים. כשמגיעים ל־100 כוכבים זוכים בגביע!</p><p>אפשר להמשיך ל־200 כוכבים כדי לזכות בגביע נוסף, וכן הלאה. בראש המסך מוצגים מספר הכוכבים ומספר הגביעים של הילד.</p><div class="help-reward-example"><span>★</span><b>108</b><i></i><span>🏆</span><b>1</b></div></div></article>
-
-            <article class="panel help-card"><span class="help-icon">🏆</span><div><h2>הדרך לגביע הבא</h2><p>במסך ההתקדמות מוצג כמה כוכבים חסרים עד לגביע הבא. לדוגמה: לאחר איסוף 108 כוכבים יוצגו גביע אחד והתקדמות של 8 מתוך 100 לקראת הגביע השני.</p></div></article>
+            <article class="panel help-card reward-help-card"><span class="help-icon">⭐</span><div><h2>כוכבים, מדליות וגביעים</h2><p>על כל 25 כוכבים מקבלים מדליה חדשה. על כל 100 כוכבים מקבלים גם גביע חדש.</p><p>הצבע של הכוכבים, המדליות והגביעים מציג את דרגת ההתקדמות: מתחילים בפחם, ובהמשך מגיעים לכסף, ברונזה, זהב, אמרלד, ספיר, אמטיסט, אודם ולבסוף לדרגת אגדה.</p><p>כאשר מגיעים למדליה, גביע או צבע חדש, מופיעה אנימציית הישג קצרה וחגיגית.</p><div class="help-reward-example"><span>★</span><b>108</b><i></i><span>🏅</span><b>4</b><i></i><span>🏆</span><b>1</b></div></div></article>
 
             <article class="panel help-card"><span class="help-icon">🔥</span><div><h2>רצף ימי תרגול</h2><p>סמל האש מציג כמה ימים ברצף תרגל הילד באפליקציה. תרגול קצר בכל יום עוזר לשמור על הרצף ולחזק את מה שנלמד.</p></div></article>
 
@@ -268,7 +266,7 @@
               <label>כתובת מייל
                 <input id="contactEmail" name="email" type="email" autocomplete="email" placeholder="name@example.com">
               </label>
-              <label class="contact-updates-choice"><input id="contactUpdates" name="updates" type="checkbox"><span><b>אפשר לשלוח לי עדכונים על היער הזוהר ועל משחקים נוספים, אם יהיו כאלה.</b><small>נשתמש בכתובת המייל רק לעדכונים האלה. אפשר לבקש להסיר את הכתובת בכל עת.</small></span></label>
+              <label class="contact-updates-choice"><input id="contactUpdates" name="updates" type="checkbox"><span><b>אפשר לשלוח לי עדכונים על היער הזוהר ועל משחקים נוספים, אם יהיו כאלה.</b><small>לאחר שליחת ההודעה ייפתח עמוד הרשמה מאובטח. אפשר לבקש להסיר את הכתובת בכל עת.</small></span></label>
               <label class="contact-message-label">מה תרצו לכתוב לנו?
                 <textarea id="contactMessage" name="message" rows="8" placeholder="כתבו כאן הערה, בקשה או תיאור של שגיאה שמצאתם במשחק"></textarea>
               </label>
@@ -388,7 +386,7 @@
       <div class="modal difficulty-prompt-modal">
         <div class="difficulty-prompt-icon" id="difficultyPromptIcon">🚀</div>
         <span class="eyebrow blue" id="difficultyPromptEyebrow">מוכנים לאתגר חדש?</span>
-        <h2 id="difficultyPromptTitle">שיחקת מושלם 5 פעמים!</h2>
+        <h2 id="difficultyPromptTitle">שיחקת מצוין 4 פעמים!</h2>
         <p id="difficultyPromptText">רוצה לעלות רמה במשחק הזה?</p>
         <button class="primary-btn full" id="difficultyPromptAccept" type="button">כן, לעלות רמה</button>
         <button class="outline-btn full" id="difficultyPromptDecline" type="button">לא עכשיו</button>

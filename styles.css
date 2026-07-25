@@ -472,7 +472,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 
 /* Achievement tiers: compact enough for a small phone, celebratory at milestones. */
 .star-chip .star-symbol{color:var(--reward-color,#303842);text-shadow:0 0 8px var(--reward-glow,transparent)}
-.star-chip .medal-symbol,.star-chip .trophy-symbol{filter:drop-shadow(0 0 5px var(--reward-glow,transparent))}
+.star-chip .award-icon{display:grid;place-items:center;width:21px;height:21px;color:var(--reward-color,#303842);filter:drop-shadow(0 0 5px var(--reward-glow,transparent))}.star-chip .award-icon svg{width:100%;height:100%;fill:currentColor}.star-chip .award-icon .award-cutout{fill:#fff8db}
 .milestone-modal{text-align:center;overflow:hidden;background:radial-gradient(circle at top,color-mix(in srgb,var(--reward-color,#e5ab1c) 16%,#fff),#fff 58%)}
 .achievement-rewards{display:flex;justify-content:center;align-items:stretch;gap:9px;margin:15px 0 12px}
 .achievement-reward{flex:1;min-width:0;border:2px solid color-mix(in srgb,var(--reward-color,#e5ab1c) 55%,#fff);border-radius:17px;background:#fff;padding:10px 5px;box-shadow:0 7px 14px var(--reward-glow,rgba(229,171,28,.18));animation:achievementPop .55s cubic-bezier(.2,1.35,.45,1) both}
@@ -480,6 +480,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .achievement-reward span{display:block;font-size:43px;line-height:1.05;filter:drop-shadow(0 3px 3px var(--reward-glow,transparent))}
 .achievement-reward b{display:block;margin-top:6px;font-size:11px;line-height:1.2;color:var(--blue-dark)}
 .trophy-panel{border:2px solid color-mix(in srgb,var(--reward-color,#303842) 32%,#fff)}.medal-total{display:block;margin:-4px 0 10px;color:var(--reward-color,#303842);font-weight:900}
+.reward-goals{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-4px 0 10px}.reward-goals .medal-total{margin:0}.next-medal-goal{color:#536b82;font-size:12px;font-weight:800}
 .difficulty-prompt-modal{text-align:center}.difficulty-prompt-icon{display:grid;place-items:center;width:82px;height:82px;margin:0 auto 12px;border-radius:26px;background:#eaf3ff;font-size:43px;box-shadow:0 8px 0 #d4e3f4}.difficulty-prompt-modal h2{font-size:31px}.difficulty-prompt-modal p{font-size:15px!important;margin:10px auto 20px}.difficulty-prompt-modal .outline-btn{margin-top:11px}
 @keyframes achievementPop{from{opacity:0;transform:translateY(18px) scale(.7)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:520px){.achievement-rewards{gap:6px}.achievement-reward{padding:8px 3px;border-radius:14px}.achievement-reward span{font-size:36px}.achievement-reward b{font-size:10px}.milestone-modal h2{font-size:31px}}

@@ -1,5 +1,6 @@
-const APP_VERSION = "0.1.23";
+const APP_VERSION = "0.1.24";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
+const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
 const CORRECT_FEEDBACK_LINES = [
   "כל הכבוד! ⭐",
@@ -14,7 +15,7 @@ const CORRECT_FEEDBACK_LINES = [
 ];
 const INTRO_STEPS = [
   {icon:"🌟",image:"assets/app-icon-star-forest.png",tone:"forest",eyebrow:"ברוכים הבאים",title:"היער הזוהר מחכה לכם",text:"יוצאים להרפתקת למידה צבעונית וכיפית. בכל פעם משחקים קצת, מתקדמים קצת, ומגלים עוד מהיער."},
-  {icon:"🏆",tone:"trophy",eyebrow:"כוכבים וגביעים",title:"אוספים כוכבים וזוכים בגביעים",text:"בכל משחק אוספים כוכבים. כל 100 כוכבים הופכים לגביע חדש, ואפשר להמשיך לאסוף עוד ועוד גביעים."},
+  {icon:"🏆",tone:"trophy",eyebrow:"כוכבים, מדליות וגביעים",title:"אוספים כוכבים וזוכים בהישגים",text:"בכל משחק אוספים כוכבים. כל 25 כוכבים מקבלים מדליה, וכל 100 כוכבים זוכים בגביע חדש. אפשר להמשיך לאסוף עוד ועוד הישגים."},
   {icon:"🦊",tone:"buddy",eyebrow:"חברי מסע",title:"בוחרים חבר שמלווה את ההרפתקה",text:"בתחילת הדרך בוחרים חבר למסע. בהמשך מתגלים חברים נוספים, וכל ילד יכול לבחור מי יצא איתו למסע ולהחליף חבר בדרך."},
   {icon:"⚙️",tone:"settings",eyebrow:"מתאים לכל ילד",title:"אפשר להתאים נושאים ורמות קושי",text:"אפשר לבחור נושאים, להסתיר משחקים, ולהעלות או להוריד רמת קושי לפי מה שמתאים לילד."},
   {icon:"📲",tone:"install",eyebrow:"פותחים בקלות",title:"אפשר להתקין את המשחק",text:"בהגדרות אפשר להתקין את היער הזוהר על המכשיר, כדי לפתוח אותו בקלות כמו אפליקציה. אפשר לעשות זאת גם אחר כך."}
@@ -877,10 +878,11 @@ function renderAll(){
   const today=p?.dailyDate===new Date().toDateString()?p.daily||0:0;
   $("#dailyDone").textContent=`${Math.min(today,3)} / 3`;
   $("#dailyBar").style.width=`${Math.min(today/3*100,100)}%`;
-  const nextGoal=nextStarGoal(p),cycleStars=goalCycleProgress(p);
-  $("#homeGoalLabel").textContent=`${nextGoal} כוכבים`;
-  $("#homeGoalCount").textContent=`${cycleStars} / ${STAR_GOAL}`;
-  $("#homeGoalBar").style.width=`${cycleStars}%`;
+  const nextMedalGoal=(medals+1)*MEDAL_GOAL,medalCycle=(p?.stars||0)%MEDAL_GOAL;
+  $("#homeGoalEyebrow").textContent="🏅 היעד הבא · 🏆 גביע כל 100 כוכבים";
+  $("#homeGoalLabel").textContent=`מדליה ב־${nextMedalGoal} כוכבים`;
+  $("#homeGoalCount").textContent=`${medalCycle} / ${MEDAL_GOAL}`;
+  $("#homeGoalBar").style.width=`${medalCycle/MEDAL_GOAL*100}%`;
   const heroBuddyProfile=p ? (BUDDY_PROFILES[p.buddy]||{name:BUDDY_TITLES[p.buddy]||"חבר המסע"}) : null;
   $("#heroBuddyText").textContent=p
     ? `בוחרים שביל, פותרים חידות ועוזרים ל${heroBuddyProfile.name} להאיר את היער הזוהר!`
@@ -1156,8 +1158,8 @@ function renderDifficultyPrompt(){
   if(!prompt)return;
   const nextLevel=prompt.currentLevel+(prompt.direction==="up"?1:-1);
   $("#difficultyPromptIcon").textContent=prompt.direction==="up"?"🚀":"🌱";
-  $("#difficultyPromptEyebrow").textContent=prompt.direction==="up"?"מוכנים לאתגר חדש?":"לומדים בקצב שמתאים לכם";
-  $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מושלם 5 פעמים!":"נראה שהמשחק קצת מאתגר עכשיו.";
+  $("#difficultyPromptEyebrow").textContent=prompt.direction==="up"?"מוכנים לאתגר חדש?":"משחקים בקצב שמתאים לכם";
+  $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מצוין 4 פעמים!":"נראה שהמשחק קצת מאתגר עכשיו.";
   $("#difficultyPromptText").textContent=prompt.direction==="up"
     ? `רוצה לעלות לרמה ${nextLevel} במשחק „${prompt.gameName}”?`
     : `רוצה לנסות רמה ${nextLevel} במשחק „${prompt.gameName}”?`;
@@ -1504,12 +1506,12 @@ function finishGame(){
   const prog=p.progress[key]; prog.completed++; prog.correct+=session.correct; prog.total+=session.questions.length;
   const gameProg=p.gameProgress[session.gameId]||={completed:0,correct:0,total:0};
   gameProg.completed++; gameProg.correct+=session.correct; gameProg.total+=session.questions.length;
-  const perfectGame=session.correct===session.questions.length;
+  const strongGame=session.correct>=4;
   const challengingGame=session.correct<=1;
-  gameProg.perfectStreak=perfectGame?(gameProg.perfectStreak||0)+1:0;
+  gameProg.perfectStreak=strongGame?(gameProg.perfectStreak||0)+1:0;
   gameProg.challengeStreak=challengingGame?(gameProg.challengeStreak||0)+1:0;
   const currentLevel=p.gameLevels[session.gameId]||session.level;
-  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%5===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<9;
+  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%4===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<9;
   const easierLevelDue=gameProg.challengeStreak>0&&gameProg.challengeStreak%3===0&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1;
   if(promotionDue){
     gameProg.lastPromotionPrompt=gameProg.perfectStreak;
@@ -1559,9 +1561,12 @@ function renderDashboard(){
   $("#dashAccuracy").textContent=p.answered?Math.round(p.correct/p.answered*100)+"%":"—";
   $("#dashTime").textContent=p.minutes+" דקות";
   const trophies=trophyCount(p),cycleStars=goalCycleProgress(p),remaining=STAR_GOAL-cycleStars;
+  const medals=medalCount(p),nextMedal=(medals+1)*MEDAL_GOAL,medalRemaining=nextMedal-p.stars;
   $("#trophyCount").textContent=trophies;
   $("#trophyTitle").textContent=trophies?(trophies===1?"יש לי גביע אחד!":`יש לי ${trophies} גביעים!`):"בדרך לגביע הראשון";
   $("#trophyText").textContent=`עוד ${remaining} ${remaining===1?"כוכב":"כוכבים"} לגביע הבא.`;
+  $("#dashboardMedalCount").textContent=`🏅 ${medals} ${medals===1?"מדליה":"מדליות"}`;
+  $("#dashboardNextMedal").textContent=`עוד ${medalRemaining} ${medalRemaining===1?"כוכב":"כוכבים"} למדליה הבאה`;
   $("#trophyBar").style.width=`${cycleStars}%`;
   const buddyProfile=BUDDY_PROFILES[p.buddy]||{name:BUDDY_TITLES[p.buddy]||"החבר למסע",trait:"ממשיך איתכם בהרפתקה",ability:"התמדה"};
   $("#dashboardBuddyIcon").textContent=p.buddy;
@@ -1919,9 +1924,10 @@ function bindEvents(){
       });
       if(!response.ok)throw new Error(`Formspree ${response.status}`);
       form.reset();
-      status.textContent="תודה! ההודעה נשלחה אלינו.";
+      status.textContent=updates?"תודה! פותחים את עמוד ההרשמה לעדכונים.":"תודה! ההודעה נשלחה אלינו.";
       status.className="contact-status success";
       trackEvent("feedback_submitted");
+      if(updates)setTimeout(()=>{window.location.href=UPDATES_SIGNUP_PAGE},450);
     }catch(err){
       status.textContent="לא הצלחנו לשלוח כרגע. נסו שוב בעוד רגע.";
       status.className="contact-status error";
@@ -1944,7 +1950,7 @@ function bindEvents(){
     throw new Error("Legacy mail fallback disabled");
   };
   $("#milestoneUpdatesButton").onclick=()=>{closeModal("milestoneModal");openModal("updatesModal")};
-  $("#updatesSignupButton").onclick=()=>{closeModal("updatesModal");$("#contactUpdates").checked=true;showScreen("contactScreen");$("#contactEmail").focus()};
+  $("#updatesSignupButton").onclick=()=>{window.location.href=UPDATES_SIGNUP_PAGE};
   $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&m.id!=="introModal"&&m.id!=="analyticsConsentModal"&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
 }
 
