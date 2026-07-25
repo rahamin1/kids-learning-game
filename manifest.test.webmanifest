@@ -1,0 +1,18 @@
+{
+  "name": "היער הזוהר – גרסת בדיקה",
+  "short_name": "היער · בדיקה",
+  "description": "גרסת הבדיקה של משחקי היער הזוהר",
+  "lang": "he",
+  "dir": "rtl",
+  "id": "./?build=test",
+  "start_url": "./?build=test",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fff4f4",
+  "theme_color": "#a6222d",
+  "categories": ["education", "games", "kids"],
+  "icons": [
+    {"src":"assets/app-icon-test.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}

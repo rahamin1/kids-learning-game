@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="היער הזוהר - גרסת בדיקה">
+  <rect width="512" height="512" rx="112" fill="#a6222d"/>
+  <rect x="38" y="38" width="436" height="436" rx="88" fill="#d83b46" stroke="#fff" stroke-width="18"/>
+  <path d="M256 108 285 194l91 1-74 54 28 87-74-53-74 53 28-87-74-54 91-1z" fill="#ffe066" stroke="#8a1720" stroke-width="14" stroke-linejoin="round"/>
+  <rect x="92" y="350" width="328" height="72" rx="30" fill="#fff"/>
+  <text x="256" y="398" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#a6222d">TEST</text>
+</svg>

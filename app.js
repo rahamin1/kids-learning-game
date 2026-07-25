@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.24";
+const APP_VERSION = "0.1.24-test";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -20,6 +20,10 @@ const INTRO_STEPS = [
   {icon:"⚙️",tone:"settings",eyebrow:"מתאים לכל ילד",title:"אפשר להתאים נושאים ורמות קושי",text:"אפשר לבחור נושאים, להסתיר משחקים, ולהעלות או להוריד רמת קושי לפי מה שמתאים לילד."},
   {icon:"📲",tone:"install",eyebrow:"פותחים בקלות",title:"אפשר להתקין את המשחק",text:"בהגדרות אפשר להתקין את היער הזוהר על המכשיר, כדי לפתוח אותו בקלות כמו אפליקציה. אפשר לעשות זאת גם אחר כך."}
 ];
+
+if (APP_VERSION.endsWith("-test")) {
+  INTRO_STEPS[1].text = "בגרסת הבדיקה, כל 10 כוכבים מקבלים מדליה וכל 20 כוכבים זוכים בגביע חדש.";
+}
 
 const SUBJECTS = {
   math: { name: "חשבון", icon: "🔢", class: "math", desc: "סופרים, משווים ופותרים", trail: "אחו המספרים" },
@@ -126,8 +130,8 @@ const TROPHY_UPGRADE_TIERS = ["שדרוג זהב","שדרוג כוכבים","ש�
 const TROPHY_ACCESSORIES = ["🎒 תרמיל מסע","🧢 כובע הרפתקה","🧣 צעיף זוהר","🔭 משקפת כוכבים","👑 כתר היער","🧭 מצפן קסום","☀️ אבקת אור","💎 אבן זוהרת"];
 const MILESTONE_TITLES = ["היער כולו זוהר!","עוד שביל נפתח באור!","הכוכבים הובילו לגביע!","קסם חדש התעורר ביער!","הרפתקה נהדרת הושלמה!","היער חוגג איתכם!"];
 const SAMPLE_NAMES = ["הראל","גבע","גוני","ים"];
-const STAR_GOAL = 100;
-const MEDAL_GOAL = 25;
+const STAR_GOAL = 20;
+const MEDAL_GOAL = 10;
 const REWARD_TIERS = [
   {min:0, name:"פחם", color:"#303842", glow:"rgba(48,56,66,.28)"},
   {min:100, name:"כסף", color:"#aeb8c4", glow:"rgba(174,184,196,.42)"},
@@ -879,10 +883,12 @@ function renderAll(){
   $("#dailyDone").textContent=`${Math.min(today,3)} / 3`;
   $("#dailyBar").style.width=`${Math.min(today/3*100,100)}%`;
   const nextMedalGoal=(medals+1)*MEDAL_GOAL,medalCycle=(p?.stars||0)%MEDAL_GOAL;
-  $("#homeGoalEyebrow").textContent="🏅 היעד הבא · 🏆 גביע כל 100 כוכבים";
+  $("#homeGoalEyebrow").textContent="🏅 היעד הבא · 🏆 גביע כל 20 כוכבים";
   $("#homeGoalLabel").textContent=`מדליה ב־${nextMedalGoal} כוכבים`;
   $("#homeGoalCount").textContent=`${medalCycle} / ${MEDAL_GOAL}`;
   $("#homeGoalBar").style.width=`${medalCycle/MEDAL_GOAL*100}%`;
+  const rewardHelp=$("#helpScreen .reward-help-card p");
+  if(rewardHelp)rewardHelp.textContent="בגרסת הבדיקה, על כל 10 כוכבים מקבלים מדליה חדשה. על כל 20 כוכבים מקבלים גם גביע חדש.";
   const heroBuddyProfile=p ? (BUDDY_PROFILES[p.buddy]||{name:BUDDY_TITLES[p.buddy]||"חבר המסע"}) : null;
   $("#heroBuddyText").textContent=p
     ? `בוחרים שביל, פותרים חידות ועוזרים ל${heroBuddyProfile.name} להאיר את היער הזוהר!`

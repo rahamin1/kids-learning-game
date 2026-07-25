@@ -3,27 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#185abd">
+  <meta name="theme-color" content="#a6222d">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="היער הזוהר">
-  <title>ההרפתקה ביער הזוהר</title>
-  <link rel="icon" type="image/png" href="assets/app-icon-star-forest.png">
-  <link rel="apple-touch-icon" href="assets/app-icon-star-forest.png">
-  <link rel="manifest" href="manifest.webmanifest?v=0.1.23">
+  <meta name="apple-mobile-web-app-title" content="היער הזוהר · בדיקה">
+  <title>גרסת בדיקה | ההרפתקה ביער הזוהר</title>
+  <link rel="icon" type="image/svg+xml" href="assets/app-icon-test.svg">
+  <link rel="apple-touch-icon" href="assets/app-icon-test.svg">
+  <link rel="manifest" href="manifest.test.webmanifest?v=0.1.24-test">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css?build=local195">
 </head>
-<body>
+<body class="test-build">
   <div id="app">
     <header class="topbar">
       <div class="brand-group">
         <button class="brand" data-go="home" aria-label="חזרה לבית">
-          <span class="brand-mark"><img src="assets/app-icon-star-forest.png" alt=""></span>
+          <span class="brand-mark"><img src="assets/app-icon-test.svg" alt=""></span>
           <span>היער <b>הזוהר</b></span>
         </button>
+        <span class="test-build-badge">גרסת בדיקה</span>
         <span class="header-version"><span class="version-label">גרסה </span><span id="appVersion"></span></span>
       </div>
       <div class="top-actions">
@@ -54,8 +55,8 @@
               <button class="round-btn" id="randomButton" aria-label="הפתיעו אותי">✦</button>
             </div>
             <div class="goal-progress">
-              <div><span id="homeGoalEyebrow">🏅 היעד הבא · 🏆 גביע כל 100 כוכבים</span><b id="homeGoalLabel">מדליה ב־25 כוכבים</b></div>
-              <strong id="homeGoalCount">0 / 25</strong>
+              <div><span id="homeGoalEyebrow">🏅 היעד הבא · 🏆 גביע כל 20 כוכבים</span><b id="homeGoalLabel">מדליה ב־10 כוכבים</b></div>
+              <strong id="homeGoalCount">0 / 10</strong>
               <div class="bar"><i id="homeGoalBar"></i></div>
             </div>
           </div>
@@ -133,7 +134,7 @@
           </div>
           <article class="panel trophy-panel">
             <div class="trophy-stack"><b id="trophyCount">0</b><span>🏆</span></div>
-            <div class="trophy-copy"><span class="eyebrow blue">יעדי הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 100 כוכבים והגביע הראשון שלכם!</p><div class="reward-goals"><small class="medal-total" id="dashboardMedalCount">🏅 0 מדליות</small><small class="next-medal-goal" id="dashboardNextMedal">עוד 25 כוכבים למדליה הבאה</small></div><div class="bar"><i id="trophyBar"></i></div></div>
+            <div class="trophy-copy"><span class="eyebrow blue">יעדי הכוכבים · בדיקה</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 20 כוכבים והגביע הראשון שלכם!</p><div class="reward-goals"><small class="medal-total" id="dashboardMedalCount">🏅 0 מדליות</small><small class="next-medal-goal" id="dashboardNextMedal">עוד 10 כוכבים למדליה הבאה</small></div><div class="bar"><i id="trophyBar"></i></div></div>
           </article>
           <article class="panel buddy-progress-panel">
             <div class="buddy-progress-icon" id="dashboardBuddyIcon">🦊</div>
