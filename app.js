@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.24-test.4";
+const APP_VERSION = "0.1.24-test.5";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -22,7 +22,7 @@ const INTRO_STEPS = [
 ];
 
 if (APP_VERSION.endsWith("-test")) {
-  INTRO_STEPS[1].text = "בגרסת הבדיקה, כל 10 כוכבים מקבלים מדליה וכל 20 כוכבים זוכים בגביע חדש.";
+  INTRO_STEPS[1].text = "בגרסת הבדיקה, כל 10 כוכבים מקבלים מדליה וכל 20 כוכבים זוכים בגביע חדש. בכל זכייה בגביע, צבע הכוכבים, המדליות והגביעים משתנה.";
 }
 
 const SUBJECTS = {
@@ -888,7 +888,7 @@ function renderAll(){
   $("#homeGoalCount").textContent=`${medalCycle} / ${MEDAL_GOAL}`;
   $("#homeGoalBar").style.width=`${medalCycle/MEDAL_GOAL*100}%`;
   const rewardHelp=$("#helpScreen .reward-help-card p");
-  if(rewardHelp)rewardHelp.textContent="בגרסת הבדיקה, על כל 10 כוכבים מקבלים מדליה חדשה. על כל 20 כוכבים מקבלים גם גביע חדש.";
+  if(rewardHelp)rewardHelp.textContent="בגרסת הבדיקה, על כל 10 כוכבים מקבלים מדליה חדשה ועל כל 20 כוכבים מקבלים גם גביע חדש. בכל זכייה בגביע משתנה גם צבע הכוכבים, המדליות והגביעים.";
   const heroBuddyProfile=p ? (BUDDY_PROFILES[p.buddy]||{name:BUDDY_TITLES[p.buddy]||"חבר המסע"}) : null;
   $("#heroBuddyText").textContent=p
     ? `בוחרים שביל, פותרים חידות ועוזרים ל${heroBuddyProfile.name} להאיר את היער הזוהר!`
@@ -1165,7 +1165,7 @@ function renderDifficultyPrompt(){
   const nextLevel=prompt.currentLevel+(prompt.direction==="up"?1:-1);
   $("#difficultyPromptIcon").textContent=prompt.direction==="up"?"🚀":"🌱";
   $("#difficultyPromptEyebrow").textContent=prompt.direction==="up"?"מוכנים לאתגר חדש?":"משחקים בקצב שמתאים לכם";
-  $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מצוין 4 פעמים!":"נראה שהמשחק קצת מאתגר עכשיו.";
+  $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מושלם פעמיים!":"נראה שהמשחק קצת מאתגר עכשיו.";
   $("#difficultyPromptText").textContent=prompt.direction==="up"
     ? `רוצה לעלות לרמה ${nextLevel} במשחק „${prompt.gameName}”?`
     : `רוצה לנסות רמה ${nextLevel} במשחק „${prompt.gameName}”?`;
@@ -1512,13 +1512,13 @@ function finishGame(){
   const prog=p.progress[key]; prog.completed++; prog.correct+=session.correct; prog.total+=session.questions.length;
   const gameProg=p.gameProgress[session.gameId]||={completed:0,correct:0,total:0};
   gameProg.completed++; gameProg.correct+=session.correct; gameProg.total+=session.questions.length;
-  const strongGame=session.correct>=4;
+  const strongGame=session.correct===session.questions.length;
   const challengingGame=session.correct<=1;
   gameProg.perfectStreak=strongGame?(gameProg.perfectStreak||0)+1:0;
   gameProg.challengeStreak=challengingGame?(gameProg.challengeStreak||0)+1:0;
   const currentLevel=p.gameLevels[session.gameId]||session.level;
-  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%4===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<9;
-  const easierLevelDue=gameProg.challengeStreak>0&&gameProg.challengeStreak%3===0&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1;
+  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%2===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<9;
+  const easierLevelDue=challengingGame&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1;
   if(promotionDue){
     gameProg.lastPromotionPrompt=gameProg.perfectStreak;
     session.pendingDifficultyPrompt={direction:"up",gameId:session.gameId,gameName:session.game.name,currentLevel};
