@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.22";
+const APP_VERSION = "0.1.23";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
 const CORRECT_FEEDBACK_LINES = [
@@ -126,6 +126,18 @@ const TROPHY_ACCESSORIES = ["🎒 תרמיל מסע","🧢 כובע הרפתקה
 const MILESTONE_TITLES = ["היער כולו זוהר!","עוד שביל נפתח באור!","הכוכבים הובילו לגביע!","קסם חדש התעורר ביער!","הרפתקה נהדרת הושלמה!","היער חוגג איתכם!"];
 const SAMPLE_NAMES = ["הראל","גבע","גוני","ים"];
 const STAR_GOAL = 100;
+const MEDAL_GOAL = 25;
+const REWARD_TIERS = [
+  {min:0, name:"פחם", color:"#303842", glow:"rgba(48,56,66,.28)"},
+  {min:100, name:"כסף", color:"#aeb8c4", glow:"rgba(174,184,196,.42)"},
+  {min:200, name:"ברונזה", color:"#bd7850", glow:"rgba(189,120,80,.38)"},
+  {min:300, name:"זהב", color:"#e5ab1c", glow:"rgba(229,171,28,.42)"},
+  {min:400, name:"אמרלד", color:"#20a66d", glow:"rgba(32,166,109,.38)"},
+  {min:500, name:"ספיר", color:"#357bd8", glow:"rgba(53,123,216,.38)"},
+  {min:600, name:"אמטיסט", color:"#8b58c7", glow:"rgba(139,88,199,.4)"},
+  {min:800, name:"אודם", color:"#d94a4a", glow:"rgba(217,74,74,.38)"},
+  {min:1000, name:"אגדה", color:"#25b9b1", glow:"rgba(56,190,177,.48)"}
+];
 const BUDDY_IMAGES = {
   "🦊": "assets/brightwood-fox.png",
   "🐼": "assets/brightwood-panda.png",
@@ -531,6 +543,15 @@ function applyDefaultHiddenGames(p){
 function subjectName(p,key){ return key==="math"&&p?.age<=4?"מספרים":SUBJECTS[key].name; }
 function subjectDescription(p,key){ return key==="math"&&p?.age<=4?"סופרים עצמים ומשחקים במספרים":SUBJECTS[key].desc; }
 function trophyCount(p){ return Math.floor((p?.stars||0)/STAR_GOAL); }
+function medalCount(p){ return Math.floor((p?.stars||0)/MEDAL_GOAL); }
+function rewardTierForStars(stars=0){ return REWARD_TIERS.reduce((tier,candidate)=>stars>=candidate.min?candidate:tier,REWARD_TIERS[0]); }
+function applyRewardTier(element,p){
+  if(!element)return;
+  const tier=rewardTierForStars(p?.stars||0);
+  element.style.setProperty("--reward-color",tier.color);
+  element.style.setProperty("--reward-glow",tier.glow);
+  element.dataset.rewardTier=tier.name;
+}
 function nextStarGoal(p){ return (trophyCount(p)+1)*STAR_GOAL; }
 function goalCycleProgress(p){ return (p?.stars||0)%STAR_GOAL; }
 function buddyUnlockCount(p){ return Math.min(BUDDIES.length,BUDDY_UNLOCK_BASE+trophyCount(p)); }
@@ -842,9 +863,14 @@ function renderAll(){
   renderHeaderAvatar(p);
   $("#starCount").textContent=p?.stars||0;
   const trophies=trophyCount(p);
+  const medals=medalCount(p);
   $("#headerTrophyCount").textContent=trophies;
+  $("#headerMedalCount").textContent=medals;
+  $("#dashboardMedalCount").textContent=`🏅 ${medals} ${medals===1?"מדליה":"מדליות"}`;
   $(".star-chip").classList.toggle("has-trophies",trophies>0);
-  $(".star-chip").title=trophies?`${p.name} זכה ב־${trophies} ${trophies===1?"גביע":"גביעים"}`:"עוד לא הושג גביע";
+  applyRewardTier($(".star-chip"),p);
+  applyRewardTier($(".trophy-panel"),p);
+  $(".star-chip").title=`${p?.name||"השחקן"} צבר/ה ${p?.stars||0} כוכבים, ${medals} מדליות ו־${trophies} גביעים`;
   const streak=p?.streak||0;
   $("#streakText").textContent=streak===1?"יום תרגול אחד":`${streak} ימים ברצף`;
   renderSoundToggle();
@@ -1101,9 +1127,21 @@ function gameBack(){
 }
 
 function returnAfterFinishedGame(){
+  if(session?.pendingDifficultyPrompt){
+    closeModal("celebrationModal");
+    closeModal("milestoneModal");
+    renderDifficultyPrompt();
+    openModal("difficultyPromptModal");
+    return;
+  }
+  finishReturnToPicker();
+}
+
+function finishReturnToPicker(){
   const subject=session?.subject;
   closeModal("celebrationModal");
   closeModal("milestoneModal");
+  closeModal("difficultyPromptModal");
   session=null;
   if(subject){
     showScreen("homeScreen");
@@ -1111,6 +1149,36 @@ function returnAfterFinishedGame(){
   } else {
     showScreen("homeScreen");
   }
+}
+
+function renderDifficultyPrompt(){
+  const prompt=session?.pendingDifficultyPrompt;
+  if(!prompt)return;
+  const nextLevel=prompt.currentLevel+(prompt.direction==="up"?1:-1);
+  $("#difficultyPromptIcon").textContent=prompt.direction==="up"?"🚀":"🌱";
+  $("#difficultyPromptEyebrow").textContent=prompt.direction==="up"?"מוכנים לאתגר חדש?":"לומדים בקצב שמתאים לכם";
+  $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מושלם 5 פעמים!":"נראה שהמשחק קצת מאתגר עכשיו.";
+  $("#difficultyPromptText").textContent=prompt.direction==="up"
+    ? `רוצה לעלות לרמה ${nextLevel} במשחק „${prompt.gameName}”?`
+    : `רוצה לנסות רמה ${nextLevel} במשחק „${prompt.gameName}”?`;
+  $("#difficultyPromptAccept").textContent=prompt.direction==="up"?"כן, לעלות רמה":"כן, רמה קלה יותר";
+}
+
+function resolveDifficultyPrompt(accept){
+  const prompt=session?.pendingDifficultyPrompt;
+  if(!prompt)return;
+  const p=activeProfile(),gameProg=p.gameProgress[prompt.gameId]||={completed:0,correct:0,total:0};
+  if(accept){
+    p.gameLevels[prompt.gameId]=clamp(prompt.currentLevel+(prompt.direction==="up"?1:-1),1,9);
+    p.gameFeedback[prompt.gameId]=prompt.direction;
+    p.recentGames[prompt.gameId]=[];
+    gameProg.perfectStreak=0;
+    gameProg.challengeStreak=0;
+  }
+  p.gameProgress[prompt.gameId]=gameProg;
+  session.pendingDifficultyPrompt=null;
+  save(); renderAll();
+  finishReturnToPicker();
 }
 
 function renderClockFace(hour,minutes){
@@ -1256,7 +1324,7 @@ function renderQuestionInteraction(q){
   }
   if(q.mode==="build"){
     grid.classList.add("build-answer-grid");
-    grid.innerHTML=`<div class="build-result" id="buildResult">בחרו לפי הסדר</div><div class="token-bank">${q.tokens.map((token,index)=>`<button class="token-btn" data-token-index="${index}">${escapeHtml(token)}</button>`).join("")}</div><div class="build-actions"><button class="outline-btn" data-build-undo>מחיקה</button><button class="primary-btn compact" data-build-check>בדיקה</button></div>`;
+    grid.innerHTML=`<div class="build-result" id="buildResult">בחרו לפי הסדר</div><div class="token-bank">${q.tokens.map((token,index)=>`<button class="token-btn" data-token-index="${index}">${escapeHtml(token)}</button>`).join("")}</div><div class="build-actions"><button class="outline-btn" data-build-undo>מחיקה</button></div>`;
     return;
   }
   if(q.mode==="memory"){
@@ -1268,7 +1336,7 @@ function renderQuestionInteraction(q){
   }
   if(q.mode==="wordsearch"){
     grid.classList.add("word-search-wrap");
-    grid.innerHTML=`<div class="word-selection" id="wordSelection">בחרו אותיות לפי הסדר</div><div class="word-search-grid" style="--grid-size:${q.size}">${q.grid.map((letter,index)=>`<button data-grid-index="${index}">${letter}</button>`).join("")}</div><div class="build-actions"><button class="outline-btn" data-grid-clear>ניקוי</button><button class="primary-btn compact" data-grid-check>בדיקה</button></div>`;
+    grid.innerHTML=`<div class="word-selection" id="wordSelection">בחרו אותיות לפי הסדר</div><div class="word-search-grid" style="--grid-size:${q.size}">${q.grid.map((letter,index)=>`<button data-grid-index="${index}">${letter}</button>`).join("")}</div><div class="build-actions"><button class="outline-btn" data-grid-clear>ניקוי</button></div>`;
     return;
   }
   grid.innerHTML=q.a.map(a=>{
@@ -1413,24 +1481,43 @@ function revealCorrectAnswer(q){
       result.dir=/[\u0590-\u05FF]/.test(submitted)?"rtl":"ltr";
       result.classList.add("wrong-answer-reveal");
     }
-    $$(".token-btn,[data-build-undo],[data-build-check]").forEach(item=>item.disabled=true);
+    $$(".token-btn,[data-build-undo]").forEach(item=>item.disabled=true);
   }
   if(q.mode==="wordsearch"){
     const result=$("#wordSelection");
     if(result){result.classList.add("wrong-answer-reveal");}
-    $$("[data-grid-index],[data-grid-clear],[data-grid-check]").forEach(item=>item.disabled=true);
+    $$("[data-grid-index],[data-grid-clear]").forEach(item=>item.disabled=true);
   }
 }
 
 function finishGame(){
   const p=activeProfile(), key=session.subject, now=new Date().toDateString(), earned=Math.max(1,session.correct);
   trackEvent("game_finished",{subject:key,game_id:session.gameId,game_level:session.level,questions_total:session.questions.length,correct_total:session.correct,stars_earned:earned});
+  const previousStars=p.stars||0;
   const previousTrophies=trophyCount(p);
+  const previousMedals=medalCount(p);
+  const previousTier=rewardTierForStars(previousStars);
   p.stars+=earned; p.progress[key] ||= {completed:0,level:1,correct:0,total:0};
   const newTrophies=trophyCount(p);
+  const newMedals=medalCount(p);
+  const newTier=rewardTierForStars(p.stars);
   const prog=p.progress[key]; prog.completed++; prog.correct+=session.correct; prog.total+=session.questions.length;
   const gameProg=p.gameProgress[session.gameId]||={completed:0,correct:0,total:0};
   gameProg.completed++; gameProg.correct+=session.correct; gameProg.total+=session.questions.length;
+  const perfectGame=session.correct===session.questions.length;
+  const challengingGame=session.correct<=1;
+  gameProg.perfectStreak=perfectGame?(gameProg.perfectStreak||0)+1:0;
+  gameProg.challengeStreak=challengingGame?(gameProg.challengeStreak||0)+1:0;
+  const currentLevel=p.gameLevels[session.gameId]||session.level;
+  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%5===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<9;
+  const easierLevelDue=gameProg.challengeStreak>0&&gameProg.challengeStreak%3===0&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1;
+  if(promotionDue){
+    gameProg.lastPromotionPrompt=gameProg.perfectStreak;
+    session.pendingDifficultyPrompt={direction:"up",gameId:session.gameId,gameName:session.game.name,currentLevel};
+  }else if(easierLevelDue){
+    gameProg.lastEasierPrompt=gameProg.challengeStreak;
+    session.pendingDifficultyPrompt={direction:"down",gameId:session.gameId,gameName:session.game.name,currentLevel};
+  }
   prog.level=subjectLevel(p,key);
   if(p.dailyDate!==now){p.dailyDate=now;p.daily=0} p.daily++;
   p.streak=Math.max(1,p.streak||0);
@@ -1440,23 +1527,22 @@ function finishGame(){
   $("#celebrateBuddy").textContent=p.buddy;
   $("#earnedStarsTitle").textContent=`אספתם ${earned} ${earned===1?"כוכב":"כוכבים"}`;
   $("#finishEncouragement").textContent="";
-  if(newTrophies>previousTrophies){
-    const newFriend=BUDDIES[BUDDY_UNLOCK_BASE+newTrophies-1];
-    const accessory=latestAccessory(p);
-    $("#milestoneTrophyNumber").textContent=newTrophies;
-    $("#milestoneTitle").textContent=newFriend ? `נפתח חבר חדש למסע!` : MILESTONE_TITLES[(newTrophies-1)%MILESTONE_TITLES.length];
-    const milestoneStarsText = newTrophies === 1 ? `אספתם ${STAR_GOAL} כוכבים` : `אספתם עוד ${STAR_GOAL} כוכבים`;
-    $("#milestoneText").textContent=[
-      `${milestoneStarsText} וזכיתם בגביע מספר ${newTrophies}.`,
-      accessory?`קיבלתם גם אביזר חדש: ${accessory}.`:null,
-      newFriend?`החבר החדש שנפתח: ${newFriend} ${BUDDY_PROFILES[newFriend]?.name||BUDDY_TITLES[newFriend]}.`:null
-    ].filter(Boolean).join(" ");
-    const showUpdatesPrompt=newTrophies===1&&!p.updatesPromptShown;
-    $("#milestoneUpdatesButton").classList.toggle("hidden",!showUpdatesPrompt);
-    if(showUpdatesPrompt)p.updatesPromptShown=true;
+  const tierChanged=previousTier.min!==newTier.min;
+  if(newMedals>previousMedals || newTrophies>previousTrophies || tierChanged){
+    const rewards=[];
+    if(newMedals>previousMedals)rewards.push({kind:"medal",icon:"🏅",text:`מדליה חדשה מספר ${newMedals}`});
+    if(newTrophies>previousTrophies)rewards.push({kind:"trophy",icon:"🏆",text:`גביע חדש מספר ${newTrophies}`});
+    if(tierChanged)rewards.push({kind:"tier",icon:"★",text:`דרגת ${newTier.name} חדשה`});
+    $("#milestoneRewards").innerHTML=rewards.map(reward=>`<div class="achievement-reward ${reward.kind}"><span>${reward.icon}</span><b>${reward.text}</b></div>`).join("");
+    $("#milestoneTitle").textContent=newTrophies>previousTrophies ? "איזה הישג אדיר!" : "הישג חדש!";
+    $("#milestoneText").textContent=`הגעתם ל־${p.stars} כוכבים בסך הכול.`;
+    const milestone=$("#milestoneModal .modal");
+    milestone.style.setProperty("--reward-color",newTier.color);
+    milestone.style.setProperty("--reward-glow",newTier.glow);
+    $("#milestoneUpdatesButton").classList.add("hidden");
     openModal("milestoneModal");
     playMilestoneMelody();
-  } else if(newTrophies>=1&&!p.updatesPromptShown){
+  } else if(!session.pendingDifficultyPrompt&&newTrophies>=1&&!p.updatesPromptShown){
     p.updatesPromptShown=true;
     openModal("updatesModal");
   } else {
@@ -1671,6 +1757,7 @@ function chooseBuildToken(button){
   if(session.locked||button.disabled)return;
   const index=Number(button.dataset.tokenIndex),q=session.questions[session.index];
   session.composed.push({index,token:q.tokens[index]}); button.disabled=true; updateBuildResult();
+  if(session.composed.length>=requiredSequentialSelections(q))checkBuild(button);
 }
 
 function undoBuildToken(){
@@ -1682,6 +1769,11 @@ function checkBuild(button){
   const q=session.questions[session.index],value=session.composed.map(x=>x.token).join(q.joinWith??"");
   session.lastBuildAnswer=value;
   answer(value,button);
+}
+
+function requiredSequentialSelections(q){
+  if(q.joinWith)return String(q.correct).split(q.joinWith).length;
+  return Array.from(String(q.correct)).length;
 }
 
 function chooseMemoryCard(button){
@@ -1703,6 +1795,7 @@ function chooseGridLetter(button){
   const index=Number(button.dataset.gridIndex),q=session.questions[session.index];
   button.classList.add("selected");session.gridSelection.push({index,letter:q.grid[index]});
   $("#wordSelection").textContent=session.gridSelection.map(x=>x.letter).join("");
+  if(session.gridSelection.length>=Array.from(String(q.correct)).length)answer(session.gridSelection.map(x=>x.letter).join(""),button);
 }
 
 function clearGridSelection(){
@@ -1713,6 +1806,8 @@ function bindEvents(){
   document.addEventListener("click",e=>{
     const gameBackButton=e.target.closest("[data-game-back]"); if(gameBackButton)return gameBack();
     const finishedReturn=e.target.closest("[data-game-finished-return]"); if(finishedReturn)return returnAfterFinishedGame();
+    const difficultyAccept=e.target.closest("#difficultyPromptAccept"); if(difficultyAccept)return resolveDifficultyPrompt(true);
+    const difficultyDecline=e.target.closest("#difficultyPromptDecline"); if(difficultyDecline)return resolveDifficultyPrompt(false);
     const adventureBack=e.target.closest("[data-adventure-back]"); if(adventureBack)return backFromAdventure();
     const gamePickerBack=e.target.closest("[data-game-picker-back]"); if(gamePickerBack)return backFromGamePicker();
     const introNext=e.target.closest("[data-intro-next]"); if(introNext){introIndex=Math.min(INTRO_STEPS.length-1,introIndex+1);renderIntro();return}
@@ -1727,11 +1822,9 @@ function bindEvents(){
     const audio=e.target.closest("[data-play-audio]"); if(audio)playQuestionAudio();
     const token=e.target.closest("[data-token-index]"); if(token)chooseBuildToken(token);
     const undo=e.target.closest("[data-build-undo]"); if(undo)undoBuildToken();
-    const buildCheck=e.target.closest("[data-build-check]"); if(buildCheck)checkBuild(buildCheck);
     const memory=e.target.closest("[data-memory-index]"); if(memory)chooseMemoryCard(memory);
     const grid=e.target.closest("[data-grid-index]"); if(grid)chooseGridLetter(grid);
     const gridClear=e.target.closest("[data-grid-clear]"); if(gridClear)clearGridSelection();
-    const gridCheck=e.target.closest("[data-grid-check]"); if(gridCheck)answer(session.gridSelection.map(x=>x.letter).join(""),gridCheck);
     const prof=e.target.closest("[data-profile]"); if(prof){const changed=state.activeId!==prof.dataset.profile;state.activeId=prof.dataset.profile;prepareProfile(activeProfile());save();closeModal("profileModal");renderAll();if(changed)showScreen("homeScreen")}
     const edit=e.target.closest("[data-edit-profile]"); if(edit)openEdit(edit.dataset.editProfile);
     const age=e.target.closest("[data-age]"); if(age){selectedAge=+age.dataset.age;renderChoiceButtons()}

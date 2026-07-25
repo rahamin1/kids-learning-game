@@ -10,11 +10,11 @@
   <title>ההרפתקה ביער הזוהר</title>
   <link rel="icon" type="image/png" href="assets/app-icon-star-forest.png">
   <link rel="apple-touch-icon" href="assets/app-icon-star-forest.png">
-  <link rel="manifest" href="manifest.webmanifest?v=0.1.22">
+  <link rel="manifest" href="manifest.webmanifest?v=0.1.23">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?build=local194">
+<link rel="stylesheet" href="styles.css?build=local195">
 </head>
 <body>
   <div id="app">
@@ -28,7 +28,7 @@
       </div>
       <div class="top-actions">
         <div class="streak-chip" title="רצף הרפתקאות"><span>🔥</span><b class="streak-text" id="streakText">0 ימים ברצף</b></div>
-        <div class="star-chip" title="כוכבים וגביעים"><span>★</span><b id="starCount">0</b><span class="reward-divider"></span><span class="trophy-symbol">🏆</span><b id="headerTrophyCount">0</b></div>
+        <div class="star-chip" title="כוכבים, מדליות וגביעים"><span class="star-symbol">★</span><b id="starCount">0</b><span class="reward-divider"></span><span class="medal-symbol">🏅</span><b id="headerMedalCount">0</b><span class="reward-divider"></span><span class="trophy-symbol">🏆</span><b id="headerTrophyCount">0</b></div>
         <button class="icon-btn sound-toggle" aria-label="הפעלת או השתקת צלילים"></button>
         <button class="icon-btn header-tool" id="headerProgressButton" aria-label="צפייה בהתקדמות" title="צפייה בהתקדמות"><span class="magic-icon magic-progress" aria-hidden="true"><i></i><i></i><i></i></span></button>
         <button class="icon-btn header-tool" id="headerSettingsButton" aria-label="הגדרות" title="הגדרות"><span class="magic-icon magic-settings" aria-hidden="true"></span></button>
@@ -133,7 +133,7 @@
           </div>
           <article class="panel trophy-panel">
             <div class="trophy-stack"><b id="trophyCount">0</b><span>🏆</span></div>
-            <div class="trophy-copy"><span class="eyebrow blue">יעד הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 100 כוכבים והגביע הראשון שלכם!</p><div class="bar"><i id="trophyBar"></i></div></div>
+            <div class="trophy-copy"><span class="eyebrow blue">יעד הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 100 כוכבים והגביע הראשון שלכם!</p><small class="medal-total" id="dashboardMedalCount">🏅 0 מדליות</small><div class="bar"><i id="trophyBar"></i></div></div>
           </article>
           <article class="panel buddy-progress-panel">
             <div class="buddy-progress-icon" id="dashboardBuddyIcon">🦊</div>
@@ -268,7 +268,7 @@
               <label>כתובת מייל
                 <input id="contactEmail" name="email" type="email" autocomplete="email" placeholder="name@example.com">
               </label>
-              <label class="contact-updates-choice"><input id="contactUpdates" name="updates" type="checkbox"><span><b>אפשר לשלוח לי עדכונים משמעותיים על היער הזוהר</b><small>נשתמש בכתובת המייל רק לעדכונים האלה. אפשר לבקש להסיר את הכתובת בכל עת.</small></span></label>
+              <label class="contact-updates-choice"><input id="contactUpdates" name="updates" type="checkbox"><span><b>אפשר לשלוח לי עדכונים על היער הזוהר ועל משחקים נוספים, אם יהיו כאלה.</b><small>נשתמש בכתובת המייל רק לעדכונים האלה. אפשר לבקש להסיר את הכתובת בכל עת.</small></span></label>
               <label class="contact-message-label">מה תרצו לכתוב לנו?
                 <textarea id="contactMessage" name="message" rows="8" placeholder="כתבו כאן הערה, בקשה או תיאור של שגיאה שמצאתם במשחק"></textarea>
               </label>
@@ -375,12 +375,23 @@
     <div class="modal-backdrop" id="milestoneModal">
       <div class="modal milestone-modal">
         <div class="milestone-rays">✦ ★ ✦ ★ ✦</div>
-        <div class="milestone-trophy"><b id="milestoneTrophyNumber">1</b><span>🏆</span></div>
         <span class="eyebrow">הגעת ליעד!</span>
         <h2 id="milestoneTitle">היער כולו זוהר!</h2>
+        <div class="achievement-rewards" id="milestoneRewards"></div>
         <p id="milestoneText">אספתם 100 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
         <button class="outline-btn full hidden" id="milestoneUpdatesButton" type="button">רוצים לקבל עדכונים משמעותיים?</button>
         <button class="primary-btn full" data-game-finished-return data-close="milestoneModal">ממשיכים למשחק הבא <span>←</span></button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="difficultyPromptModal">
+      <div class="modal difficulty-prompt-modal">
+        <div class="difficulty-prompt-icon" id="difficultyPromptIcon">🚀</div>
+        <span class="eyebrow blue" id="difficultyPromptEyebrow">מוכנים לאתגר חדש?</span>
+        <h2 id="difficultyPromptTitle">שיחקת מושלם 5 פעמים!</h2>
+        <p id="difficultyPromptText">רוצה לעלות רמה במשחק הזה?</p>
+        <button class="primary-btn full" id="difficultyPromptAccept" type="button">כן, לעלות רמה</button>
+        <button class="outline-btn full" id="difficultyPromptDecline" type="button">לא עכשיו</button>
       </div>
     </div>
 
@@ -430,7 +441,7 @@
       <p>היער הזוהר בנוי למסך עומד (אנכי). כך רואים טוב יותר את השאלות, הכפתורים והחבר למסע.</p>
     </div>
   </div>
-<script src="games.js?build=local194"></script>
-<script src="app.js?build=local194"></script>
+<script src="games.js?build=local195"></script>
+<script src="app.js?build=local195"></script>
 </body>
 </html>
