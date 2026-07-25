@@ -4,13 +4,13 @@ html,body{max-width:100%;overflow-x:hidden}
 @media print{.topbar,.back-btn,.outline-btn{display:none!important}#dashboardScreen{display:block!important}#settingsScreen{display:none!important}.dashboard-wrap{padding:0}.panel,.stat-grid article{box-shadow:none;border:1px solid #ddd}}
 
 /* Test build only: make it unmistakably different from the public app. */
-body.test-build .topbar{background:#a6222d;border-bottom-color:#7e1720}
-body.test-build .brand{color:#fff}
-body.test-build .brand b{color:#ffe066}
-body.test-build .brand-mark{background:#7e1720;box-shadow:inset -3px -3px rgba(0,0,0,.16)}
-body.test-build .header-version{background:#fff1f1;color:#8d1f28}
-body.test-build .test-build-badge{background:#fff;color:#a6222d;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:900;white-space:nowrap}
-body.test-build .topbar .icon-btn,body.test-build .topbar .profile-pill{border-color:#f3b5ba}
+body.test-build .topbar{background:#f6b35b;border-bottom-color:#df8d2f}
+body.test-build .brand{color:#57320c}
+body.test-build .brand b{color:#a8381f}
+body.test-build .brand-mark{background:#e9872c;box-shadow:inset -3px -3px rgba(0,0,0,.12)}
+body.test-build .header-version{background:#fff8ed;color:#9b4a10}
+body.test-build .test-build-badge{background:#fff;color:#a34713;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:900;white-space:nowrap}
+body.test-build .topbar .icon-btn,body.test-build .topbar .profile-pill{border-color:#f1cc91}
 @media(max-width:620px){body.test-build .test-build-badge{font-size:10px;padding:4px 8px}}
 
 /* Hebrew / RTL */
