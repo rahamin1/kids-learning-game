@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.24-test.5";
+const APP_VERSION = "0.1.24-test.6";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -505,6 +505,8 @@ function openPrivacyScreen(from="settingsScreen"){
 }
 
 function activeProfile(){ return state.profiles.find(p => p.id === state.activeId); }
+const EXTENDED_LEVEL_GAME_IDS = new Set(["count","number-quantity","more-groups","number-sequence","number-line","addition","picture-subtraction","multiplication","shapes","clock","word-problems","visual-pattern"]);
+function gameMaxLevel(gameId){ return EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:9; }
 function ageLevel(age){ return clamp(Number(age)||3,1,9); }
 function defaultGameLevel(gameId,age){
   if(gameId==="count"||gameId==="number-quantity")return ({3:1,4:2,5:4,6:7,7:9})[Number(age)]||1;
@@ -634,6 +636,7 @@ function prepareProfile(p){
   }
   KIDS_GAMES.catalog.forEach(game=>{
     p.gameLevels[game.id] ||= defaultGameLevel(game.id,p.age);
+    p.gameLevels[game.id]=clamp(p.gameLevels[game.id],1,gameMaxLevel(game.id));
     p.recentGames[game.id] ||= [];
     p.gameProgress[game.id] ||= {completed:0,correct:0,total:0};
   });
@@ -1177,7 +1180,7 @@ function resolveDifficultyPrompt(accept){
   if(!prompt)return;
   const p=activeProfile(),gameProg=p.gameProgress[prompt.gameId]||={completed:0,correct:0,total:0};
   if(accept){
-    p.gameLevels[prompt.gameId]=clamp(prompt.currentLevel+(prompt.direction==="up"?1:-1),1,9);
+    p.gameLevels[prompt.gameId]=clamp(prompt.currentLevel+(prompt.direction==="up"?1:-1),1,gameMaxLevel(prompt.gameId));
     p.gameFeedback[prompt.gameId]=prompt.direction;
     p.recentGames[prompt.gameId]=[];
     gameProg.perfectStreak=0;
@@ -1517,7 +1520,7 @@ function finishGame(){
   gameProg.perfectStreak=strongGame?(gameProg.perfectStreak||0)+1:0;
   gameProg.challengeStreak=challengingGame?(gameProg.challengeStreak||0)+1:0;
   const currentLevel=p.gameLevels[session.gameId]||session.level;
-  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%2===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<9;
+  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%2===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<gameMaxLevel(session.gameId);
   const easierLevelDue=challengingGame&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1;
   if(promotionDue){
     gameProg.lastPromotionPrompt=gameProg.perfectStreak;
@@ -1625,8 +1628,8 @@ function renderDifficulty(p){
   $("#difficultyControls").innerHTML=p.subjects.map(key=>{
     const games=KIDS_GAMES.catalog.filter(game=>!game.disabled&&game.subject===key&&gameVisibleInSettings(game,p.age));
     return `<section class="difficulty-subject"><h3>${SUBJECTS[key].icon} ${subjectName(p,key)}</h3>${games.map(game=>{
-      const feedback=p.gameFeedback[game.id]||"ok",level=p.gameLevels[game.id]||ageLevel(p.age),hidden=p.hiddenGames.includes(game.id);
-      return `<div class="skill-row game-level-row ${hidden?"game-is-hidden":""}"><span><b>${game.icon} ${game.name}</b><small class="level-badge">רמה ${level} מתוך 9</small><small class="question-count">${game.desc}</small>${hidden?`<small class="hidden-game-note">המשחק מוסתר מבחירת המשחקים</small>`:""}</span><div class="game-level-actions"><div class="level-adjust"><button ${level<=1||hidden?"disabled":""} class="${feedback==="down"?"selected":""}" data-adjust="${game.id}|down">קל יותר</button><button ${hidden?"disabled":""} class="${feedback==="ok"?"selected":""}" data-adjust="${game.id}|ok">מתאים</button><button ${level>=9||hidden?"disabled":""} class="${feedback==="up"?"selected":""}" data-adjust="${game.id}|up">קשה יותר</button></div><button class="game-visibility-button ${hidden?"restore":""}" data-game-visibility="${game.id}">${hidden?"החזרת המשחק":"הסתרת המשחק"}</button></div></div>`;
+      const feedback=p.gameFeedback[game.id]||"ok",level=p.gameLevels[game.id]||ageLevel(p.age),hidden=p.hiddenGames.includes(game.id),maxLevel=gameMaxLevel(game.id);
+      return `<div class="skill-row game-level-row ${hidden?"game-is-hidden":""}"><span><b>${game.icon} ${game.name}</b><small class="level-badge">רמה ${level} מתוך ${maxLevel}</small><small class="question-count">${game.desc}</small>${hidden?`<small class="hidden-game-note">המשחק מוסתר מבחירת המשחקים</small>`:""}</span><div class="game-level-actions"><div class="level-adjust"><button ${level<=1||hidden?"disabled":""} class="${feedback==="down"?"selected":""}" data-adjust="${game.id}|down">קל יותר</button><button ${hidden?"disabled":""} class="${feedback==="ok"?"selected":""}" data-adjust="${game.id}|ok">מתאים</button><button ${level>=maxLevel||hidden?"disabled":""} class="${feedback==="up"?"selected":""}" data-adjust="${game.id}|up">קשה יותר</button></div><button class="game-visibility-button ${hidden?"restore":""}" data-game-visibility="${game.id}">${hidden?"החזרת המשחק":"הסתרת המשחק"}</button></div></div>`;
     }).join("")}</section>`;
   }).join("");
 }
@@ -1648,8 +1651,8 @@ function toggleGameVisibility(gameId){
 function adjustDifficulty(data){
   const [gameId,choice]=data.split("|"),p=activeProfile(),current=p.gameLevels[gameId]||ageLevel(p.age);
   p.gameFeedback[gameId]=choice;
-  if(choice==="up")p.gameLevels[gameId]=clamp(current+1,1,9);
-  if(choice==="down")p.gameLevels[gameId]=clamp(current-1,1,9);
+  if(choice==="up")p.gameLevels[gameId]=clamp(current+1,1,gameMaxLevel(gameId));
+  if(choice==="down")p.gameLevels[gameId]=clamp(current-1,1,gameMaxLevel(gameId));
   if(choice==="ok")p.gameLevels[gameId]=defaultGameLevel(gameId,p.age);
   p.recentGames[gameId]=[];
   save(); renderSettings(); renderSubjects();

@@ -107,7 +107,7 @@
   const make = (q,correct,a,visual="",extra={}) => ({q,correct,a,type:extra.type||"בוחרים תשובה",skill:extra.skill||"תרגול",visual,explain:extra.explain||`התשובה הנכונה היא ${correct}.`,...extra});
   const repeatPool = (items,count=18) => Array.from({length:Math.max(count,items.length)},(_,i)=>({...items[i%items.length]}));
   const pictures = ["🍎","⭐","🐟","🌼","🔵","🧸","🍐","🐞"];
-  const countingMaximums = [5,10,15,20,24,27,30,50,100];
+  const countingMaximums = [5,10,15,20,24,27,30,50,100,110,120,130,140,150,150];
   function objectRows(icon,count){
     const rowSize=count>30?10:5,rows=[];
     for(let i=0;i<count;i+=rowSize)rows.push(Array(Math.min(rowSize,count-i)).fill(icon).join(" "));
@@ -127,7 +127,7 @@
     return Array.from({length:max},(_,i)=>{
       const n=i+1,icon=pictures[i%pictures.length];
       const candidates=[n,n-1,n+1,n-2,n+2,n-3,n+3].filter(x=>x>=1&&x<=max);
-      const answerCount=level===1?2:4;
+      const answerCount=level<=2?2:level<=4?3:4;
       const nums=[n,...shuffle([...new Set(candidates)].filter(x=>x!==n)).slice(0,answerCount-1)];
       for(let extra=1;nums.length<answerCount&&extra<=max;extra++)if(!nums.includes(extra))nums.push(extra);
       const groups=nums.map(x=>objectRows(icon,x));
@@ -207,14 +207,15 @@
     return repeatPool(questions,24);
   }
   function moreGroups(level){
-    const max=clamp(5+level*2,7,24);
+    const max=clamp(5+level*2,7,35);
     const groupRows=(icon,count)=>Array.from({length:Math.ceil(count/4)},(_,row)=>Array(Math.min(4,count-row*4)).fill(icon).join(" ")).join("\n");
     return Array.from({length:22},(_,i)=>{
       const a=1+(i*3)%max;
       let b=1+(i*5+2)%max;
       if(a===b)b=b%max+1;
       const icon=pictures[i%pictures.length],left=groupRows(icon,a),right=groupRows(icon,b);
-      return make("באיזו קבוצה יש יותר?",a>b?left:right,shuffle([left,right]),"",{skill:"השוואה",type:"יותר או פחות",answerObjectGrid:true});
+      const askLess=level>=6&&i%3===0;
+      return make(askLess?"באיזו קבוצה יש פחות?":"באיזו קבוצה יש יותר?",askLess?(a<b?left:right):(a>b?left:right),shuffle([left,right]),"",{skill:"השוואה",type:askLess?"פחות":"יותר",answerObjectGrid:true});
     });
   }
   function patterns(level){
@@ -231,7 +232,7 @@
       {pattern:["🍌","🍓","🍎"],pool:["🍌","🍓","🍎","🍐"]}
     ];
     const active=configs.slice(0,clamp(3+level,4,configs.length));
-    const maxLength=clamp(3+Math.floor(level/2),3,7);
+    const maxLength=clamp(3+Math.floor(level/2),3,11);
     const questions=[];
     active.forEach(({pattern,pool})=>{
       for(let length=3;length<=maxLength;length++){
@@ -242,25 +243,30 @@
         const shifted=[pattern[1],pattern[0]],seq=Array.from({length:maxLength},(_,j)=>shifted[j%shifted.length]),correct=shifted[maxLength%shifted.length];
         questions.push(make("מה מגיע עכשיו?",correct,options(correct,pool),"",{skill:"דפוסים",type:"ממשיכים דפוס",patternTiles:[...seq,"?"],explain:`הדפוס חוזר על עצמו: ${shifted.join(" ")}.`}));
       }
+      if(level>=10){
+        const missingIndex=2+(pattern.length===3?1:0),seq=Array.from({length:maxLength},(_,j)=>pattern[j%pattern.length]),correct=seq[missingIndex];
+        seq[missingIndex]="?";
+        questions.push(make("מה חסר בדפוס?",correct,options(correct,pool),"",{skill:"דפוסים",type:"מוצאים חלק חסר",patternTiles:seq,explain:`הדפוס חוזר על עצמו: ${pattern.join(" ")}.`}));
+      }
     });
     return repeatPool(questions,Math.max(24,questions.length));
   }
   function sequences(level){
-    const steps=level<=2?[1]:level<=4?[1,2]:level<=6?[2,3,5]:[3,4,5,10];
+    const steps=level<=2?[1]:level<=4?[1,2]:level<=6?[2,3,5]:level<=9?[3,4,5,10]:[5,10,20,25];
     const out=[];
-    steps.forEach(step=>{for(let start=0;start<16;start++){const missingIndex=level>=6?1+(start%3):3,seq=Array.from({length:4},(_,i)=>start+i*step),correct=seq[missingIndex];seq[missingIndex]="?";out.push(make("איזה מספר חסר?",String(correct),numberOptions(correct),seq.join("  ·  "),{skill:"רצפים",type:"רצף מספרים"}));}});
+    steps.forEach(step=>{for(let start=0;start<16;start++){const length=level>=10?6:4,missingIndex=level>=10?1+(start%4):level>=6?1+(start%3):3,seq=Array.from({length},(_,i)=>start+i*step),correct=seq[missingIndex];seq[missingIndex]="?";out.push(make("איזה מספר חסר?",String(correct),numberOptions(correct),seq.join("  ·  "),{skill:"רצפים",type:"רצף מספרים"}));}});
     return out;
   }
   function arithmetic(level,kind){
-    const max=clamp(5+level*3,8,32),out=[];
+    const max=clamp(5+level*3,8,50),out=[];
     const minA=level>=7?4:level>=5?2:1;
-    const minB=level>=7?2:1;
-    for(let a=minA;a<=max;a++){for(let b=minB;b<=Math.min(a,8);b++){const answer=kind==="add"?a+b:a-b;if(answer<0)continue;if(kind!=="add"&&level>=4&&answer===0)continue;const icon=pictures[(a+b)%pictures.length],pictureVisual={groups:[Array(Math.min(a,12)).fill(icon),Array(Math.min(b,12)).fill(icon)],operator:"+"},left=Math.max(a,b),right=Math.min(a,b),expression=kind==="add"?`${left} + ${right}`:`${left} − ${right}`;out.push(make(expression,String(answer),numberOptions(answer),"",{skill:kind==="add"?"חיבור":"חיסור",type:kind==="add"?"חיבור":"חיסור",word:true,pictureMath:kind==="add"&&level<6?pictureVisual:null}));}}
+    const minB=level>=7?2:1,maxSecond=level>=12?15:level>=9?12:8;
+    for(let a=minA;a<=max;a++){for(let b=minB;b<=Math.min(a,maxSecond);b++){const answer=kind==="add"?a+b:a-b;if(answer<0)continue;if(kind!=="add"&&level>=4&&answer===0)continue;const icon=pictures[(a+b)%pictures.length],pictureVisual={groups:[Array(Math.min(a,12)).fill(icon),Array(Math.min(b,12)).fill(icon)],operator:"+"},left=Math.max(a,b),right=Math.min(a,b),expression=kind==="add"?`${left} + ${right}`:`${left} − ${right}`;out.push(make(expression,String(answer),numberOptions(answer),"",{skill:kind==="add"?"חיבור":"חיסור",type:kind==="add"?"חיבור":"חיסור",word:true,pictureMath:kind==="add"&&level<6?pictureVisual:null}));}}
     return out;
   }
   function numberLine(level){
-    const step=level>=7?5:level>=4?2:1,max=clamp(10+level*5,15,55);
-    return Array.from({length:24},(_,i)=>{const base=level>=4?step:0,start=base+((i*step)%Math.max(step,max-4*step)),pos=level>=7?1+(i%3):i%4,seq=Array.from({length:5},(_,j)=>start+j*step),correct=seq[pos],display=seq.map((n,index)=>index===pos?"□":n);return make("איזה מספר מתאים לריבוע?",String(correct),numberOptions(correct),display.join(" — "),{skill:"ציר המספרים",type:"מקום על הציר",numberLine:{items:display}});});
+    const step=level>=13?10:level>=10?5:level>=7?5:level>=4?2:1,max=clamp(10+level*7,15,120),length=level>=10?6:5;
+    return Array.from({length:24},(_,i)=>{const base=level>=4?step:0,start=base+((i*step)%Math.max(step,max-(length-1)*step)),pos=level>=10?1+(i%4):level>=7?1+(i%3):i%4,seq=Array.from({length},(_,j)=>start+j*step),correct=seq[pos],display=seq.map((n,index)=>index===pos?"□":n);return make("איזה מספר מתאים לריבוע?",String(correct),numberOptions(correct),display.join(" — "),{skill:"ציר המספרים",type:"מקום על הציר",numberLine:{items:display}});});
   }
   function shapeQuestions(level){
     const active=shapes.slice(0,clamp(3+Math.floor(level/2),3,shapes.length)),out=[];
@@ -268,6 +274,7 @@
       out.push(make(`איזו צורה היא ${name}?`,icon,options(icon,active.map(x=>x[0])),"",{skill:"צורות",type:"מזהים צורה",shapeAnswers:true}));
       if(level>=4)out.push(make(`כמה צלעות יש ל${name}?`,String(sides),numberOptions(sides),icon,{skill:"צורות",type:"צלעות וקודקודים"}));
       if(level>=6)out.push(make(`כמה קודקודים יש ל${name}?`,String(corners),numberOptions(corners),icon,{skill:"צורות",type:"צלעות וקודקודים"}));
+      if(level>=10&&sides>0)out.push(make(`לאיזו צורה יש ${sides} צלעות?`,icon,options(icon,active.map(x=>x[0])),"",{skill:"צורות",type:"מזהים לפי צלעות",shapeAnswers:true}));
     });
     return repeatPool(out);
   }
@@ -284,8 +291,9 @@
         const half=i%2===0,minutes=half?30:0,answer=`${hourText}:${half?"30":"00"}`;
         return makeClock("איזו שעה מוצגת בשעון?",answer,options(answer,[`${hourText}:00`,`${hourText}:30`,`${String((hour%12)+1).padStart(2,"0")}:00`,`${String((hour%12)+1).padStart(2,"0")}:30`]),hour,minutes,"שעות וחצאים");
       }
-      const minuteOptions=[0,15,30,45],minutes=minuteOptions[i%4],answer=`${hourText}:${String(minutes).padStart(2,"0")}`;
-      return makeClock("איזו שעה מוצגת בשעון?",answer,options(answer,[`${hourText}:00`,`${hourText}:15`,`${hourText}:30`,`${hourText}:45`,`${String((hour%12)+1).padStart(2,"0")}:00`]),hour,minutes,"שעות, חצאים ורבעים");
+      const minuteOptions=level>=12?[0,5,10,15,20,25,30,35,40,45,50,55]:[0,15,30,45],minutes=minuteOptions[i%minuteOptions.length],answer=`${hourText}:${String(minutes).padStart(2,"0")}`;
+      const distractors=level>=12?[`${hourText}:${String((minutes+5)%60).padStart(2,"0")}`,`${hourText}:${String((minutes+55)%60).padStart(2,"0")}`,`${String((hour%12)+1).padStart(2,"0")}:${String(minutes).padStart(2,"0")}`]:[`${hourText}:00`,`${hourText}:15`,`${hourText}:30`,`${hourText}:45`,`${String((hour%12)+1).padStart(2,"0")}:00`];
+      return makeClock("איזו שעה מוצגת בשעון?",answer,options(answer,distractors),hour,minutes,level>=12?"דקות של חמש":"שעות, חצאים ורבעים");
     });
   }
   function moneyQuestions(level){
@@ -293,13 +301,13 @@
     return Array.from({length:24},(_,i)=>{const used=Array.from({length:maxCoins},(_,j)=>coins[(i+j)%coins.length]),answer=used.reduce((a,b)=>a+b,0);return make("כמה שקלים יש כאן?",`${answer} ₪`,options(`${answer} ₪`,[`${answer-1} ₪`,`${answer+1} ₪`,`${answer+2} ₪`]),used.map(x=>`${x}₪`).join(" + "),{skill:"כסף",type:"סופרים כסף"});});
   }
   function multiplication(level){
-    const max=clamp(level-3,2,6);
+    const max=clamp(level-3,2,10),maxGroup=level>=12?12:level>=9?10:8;
     const out=[];
-    for(let a=2;a<=max;a++)for(let b=2;b<=8;b++){const answer=a*b;out.push(make(`כמה הם ${a} קבוצות של ${b}?`,String(answer),numberOptions(answer),Array(a).fill(`(${Array(b).fill("●").join(" ")})`).join("  "),{skill:"כפל",type:"קבוצות שוות"}));}
+    for(let a=2;a<=max;a++)for(let b=2;b<=maxGroup;b++){const answer=a*b;out.push(make(`כמה הם ${a} קבוצות של ${b}?`,String(answer),numberOptions(answer),Array(a).fill(`(${Array(b).fill("●").join(" ")})`).join("  "),{skill:"כפל",type:"קבוצות שוות"}));}
     return repeatPool(out);
   }
   function wordProblems(level){
-    const max=clamp(8+level*2,12,28);
+    const max=clamp(8+level*3,12,60);
     const thinkingVisuals=["💡","🔍","🧭","✨","🦉"];
     const templates=[
       {add:true, icon:"🏷️", question:(a,b)=>`לנועה היו ${a} מדבקות והיא קיבלה עוד ${b}. כמה מדבקות יש לה עכשיו?`},
@@ -324,7 +332,8 @@
       {add:false, icon:"🌿", question:(a,b)=>`באדנית צמחו ${a} נבטים. ${b} נבטים נבלו. כמה נבטים נשארו?`}
     ];
     const questions=[];
-    templates.forEach((template,index)=>{
+    const activeTemplates=level<=3?templates.filter(template=>template.add):level<=6?templates.slice(0,16):templates;
+    activeTemplates.forEach((template,index)=>{
       const a=template.add?2+(index*3)%max:4+(index*3)%(max-1);
       const b=template.add?1+(index*2)%Math.min(9,max):1+(index*2)%Math.min(9,a-1);
       const answer=template.add?a+b:a-b;
@@ -513,7 +522,7 @@
   function build(gameId,level,profile){
     const game=catalog.find(g=>g.id===gameId);
     if(!game)return [];
-    level=clamp(Number(level)||profile?.age||3,1,9);
+    level=clamp(Number(level)||profile?.age||3,1,15);
     let pool=[];
     switch(game.kind){
       case "count": pool=countQuestions(level); break;
