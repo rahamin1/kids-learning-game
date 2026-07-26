@@ -502,6 +502,7 @@ function openPrivacyScreen(from="settingsScreen"){
 
 function activeProfile(){ return state.profiles.find(p => p.id === state.activeId); }
 const EXTENDED_LEVEL_GAME_IDS = new Set(["count","number-quantity","more-groups","number-sequence","number-line","addition","picture-subtraction","multiplication","shapes","clock","word-problems","visual-pattern"]);
+const DIFFICULTY_PROMPT_COOLDOWN_GAMES = 5;
 function gameMaxLevel(gameId){ return EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:9; }
 function ageLevel(age){ return clamp(Number(age)||3,1,9); }
 function defaultGameLevel(gameId,age){
@@ -1173,12 +1174,22 @@ function resolveDifficultyPrompt(accept){
   const prompt=session?.pendingDifficultyPrompt;
   if(!prompt)return;
   const p=activeProfile(),gameProg=p.gameProgress[prompt.gameId]||={completed:0,correct:0,total:0};
+  const directionKey=prompt.direction==="up"?"promotion":"easier";
   if(accept){
     p.gameLevels[prompt.gameId]=clamp(prompt.currentLevel+(prompt.direction==="up"?1:-1),1,gameMaxLevel(prompt.gameId));
     p.gameFeedback[prompt.gameId]=prompt.direction;
     p.recentGames[prompt.gameId]=[];
     gameProg.perfectStreak=0;
     gameProg.challengeStreak=0;
+    gameProg.promotionDeclines=0;
+    gameProg.easierDeclines=0;
+    gameProg.promotionAutoPromptDisabled=false;
+    gameProg.easierAutoPromptDisabled=false;
+  }else{
+    const declinesKey=`${directionKey}Declines`,cooldownKey=`${directionKey}CooldownUntil`,disabledKey=`${directionKey}AutoPromptDisabled`;
+    gameProg[declinesKey]=(gameProg[declinesKey]||0)+1;
+    gameProg[cooldownKey]=(gameProg.completed||0)+DIFFICULTY_PROMPT_COOLDOWN_GAMES;
+    if(gameProg[declinesKey]>=2)gameProg[disabledKey]=true;
   }
   p.gameProgress[prompt.gameId]=gameProg;
   session.pendingDifficultyPrompt=null;
@@ -1514,8 +1525,8 @@ function finishGame(){
   gameProg.perfectStreak=strongGame?(gameProg.perfectStreak||0)+1:0;
   gameProg.challengeStreak=challengingGame?(gameProg.challengeStreak||0)+1:0;
   const currentLevel=p.gameLevels[session.gameId]||session.level;
-  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%4===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<gameMaxLevel(session.gameId);
-  const easierLevelDue=gameProg.challengeStreak>0&&gameProg.challengeStreak%3===0&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1;
+  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%4===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<gameMaxLevel(session.gameId)&&!gameProg.promotionAutoPromptDisabled&&(gameProg.promotionCooldownUntil||0)<gameProg.completed;
+  const easierLevelDue=gameProg.challengeStreak>0&&gameProg.challengeStreak%3===0&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1&&!gameProg.easierAutoPromptDisabled&&(gameProg.easierCooldownUntil||0)<gameProg.completed;
   if(promotionDue){
     gameProg.lastPromotionPrompt=gameProg.perfectStreak;
     session.pendingDifficultyPrompt={direction:"up",gameId:session.gameId,gameName:session.game.name,currentLevel};
@@ -1648,6 +1659,17 @@ function adjustDifficulty(data){
   if(choice==="up")p.gameLevels[gameId]=clamp(current+1,1,gameMaxLevel(gameId));
   if(choice==="down")p.gameLevels[gameId]=clamp(current-1,1,gameMaxLevel(gameId));
   if(choice==="ok")p.gameLevels[gameId]=defaultGameLevel(gameId,p.age);
+  const gameProg=p.gameProgress[gameId];
+  if(gameProg){
+    gameProg.perfectStreak=0;
+    gameProg.challengeStreak=0;
+    gameProg.promotionDeclines=0;
+    gameProg.easierDeclines=0;
+    gameProg.promotionAutoPromptDisabled=false;
+    gameProg.easierAutoPromptDisabled=false;
+    delete gameProg.promotionCooldownUntil;
+    delete gameProg.easierCooldownUntil;
+  }
   p.recentGames[gameId]=[];
   save(); renderSettings(); renderSubjects();
 }
