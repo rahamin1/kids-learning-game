@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.28-test";
+const APP_VERSION = "0.1.29-test";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
