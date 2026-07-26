@@ -485,3 +485,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .difficulty-prompt-modal{text-align:center}.difficulty-prompt-icon{display:grid;place-items:center;width:82px;height:82px;margin:0 auto 12px;border-radius:26px;background:#eaf3ff;font-size:43px;box-shadow:0 8px 0 #d4e3f4}.difficulty-prompt-modal h2{font-size:31px}.difficulty-prompt-modal p{font-size:15px!important;margin:10px auto 20px}.difficulty-prompt-modal .outline-btn{margin-top:11px}
 @keyframes achievementPop{from{opacity:0;transform:translateY(18px) scale(.7)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:520px){.achievement-rewards{gap:6px}.achievement-reward{padding:8px 3px;border-radius:14px}.achievement-reward span{font-size:36px}.achievement-reward b{font-size:10px}.milestone-modal h2{font-size:31px}}
+
+/* Do not nest the age and buddy buttons inside labels: some mobile browsers swallow those taps. */
+.profile-choice-group{display:block;font-size:12px;font-weight:900;margin:18px 0;color:var(--muted)}
+.profile-choice-group .choice-btn{touch-action:manipulation}
