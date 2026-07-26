@@ -504,14 +504,12 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .header-rewards-slot{display:contents}.brand-group>.star-chip{flex:0 0 auto}
 @media(max-width:520px){.brand-group{gap:5px;justify-content:space-between}.brand{gap:5px;font-size:17px}.brand-mark{width:33px;height:33px}.brand-group>.star-chip{height:34px;padding:0 6px;gap:3px;font-size:10px}.brand-group>.star-chip .award-icon{width:18px;height:18px}.brand-group>.star-chip .star-symbol{font-size:15px}.brand-group>.star-chip .reward-divider{height:16px;margin:0}.header-version{padding:3px 5px;font-size:9px}}
 
-/* On phones, use the whole second header line and keep the player's name visible. */
+/* On phones, use the whole second header line with the player icon and its arrow. */
 @media(max-width:520px){
-  .top-actions{display:grid;grid-template-columns:minmax(104px,1.5fr) repeat(5,minmax(34px,1fr));align-items:center;width:100%;gap:4px;overflow:visible;white-space:normal;padding:0}
+  .top-actions{display:grid;grid-template-columns:minmax(62px,1.5fr) repeat(5,minmax(36px,1fr));align-items:center;width:100%;gap:4px;overflow:visible;white-space:normal;padding:0}
   .top-actions>*{min-width:0;flex:none!important}
   .top-actions .icon-btn{width:36px;height:36px;justify-self:center}
-  .top-actions .profile-pill{grid-column:1;grid-row:1;width:100%;height:40px;min-width:0;padding:3px 7px;gap:5px;justify-content:flex-start}
-  .top-actions .profile-pill>span:nth-child(2){display:flex;min-width:0}
-  .top-actions .profile-pill small{display:none}
-  .top-actions .profile-pill i{display:block;margin-inline-start:auto;color:var(--blue);font-size:18px;font-style:normal;line-height:1}
-  .top-actions .profile-pill b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .top-actions .profile-pill{grid-column:1;grid-row:1;width:100%;height:40px;min-width:0;padding:3px 5px;gap:4px;justify-content:center}
+  .top-actions .profile-pill>span:nth-child(2){display:none}
+  .top-actions .profile-pill i{display:block;color:var(--blue);font-size:18px;font-style:normal;line-height:1}
 }
