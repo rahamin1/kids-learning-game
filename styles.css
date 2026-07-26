@@ -499,3 +499,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 /* Do not nest the age and buddy buttons inside labels: some mobile browsers swallow those taps. */
 .profile-choice-group{display:block;font-size:12px;font-weight:900;margin:18px 0;color:var(--muted)}
 .profile-choice-group .choice-btn{touch-action:manipulation}
+
+/* Keep achievement totals on the first header line, away from scrollable navigation icons. */
+.header-rewards-slot{display:contents}.brand-group>.star-chip{flex:0 0 auto}
+@media(max-width:520px){.brand-group{gap:5px;justify-content:space-between}.brand{gap:5px;font-size:17px}.brand-mark{width:33px;height:33px}.brand-group>.star-chip{height:34px;padding:0 6px;gap:3px;font-size:10px}.brand-group>.star-chip .award-icon{width:18px;height:18px}.brand-group>.star-chip .star-symbol{font-size:15px}.brand-group>.star-chip .reward-divider{height:16px;margin:0}.header-version{padding:3px 5px;font-size:9px}}

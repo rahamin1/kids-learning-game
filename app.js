@@ -868,6 +868,7 @@ function rotateNamePlaceholder(){
 
 function renderAll(){
   const p=activeProfile();
+  $("#headerRewardsSlot")?.append($(".star-chip"));
   $("#profileName").textContent=p?.name||"שחקן חדש";
   renderHeaderAvatar(p);
   $("#starCount").textContent=p?.stars||0;
