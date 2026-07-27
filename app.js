@@ -1008,7 +1008,8 @@ function renderProfiles(){
 
 function renderSubjectToggles(){
   const p=activeProfile(),chosen=p?.subjects||Object.keys(SUBJECTS);
-  $("#subjectToggles").innerHTML=Object.entries(SUBJECTS).map(([k,s])=>`<button class="subject-toggle ${chosen.includes(k)?"selected":""}" data-toggle-subject="${k}">${s.icon} ${subjectName(p,k)}<br><small>${subjectDescription(p,k)}</small></button>`).join("");
+  const playableSubjects=Object.entries(SUBJECTS).filter(([key])=>!p||availableGames(p,key).length);
+  $("#subjectToggles").innerHTML=playableSubjects.map(([k,s])=>`<button class="subject-toggle ${chosen.includes(k)?"selected":""}" data-toggle-subject="${k}">${s.icon} ${subjectName(p,k)}<br><small>${subjectDescription(p,k)}</small></button>`).join("");
 }
 
 function renderAdventureChoices(){
@@ -1172,8 +1173,8 @@ function renderDifficultyPrompt(){
   $("#difficultyPromptEyebrow").textContent=prompt.direction==="up"?"מוכנים לאתגר חדש?":"משחקים בקצב שמתאים לכם";
   $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מושלם פעמיים!":"נראה שהמשחק קצת מאתגר עכשיו.";
   $("#difficultyPromptText").textContent=prompt.direction==="up"
-    ? `רוצה לעלות לרמה ${nextLevel} במשחק „${prompt.gameName}”?`
-    : `רוצה לנסות רמה ${nextLevel} במשחק „${prompt.gameName}”?`;
+    ? `רוצה לעלות לרמה ${nextLevel} במשחק „${prompt.gameName}”`
+    : `רוצה לנסות רמה ${nextLevel} במשחק „${prompt.gameName}”`;
   $("#difficultyPromptAccept").textContent=prompt.direction==="up"?"כן, לעלות רמה":"כן, רמה קלה יותר";
 }
 
