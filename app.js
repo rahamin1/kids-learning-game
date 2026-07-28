@@ -673,7 +673,7 @@ function updateInstallUI(){
     const label=button.querySelector("[data-install-label]");
     const hint=button.querySelector("[data-install-hint]");
     if(label)label.textContent=deferredInstallPrompt?"התקנת האפליקציה":installed?"פתיחה / התקנה":"הוספה למסך הבית";
-    if(hint)hint.textContent=deferredInstallPrompt?"התקנה בלחיצה אחת":installed?"אם הסרתם את האפליקציה, אפשר להתקין שוב מהתפריט":"הצגת הוראות התקנה";
+    if(hint)hint.textContent=deferredInstallPrompt?"התקנה בלחיצה אחת":installed?"אם הסרתם את האפליקציה, אפשר להתקין שוב כאן":"הצגת הוראות התקנה";
     button.disabled=false;
     button.classList.toggle("installed",installed);
   });
