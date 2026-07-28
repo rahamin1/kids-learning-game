@@ -303,7 +303,7 @@
   function multiplication(level){
     const max=clamp(level-3,2,10),maxGroup=level>=12?12:level>=9?10:8;
     const out=[];
-    for(let a=2;a<=max;a++)for(let b=2;b<=maxGroup;b++){const answer=a*b;out.push(make(`כמה הם ${a} קבוצות של ${b}?`,String(answer),numberOptions(answer),Array(a).fill(`(${Array(b).fill("●").join(" ")})`).join("  "),{skill:"כפל",type:"קבוצות שוות"}));}
+    for(let a=2;a<=max;a++)for(let b=2;b<=maxGroup;b++){const answer=a*b;out.push(make(`כמה יש ב-${a} קבוצות של ${b}?`,String(answer),numberOptions(answer),Array(a).fill(`(${Array(b).fill("●").join(" ")})`).join("  "),{skill:"כפל",type:"קבוצות שוות"}));}
     return repeatPool(out);
   }
   function wordProblems(level){
