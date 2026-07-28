@@ -1622,7 +1622,6 @@ function renderSettings(){
   const p=activeProfile(); if(!p)return;
   $("#settingsSubtitle").textContent=`ההגדרות של ${p.name}.`;
   $("#settingsUsersText").textContent=`השחקן הנוכחי: ${p.name}. אפשר להוסיף שחקן, לעבור בין שחקנים, או למחוק שחקן שלא משחק יותר.`;
-  $("#settingsProfile span").textContent=p.buddy;
   $("#settingsSound span").textContent=state.sound?"🔊":"🔇";
   $("#settingsSoundLabel").textContent=state.sound?"הצלילים פעילים":"הצלילים כבויים";
   const analyticsText=$("#analyticsConsentText"),analyticsButton=$("#analyticsConsentButton");
@@ -1897,7 +1896,6 @@ function bindEvents(){
   $("#headerHelpButton").onclick=()=>showScreen("helpScreen");
   $("#headerContactButton").onclick=()=>showScreen("contactScreen");
   $("#settingsSubjects").onclick=()=>openModal("subjectModal");
-  $("#settingsProfile").onclick=()=>openEdit(activeProfile().id);
   $("#settingsSwitchUser").onclick=()=>openModal("profileModal");
   $("#settingsAddUser").onclick=()=>openCreate();
   $("#settingsDeleteUser").onclick=deleteActiveProfileFromSettings;
