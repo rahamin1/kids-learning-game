@@ -1557,8 +1557,8 @@ function finishGame(){
     const rewards=[];
     if(newMedals>previousMedals)rewards.push({kind:"medal",icon:"🏅",text:`מדליה חדשה מספר ${newMedals}`});
     if(newTrophies>previousTrophies)rewards.push({kind:"trophy",icon:"🏆",text:`גביע חדש מספר ${newTrophies}`});
-    if(tierChanged)rewards.push({kind:"tier",icon:"★",text:`דרגת ${newTier.name} חדשה`});
-    $("#milestoneRewards").innerHTML=rewards.map(reward=>`<div class="achievement-reward ${reward.kind}"><span>${reward.icon}</span><b>${reward.text}</b></div>`).join("");
+    if(tierChanged)rewards.push({kind:"tier",icon:`<span class="achievement-tier-trophy" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M13 5h22v7h7v4c0 7-4.8 11-11 11.7A12 12 0 0 1 27 33v5h8v6H13v-6h8v-5a12 12 0 0 1-4-5.3C10.8 27 6 23 6 16v-4h7zm0 11c0 3.4 1.9 5.5 4.9 6.5A13.2 13.2 0 0 1 17 16zm22 0c0 2.2-.3 4.4-.9 6.5 3-1 4.9-3.1 4.9-6.5z"/></svg></span>`,text:"צבע חדש לפרסים שלך!"});
+    $("#milestoneRewards").innerHTML=rewards.map(reward=>`<div class="achievement-reward ${reward.kind}"><span class="achievement-icon">${reward.icon}</span><b>${reward.text}</b></div>`).join("");
     $("#milestoneTitle").textContent=newTrophies>previousTrophies ? "איזה הישג אדיר!" : "הישג חדש!";
     $("#milestoneText").textContent=`הגעתם ל־${p.stars} כוכבים בסך הכול.`;
     const milestone=$("#milestoneModal .modal");
