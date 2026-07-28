@@ -1241,8 +1241,8 @@ function renderQuestion(){
   const questionLabel=String(q.q||"");
   questionText.textContent=questionLabel;
   questionText.dir=/[\u0590-\u05FF]/.test(questionLabel)?"rtl":"ltr";
-  // Keep Latin letters and their punctuation together inside a Hebrew question.
-  // For example, H? must stay at the end of the Hebrew sentence on Android.
+  // Keep Latin letters inside Hebrew questions stable on Android. A question mark
+  // after a Latin letter is shown on its left, matching the Hebrew question layout.
   if(questionText.dir==="rtl"){
     const latinRun=/[A-Za-z0-9][A-Za-z0-9'._-]*[?!.,:;]?/g;
     const fragment=document.createDocumentFragment();
@@ -1250,7 +1250,9 @@ function renderQuestion(){
     while((match=latinRun.exec(questionLabel))){
       fragment.append(document.createTextNode(questionLabel.slice(cursor,match.index)));
       const isolated=document.createElement("bdi");
-      isolated.dir="ltr"; isolated.textContent=match[0]; fragment.append(isolated);
+      isolated.dir="ltr";
+      isolated.textContent=match[0].endsWith("?")?`?${match[0].slice(0,-1)}`:match[0];
+      fragment.append(isolated);
       cursor=match.index+match[0].length;
     }
     if(cursor){
