@@ -1171,10 +1171,11 @@ function renderDifficultyPrompt(){
   const nextLevel=prompt.currentLevel+(prompt.direction==="up"?1:-1);
   $("#difficultyPromptIcon").textContent=prompt.direction==="up"?"🚀":"🌱";
   $("#difficultyPromptEyebrow").textContent=prompt.direction==="up"?"מוכנים לאתגר חדש?":"משחקים בקצב שמתאים לכם";
-  $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מושלם פעמיים!":"נראה שהמשחק קצת מאתגר עכשיו.";
+  $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מצוין 4 פעמים!":"נראה שהמשחק קצת מאתגר עכשיו.";
+  const rtlQuestionMark="\u200F?";
   $("#difficultyPromptText").textContent=prompt.direction==="up"
-    ? `רוצה לעלות לרמה ${nextLevel} במשחק „${prompt.gameName}”`
-    : `רוצה לנסות רמה ${nextLevel} במשחק „${prompt.gameName}”`;
+    ? `רוצה לעלות לרמה ${nextLevel} במשחק „${prompt.gameName}”${rtlQuestionMark}`
+    : `רוצה לנסות רמה ${nextLevel} במשחק „${prompt.gameName}”${rtlQuestionMark}`;
   $("#difficultyPromptAccept").textContent=prompt.direction==="up"?"כן, לעלות רמה":"כן, רמה קלה יותר";
 }
 
