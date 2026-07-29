@@ -1,13 +1,13 @@
-const CACHE_NAME = "brightwood-pwa-test035";
+const CACHE_NAME = "brightwood-pwa-test036";
 const CORE_FILES = [
   "./",
   "./index.html",
   "./updates.html",
   "./remove-updates.html",
-  "./styles.css?build=test035",
-  "./games.js?build=test035",
-  "./app.js?build=test035",
-  "./manifest.webmanifest?v=0.1.23",
+  "./styles.css?build=test036",
+  "./games.js?build=test036",
+  "./difficulty-levels.js?build=test036",`n  "./app.js?build=test036",
+  "./manifest.test.webmanifest?v=0.1.33-test",
   "./assets/app-icon-192.png",
   "./assets/app-icon-512.png",
   "./assets/app-icon-star-forest.png",

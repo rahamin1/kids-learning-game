@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.32-test";
+const APP_VERSION = "0.1.33-test";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -506,8 +506,16 @@ function openPrivacyScreen(from="settingsScreen"){
 
 function activeProfile(){ return state.profiles.find(p => p.id === state.activeId); }
 const EXTENDED_LEVEL_GAME_IDS = new Set(["count","number-quantity","more-groups","number-sequence","number-line","addition","picture-subtraction","multiplication","shapes","clock","word-problems","visual-pattern"]);
+// These games have five genuinely distinct task levels. Do not offer a
+// cosmetic "next level" after the child reaches the final meaningful level.
+const FIVE_LEVEL_GAME_IDS = new Set([
+  "letter-picture","first-letter","image-word","drag-word-picture","word-categories",
+  "starts-hebrew","hebrew-word-picture","sentence-order-en","event-order","sentence-order-he",
+  "inference","true-false","story-title","living-groups","seasons","life-cycle","plant-parts",
+  "animal-food","weather","food-chain","adaptations","cause-effect"
+]);
 const DIFFICULTY_PROMPT_COOLDOWN_GAMES = 5;
-function gameMaxLevel(gameId){ return EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:9; }
+function gameMaxLevel(gameId){ return EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9; }
 function ageLevel(age){ return clamp(Number(age)||3,1,9); }
 function defaultGameLevel(gameId,age){
   if(gameId==="count"||gameId==="number-quantity")return ({3:1,4:2,5:4,6:7,7:9})[Number(age)]||1;

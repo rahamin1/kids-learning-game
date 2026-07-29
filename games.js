@@ -358,16 +358,23 @@
   }
 
   function wordQuestions(kind,level){
-    const count=clamp(8+level*2,10,englishWords.length),active=englishWords.slice(0,count);
+    const realLevel=clamp(level,1,5);
+    const count=realLevel===5?englishWords.length:clamp(6+realLevel*4,8,englishWords.length),active=englishWords.slice(0,count);
+    const choiceCount=realLevel===1?2:realLevel===2?3:4;
+    const englishLetters="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    const letterChoices=letter=>{
+      const near={A:["A","E","O","U"],B:["B","D","P","R"],C:["C","G","O","Q"],D:["D","B","P","O"],F:["F","E","P","T"],M:["M","N","W","H"],S:["S","C","Z","T"],W:["W","M","V","H"]};
+      return options(letter,realLevel>=4?(near[letter]||englishLetters):englishLetters,choiceCount);
+    };
     if(kind==="uppercase")return repeatPool(active.map(([icon,word,letter])=>make(`מצאו את האות ${letter}`,letter,options(letter,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),"",{skill:"אותיות גדולות",type:"CAPITAL LETTERS"})));
-    if(kind==="letterPicture")return repeatPool(active.map(([icon,word,letter])=>{const correct=`${icon} ${word}`;return make(`איזו מילה מתחילה באות ${letter}?`,correct,options(correct,active.map(x=>`${x[0]} ${x[1]}`)),"",{skill:"אות ומילה",type:"אות ומילה"});}));
-    if(kind==="firstLetter")return repeatPool(active.map(([icon,word,letter])=>make(`באיזו אות מתחילה המילה ${word}?`,letter,options(letter,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),icon,{skill:"אות ראשונה",type:"צליל ראשון"})));
-    if(kind==="imageWord")return repeatPool(active.map(([icon,word])=>make("איזו מילה מתאימה לתמונה?",word,options(word,active.map(x=>x[1])),icon,{skill:"אוצר מילים",type:"תמונה ומילה",word:true})));
+    if(kind==="letterPicture")return repeatPool(active.map(([icon,word,letter])=>{const correct=`${icon} ${word}`;return make(`איזו מילה מתחילה באות ${letter}?`,correct,options(correct,active.map(x=>`${x[0]} ${x[1]}`),choiceCount),realLevel===5?"":icon,{skill:"אות ומילה",type:realLevel===5?"מילה כתובה ואות":"אות ומילה"});}));
+    if(kind==="firstLetter")return repeatPool(active.map(([icon,word,letter])=>make(`באיזו אות מתחילה המילה ${word}?`,letter,letterChoices(letter),realLevel===5?"":icon,{skill:"אות ראשונה",type:realLevel===5?"מילה כתובה":"צליל ראשון"})));
+    if(kind==="imageWord")return repeatPool(active.map(([icon,word,,cat])=>{const pool=realLevel>=4?active.filter(x=>x[3]===cat).map(x=>x[1]):active.map(x=>x[1]);return make("איזו מילה מתאימה לתמונה?",word,options(word,pool,choiceCount),icon,{skill:"אוצר מילים",type:realLevel>=4?"מילים מאותה קבוצה":"תמונה ומילה",word:true});}));
     if(kind==="missingEnglish")return repeatPool(active.filter(x=>x[1].length<=clamp(3+Math.floor(level/2),4,8)).map(([icon,word])=>{const pos=level>=7?1+word.length%Math.max(1,word.length-2):word.length-1,correct=word[pos],masked=word.slice(0,pos)+"_"+word.slice(pos+1);return make("איזו אות חסרה?",correct,options(correct,"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),`${icon}  ${masked}`,{skill:"איות",type:"אות חסרה",word:true});}));
     if(kind==="buildEnglish")return repeatPool(active.filter(x=>x[1].length<=clamp(3+Math.floor(level/2),4,8)).map(([icon,word])=>make("בנו את המילה מהאותיות",word,[],icon,{skill:"איות",type:"בונים מילה",mode:"build",tokens:shuffle([...word,...shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")).slice(0,clamp(level-3,1,4))]),joinWith:"",word:true})));
-    if(kind==="dragEnglish")return repeatPool(active.map(([icon,word])=>make(`לחצו על התמונה המתאימה למילה ${word}`,icon,options(icon,active.map(x=>x[0])),"",{skill:"התאמה",type:"מילה ותמונה"})));
+    if(kind==="dragEnglish")return repeatPool(active.map(([icon,word,,cat])=>{const pool=realLevel>=4?active.filter(x=>x[3]===cat).map(x=>x[0]):active.map(x=>x[0]);return make(`לחצו על התמונה המתאימה למילה ${word}`,icon,options(icon,pool,choiceCount),"",{skill:"התאמה",type:realLevel>=4?"תמונות מאותה קבוצה":"מילה ותמונה"});}));
     if(kind==="listenEnglish")return repeatPool(animals.slice(0,count).map(animal=>make("לחצו על הרמקול ובחרו את בעל החיים ששמעתם",animal.icon,options(animal.icon,animals.map(x=>x.icon)),"🔊",{skill:"האזנה",type:"לחצו ושמעו",audio:{kind:"speech",text:animal.en}})));
-    if(kind==="englishCategories"){const categoryPools={ANIMAL:["DOG","CAT","BEAR","FISH","LION","FROG","OWL"],FOOD:["APPLE","EGG","JUICE","BANANA","MANGO","CHEESE"],OBJECT:["GIFT","HAT","KEY","CAR","DRUM"],NATURE:["SUN","MOON","TREE","STAR"]},categoryIcons={ANIMAL:"🐾",FOOD:"🍎",OBJECT:"🎒",NATURE:"🌿"};return repeatPool(active.map(([icon,word,letter,cat])=>{const distractors=Object.entries(categoryPools).filter(([key])=>key!==cat).flatMap(([,words])=>words);return make(`איזו מילה שייכת לקטגוריה ${cat}?`,word,options(word,distractors),categoryIcons[cat]||"✨",{skill:"קטגוריות",type:"מיון מילים"});}));}
+    if(kind==="englishCategories"){const categoryPools={ANIMAL:["DOG","CAT","BEAR","FISH","LION","FROG","OWL"],FOOD:["APPLE","EGG","JUICE","BANANA","MANGO","CHEESE"],OBJECT:["GIFT","HAT","KEY","CAR","DRUM"],NATURE:["SUN","MOON","TREE","STAR"]},categoryIcons={ANIMAL:"🐾",FOOD:"🍎",OBJECT:"🎒",NATURE:"🌿"};return repeatPool(active.map(([icon,word,letter,cat])=>{if(realLevel===5)return make(`לאיזו קטגוריה שייכת המילה ${word}?`,cat,options(cat,Object.keys(categoryPools),4),categoryIcons[cat]||"✨",{skill:"קטגוריות",type:"מיון הפוך"});const distractors=Object.entries(categoryPools).filter(([key])=>key!==cat).flatMap(([,words])=>words);return make(`איזו מילה שייכת לקטגוריה ${cat}?`,word,options(word,distractors,choiceCount),categoryIcons[cat]||"✨",{skill:"קטגוריות",type:"מיון מילים"});}));}
     return [];
   }
   function memoryEnglish(level){
@@ -376,12 +383,21 @@
     return Array.from({length:12},(_,i)=>{const selected=Array.from({length:pairCount},(_,j)=>active[(i*2+j)%active.length]);return make("התאימו בין כל תמונה למילה שלה","הושלם",[],"",{skill:"זיכרון",type:"משחק זיכרון",mode:"memory",pairs:selected.map(x=>[x[0],x[1]])});});
   }
   function sentenceEnglish(level){
-    const sentences=[["I","SEE","A","CAT"],["THE","DOG","CAN","RUN"],["I","LIKE","RED","APPLES"],["THE","SUN","IS","HOT"],["A","FROG","CAN","JUMP"],["THE","BIRD","CAN","FLY"],["WE","PLAY","WITH","A","BALL"],["THE","LION","IS","BIG"]];
-    return repeatPool(sentences.map(tokens=>make("סדרו את המילים למשפט",tokens.join(" "),[],"",{skill:"משפטים",type:"בונים משפט",mode:"build",tokens:shuffle(tokens),joinWith:" ",word:true})));
+    const tiers=[
+      [["I","RUN"],["THE","DOG","RUNS"]],
+      [["I","SEE","A","CAT"],["THE","SUN","IS","HOT"]],
+      [["A","FROG","CAN","JUMP"],["THE","BIRD","CAN","FLY"]],
+      [["I","LIKE","RED","APPLES"],["WE","PLAY","WITH","A","BALL"]],
+      [["THE","LION","IS","BIG","AND","STRONG"],["THE","SMALL","BIRD","CAN","FLY","HIGH"]]
+    ];
+    const realLevel=clamp(level,1,5),sentences=tiers[realLevel-1];
+    return repeatPool(sentences.map(tokens=>make("סדרו את המילים למשפט",tokens.join(" "),[],"",{skill:"משפטים",type:`בונים משפט — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ",word:true})));
   }
 
   function hebrewRecognition(kind,level){
-    const active=hebrewWords.slice(0,clamp(8+level*2,10,hebrewWords.length));
+    const realLevel=clamp(level,1,5);
+    const active=hebrewWords.slice(0,realLevel===5?hebrewWords.length:clamp(6+realLevel*3,8,hebrewWords.length));
+    const choiceCount=realLevel===1?2:realLevel===2?3:4;
     if(kind==="samePicture"){
       const groups=[
         ["🐶","🐱","🐟","🦁","🐘"],
@@ -393,8 +409,8 @@
       return repeatPool(active.map(([icon])=>make("איזו תמונה זהה לתמונה הגדולה?",icon,options(icon,level>=4?similarPool(icon):active.map(x=>x[0])),icon,{skill:"הבחנה חזותית",type:"תמונות זהות"})));
     }
     if(kind==="hebrewLetter")return repeatPool(heAlphabet.slice(0,clamp(8+level*2,10,heAlphabet.length)).map(letter=>make(`מצאו את האות ${letter}`,letter,options(letter,heAlphabet),"",{skill:"אותיות",type:"זיהוי אות",word:true})));
-    if(kind==="startsHebrew")return repeatPool(active.map(([icon,word,letter])=>{const correct=`${icon} ${word}`;return make(`איזו מילה מתחילה באות ${letter}?`,correct,options(correct,active.filter(x=>x[2]!==letter).map(x=>`${x[0]} ${x[1]}`)),"",{skill:"צליל ראשון",type:"מתחיל באות"});}));
-    if(kind==="hebrewWordPicture")return repeatPool(active.map(([icon,word])=>make("איזו מילה מתאימה לתמונה?",word,options(word,active.map(x=>x[1])),icon,{skill:"מילים",type:"מילה ותמונה"})));
+    if(kind==="startsHebrew")return repeatPool(active.map(([icon,word,letter])=>{const correct=`${icon} ${word}`;return make(`איזו מילה מתחילה באות ${letter}?`,correct,options(correct,active.filter(x=>x[2]!==letter).map(x=>`${x[0]} ${x[1]}`),choiceCount),realLevel===5?"":icon,{skill:"צליל ראשון",type:realLevel===5?"מילה כתובה ואות":"מתחיל באות"});}));
+    if(kind==="hebrewWordPicture")return repeatPool(active.map(([icon,word,letter])=>{const similar=active.filter(x=>x[2]===letter).map(x=>x[1]);const pool=realLevel>=4&&similar.length>=choiceCount?similar:active.map(x=>x[1]);return make("איזו מילה מתאימה לתמונה?",word,options(word,pool,choiceCount),icon,{skill:"מילים",type:realLevel>=4?"מילים באותה אות":"מילה ותמונה"});}));
     if(kind==="missingHebrew")return repeatPool(active.filter(x=>x[1].length>=3).map(([icon,word])=>{const pos=level>=6?1:word.length-1,correct=word[pos],masked=word.slice(0,pos)+"_"+word.slice(pos+1);return make("איזו אות חסרה?",correct,options(correct,heAlphabet),`${icon}  ${masked}`,{skill:"איות",type:"אות חסרה",word:true});}));
     if(kind==="syllables"){const syllableWords=[
       ["🐶","כלב","כֶּ · לֶב"],["🐱","חתול","חָ · תוּל"],["🦁","אריה","אַר · יֵה"],
@@ -453,23 +469,42 @@
         ["איילת לבשה סינר, ערבבה קמח וביצים והכניסה תבנית לתנור. מה אפשר להבין?","איילת אפתה משהו",["איילת עבדה במטבח","היו קמח וביצים","התנור היה חם"]],
         ["אורי כיבה את הטלוויזיה, סידר את המשחקים והלך להתקלח. מה אפשר להבין?","אורי התכונן לשינה",["אורי סידר את המשחקים","אורי היה בבית","אורי התקלח"]]
       ];
-      return questions.map(([q,correct,wrong])=>make(q,correct,shuffle([correct,...wrong]),"📖",{skill:"הסקת מסקנות",type:"רמזים מהטקסט"}));
+      const realLevel=clamp(level,1,5);
+      const start=(realLevel-1)*6;
+      return repeatPool(questions.slice(start,start+6).map(([q,correct,wrong])=>make(q,correct,shuffle([correct,...wrong]),"📖",{skill:"הסקת מסקנות",type:`רמזים מהטקסט — רמה ${realLevel}`})));
     }
-    readingStories.forEach((story,i)=>{
+    const realLevel=clamp(level,1,5);
+    const storyTiers=[[0,2],[3,4],[1,5],[6,7],[1,4,5,6]];
+    const activeStories=storyTiers[realLevel-1].map(index=>readingStories[index]);
+    activeStories.forEach((story,i)=>{
       if(kind==="inference")out.push(make(`${story.text} מה אפשר להבין?`,story.inference,options(story.inference,story.inferenceOptions||[]), "📖",{skill:"הסקת מסקנות",type:"רמזים מהטקסט"}));
       if(kind==="findInfo")out.push(make(`${story.text} איזה פרט מופיע בטקסט?`,story.info,options(story.info,readingStories.map(x=>x.info)),"📖",{skill:"איתור מידע",type:"מוצאים פרט"}));
-      if(kind==="storyTitle")out.push(make(`${story.text} איזו כותרת מתאימה?`,story.title,options(story.title,readingStories.map(x=>x.title)),"📰",{skill:"כותרת",type:"כותרת לסיפור"}));
-      if(kind==="trueFalse"){const trueStatement=i%2===0,statement=trueStatement?story.check:story.falseCheck;out.push(make(`${story.text} האם נכון לומר: “${statement}”?`,trueStatement?"נכון":"לא נכון",["נכון","לא נכון","אין מספיק מידע","אולי"],"✅",{skill:"הבנת הנקרא",type:"נכון או לא נכון"}));}
+      if(kind==="storyTitle")out.push(make(`${story.text} איזו כותרת מתאימה?`,story.title,options(story.title,readingStories.map(x=>x.title),realLevel<=2?2:realLevel===3?3:4),"📰",{skill:"כותרת",type:`כותרת לסיפור — רמה ${realLevel}`}));
+      if(kind==="trueFalse"){const trueStatement=i%2===0,statement=trueStatement?story.check:story.falseCheck;const answers=realLevel<=2?["נכון","לא נכון"]:["נכון","לא נכון","אין מספיק מידע","אולי"];out.push(make(`${story.text} האם נכון לומר: “${statement}”?`,trueStatement?"נכון":"לא נכון",answers,"✅",{skill:"הבנת הנקרא",type:`נכון או לא נכון — רמה ${realLevel}`}));}
     });
     return repeatPool(out);
   }
-  function eventOrder(){
-    const sequences=[["זורעים זרע","משקים","נובט נבט"],["גורבים גרביים","נועלים נעליים","יוצאים"],["מערבבים בצק","אופים","אוכלים עוגה"],["שוטפים ידיים","מתיישבים","אוכלים"],["פותחים ספר","קוראים","מסיימים סיפור"],["אורזים תיק","יוצאים מהבית","מגיעים לבית הספר"],["קמים בבוקר","מצחצחים שיניים","אוכלים ארוחת בוקר"],["מציירים ציור","צובעים","תולים על הקיר"],["ממלאים בקבוק","יוצאים לטיול","שותים מים"],["אוספים צעצועים","מסדרים במדף","החדר נקי"],["מכניסים כביסה","מפעילים מכונה","תולים לייבוש"],["שמים קסדה","עולים על אופניים","מתחילים לרכוב"]];
-    return repeatPool(sequences.map(tokens=>make("סדרו את האירועים",tokens.join(" ← "),[],"",{skill:"רצף אירועים",type:"מה קודם?",mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));
+  function eventOrder(level){
+    const tiers=[
+      [["גורבים גרביים","נועלים נעליים"],["זורעים זרע","נובט נבט"]],
+      [["שוטפים ידיים","מתיישבים","אוכלים"],["פותחים ספר","קוראים","מסיימים סיפור"]],
+      [["קמים בבוקר","מצחצחים שיניים","אוכלים ארוחת בוקר"],["מערבבים בצק","אופים","אוכלים עוגה"]],
+      [["אורזים תיק","יוצאים מהבית","מגיעים לבית הספר","מתחילים ללמוד"],["מכניסים כביסה","מפעילים מכונה","תולים לייבוש","מקפלים"]],
+      [["ממלאים בקבוק","אורזים תיק","יוצאים לטיול","שותים מים","חוזרים הביתה"],["אוספים צעצועים","ממיינים לקופסאות","מסדרים במדף","החדר נקי","אפשר לשחק שוב"]]
+    ];
+    const realLevel=clamp(level,1,5),sequences=tiers[realLevel-1];
+    return repeatPool(sequences.map(tokens=>make("סדרו את האירועים",tokens.join(" ← "),[],"",{skill:"רצף אירועים",type:`מה קודם? — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));
   }
-  function sentenceHebrew(){
-    const sentences=[["הילד","אוכל","תפוח"],["החתול","ישן","על הכיסא"],["נועה","קוראת","ספר"],["הכלב","רץ","בגינה"],["הציפור","עפה","בשמיים"],["אבא","מכין","סלט"],["הילדים","משחקים","בכדור"],["הארנב","קופץ","בחצר"],["אמא","שותלת","פרח"],["הילדה","מציירת","שמש"],["הסבא","קורא","עיתון"],["הדג","שוחה","במים"]];
-    return repeatPool(sentences.map(tokens=>make("סדרו את המילים למשפט",tokens.join(" "),[],"",{skill:"משפטים",type:"בונים משפט",mode:"build",tokens:shuffle(tokens),joinWith:" ",word:true})));
+  function sentenceHebrew(level){
+    const tiers=[
+      [["נועה","קוראת","ספר"],["הילד","אוכל","תפוח"]],
+      [["החתול","ישן","על הכיסא"],["הכלב","רץ","בגינה"]],
+      [["הילדים","משחקים","בכדור","בחצר"],["הציפור","עפה","גבוה","בשמיים"]],
+      [["אמא","שותלת","פרח","אדום","בגינה"],["הילדה","מציירת","שמש","צהובה","גדולה"]],
+      [["הסבא","קורא","עיתון","בבוקר","ליד החלון"],["הדג","שוחה","לאט","במים","הצלולים"]]
+    ];
+    const realLevel=clamp(level,1,5),sentences=tiers[realLevel-1];
+    return repeatPool(sentences.map(tokens=>make("סדרו את המילים למשפט",tokens.join(" "),[],"",{skill:"משפטים",type:`בונים משפט — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ",word:true})));
   }
   function wordSearch(level){
     const words=hebrewWords.map(x=>x[1]).filter(w=>w.length>=3&&w.length<=clamp(3+Math.floor(level/2),4,6));
@@ -502,14 +537,15 @@
       };
       return repeatPool(familiarAnimals.map(a=>make(babyQuestionText(a),a.baby,options(a.baby,familiarAnimals.map(x=>x.baby)),a.icon,{skill:"משפחות בעלי חיים",type:"גור ובוגר"})));
     }
-    if(kind==="livingGroups"){const items=[["🐶","חי"],["🌳","צומח"],["⚽","דומם"],["🐝","חי"],["🌻","צומח"],["🚗","דומם"],["🐋","חי"],["🌵","צומח"],["💎","דומם"]];return repeatPool(items.map(([icon,group])=>make("לאיזו קבוצה זה שייך?",group,["חי","צומח","דומם","לא בטוח"],icon,{skill:"מיון בטבע",type:"חי, צומח או דומם"})));}
+    if(kind==="livingGroups"){const items=[["🐶","חי"],["🌳","צומח"],["⚽","דומם"],["🐝","חי"],["🌻","צומח"],["🚗","דומם"],["🐋","חי"],["🌵","צומח"],["💎","דומם"]],realLevel=clamp(level,1,5),active=items.slice(0,realLevel===5?items.length:2+realLevel*2),answerCount=realLevel===1?2:realLevel===2?3:4;return repeatPool(active.map(([icon,group])=>make("לאיזו קבוצה זה שייך?",group,options(group,["חי","צומח","דומם","לא בטוח"],answerCount),realLevel===5?"":icon,{skill:"מיון בטבע",type:realLevel===5?"מיון לפי תיאור":"חי, צומח או דומם"})));}
     if(kind==="plantFood"){const data=[["🍎","עץ תפוח","גדל"],["🍐","עץ אגס","גדל"],["🥭","עץ מנגו","גדל"],["🥥","דקל קוקוס","גדל"],["🥕","צמח גזר","גדל"],["🌽","צמח תירס","גדל"],["🍅","צמח עגבנייה","גדלה"],["🍇","גפן","גדלים"]];return repeatPool(data.map(([food,plant,verb])=>make(`על איזה צמח ${verb} ${food}?`,plant,options(plant,data.map(x=>x[1])),"",{skill:"צמחים ומזון",type:"מה גדל על הצמח?"})));}
-    if(kind==="seasons")return repeatPool(seasons.flatMap(([season,icon,activity,activityIcon])=>[make(`לאיזו עונה מתאים הסמל?`,season,options(season,seasons.map(x=>x[0])),icon,{skill:"עונות",type:"עונות השנה"}),make(`באיזו עונה מתאים: ${activity}?`,season,options(season,seasons.map(x=>x[0])),activityIcon,{skill:"עונות",type:"עונות השנה"})]));
-    if(kind==="lifeCycle"){const cycles=[["פרפר",["ביצה","זחל","גולם","פרפר"]],["צפרדע",["ביצה","ראשן","צפרדע צעירה","צפרדע"]],["צמח",["זרע","נבט","צמח","פרח"]],["תרנגולת",["ביצה","אפרוח","תרנגולת צעירה","תרנגולת"]],["עץ תפוח",["זרע","נבט","עץ צעיר","עץ עם תפוחים"]],["דבורה",["ביצה","זחל","גולם","דבורה"]],["שעועית",["זרע","נבט","עלים","תרמיל"]],["עגבנייה",["זרע","נבט","פרח","עגבנייה"]]];return repeatPool(cycles.map(([name,tokens])=>make(`סדרו את מחזור החיים של ${name}`,tokens.join(" ← "),[],"",{skill:"מחזורי חיים",type:"סדר שלבים",mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));}
-    if(kind==="plantParts"){const data=[["שורש","סופג מים מהאדמה","⬇️"],["גבעול","מחזיק את הצמח","🌱"],["עלה","קולט אור","🍃"],["פרח","עוזר ליצור זרעים","🌸"],["פרי","שומר על הזרעים","🍎"]];return repeatPool(data.flatMap(([part,role,icon])=>[make(`איזה חלק בצמח ${role}?`,part,options(part,data.map(x=>x[0])),icon,{skill:"חלקי הצמח",type:"חלק ותפקיד"}),make(`מה תפקיד ה${part}?`,role,options(role,data.map(x=>x[1])),icon,{skill:"חלקי הצמח",type:"חלק ותפקיד"})]));}
-    if(kind==="animalFood")return repeatPool(animals.map(a=>make(`מה המזון של ${a.he}?`,a.food,options(a.food,animals.map(x=>x.food)),a.icon,{skill:"תזונת בעלי חיים",type:"מה אוכלים?"})));
-    if(kind==="weather"){const data=[["גשום","מעיל גשם","🌧️"],["שמשי","כובע שמש","☀️"],["קר","צעיף","❄️"],["סוער","להישאר במקום מוגן","⛈️"],["חם","לשתות מים","🌡️"]];return repeatPool(data.flatMap(([weather,choice,icon])=>[make(`מה מתאים ליום ${weather}?`,choice,options(choice,data.map(x=>x[1])),icon,{skill:"מזג אוויר",type:"מתלבשים נכון"}),make("איזה מזג אוויר מוצג?",weather,options(weather,data.map(x=>x[0])),icon,{skill:"מזג אוויר",type:"מזהים מזג אוויר"})]));}
+    if(kind==="seasons"){const realLevel=clamp(level,1,5),answerCount=realLevel===1?2:realLevel===2?3:4;const rows=seasons.slice(0,realLevel===5?4:Math.max(2,realLevel));return repeatPool(rows.flatMap(([season,icon,activity,activityIcon])=>realLevel===1?[make("לאיזו עונה מתאים הסמל?",season,options(season,seasons.map(x=>x[0]),answerCount),icon,{skill:"עונות",type:"מזהים עונה"})]:[make(`באיזו עונה מתאים: ${activity}?`,season,options(season,seasons.map(x=>x[0]),answerCount),activityIcon,{skill:"עונות",type:realLevel>=4?"בוחרים פעילות מתאימה":"עונות השנה"}),make(`לאיזו עונה מתאים הסמל?`,season,options(season,seasons.map(x=>x[0]),answerCount),icon,{skill:"עונות",type:"עונות השנה"})]));}
+    if(kind==="lifeCycle"){const tiers=[[["זרע","נבט","פרח"]],[["ביצה","זחל","פרפר"],["זרע","נבט","צמח","פרח"]],[["ביצה","זחל","גולם","פרפר"],["ביצה","ראשן","צפרדע צעירה","צפרדע"]],[["זרע","נבט","עץ צעיר","עץ עם תפוחים"],["ביצה","אפרוח","תרנגולת צעירה","תרנגולת"]],[["ביצה","זחל","גולם","דבורה"],["זרע","נבט","עלים","תרמיל"],["זרע","נבט","פרח","עגבנייה"]]],realLevel=clamp(level,1,5);return repeatPool(tiers[realLevel-1].map(tokens=>make("סדרו את מחזור החיים",tokens.join(" ← "),[],"",{skill:"מחזורי חיים",type:`סדר שלבים — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));}
+    if(kind==="plantParts"){const data=[["שורש","סופג מים מהאדמה","⬇️"],["גבעול","מחזיק את הצמח","🌱"],["עלה","קולט אור","🍃"],["פרח","עוזר ליצור זרעים","🌸"],["פרי","שומר על הזרעים","🍎"]],realLevel=clamp(level,1,5),answerCount=realLevel===1?2:realLevel===2?3:4,active=data.slice(0,Math.min(data.length,1+realLevel));return repeatPool(active.flatMap(([part,role,icon])=>realLevel<=2?[make(`איזה חלק בצמח ${role}?`,part,options(part,data.map(x=>x[0]),answerCount),icon,{skill:"חלקי הצמח",type:"חלק ותפקיד"})]:[make(`איזה חלק בצמח ${role}?`,part,options(part,data.map(x=>x[0]),answerCount),icon,{skill:"חלקי הצמח",type:"חלק ותפקיד"}),make(`מה תפקיד ה${part}?`,role,options(role,data.map(x=>x[1]),answerCount),icon,{skill:"חלקי הצמח",type:"חלק ותפקיד"})]));}
+    if(kind==="animalFood"){const realLevel=clamp(level,1,5),answerCount=realLevel===1?2:realLevel===2?3:4,active=animals.slice(0,realLevel===5?animals.length:3+realLevel*2);return repeatPool(active.map(a=>make(`מה המזון של ${a.he}?`,a.food,options(a.food,animals.map(x=>x.food),answerCount),a.icon,{skill:"תזונת בעלי חיים",type:realLevel>=4?"מזון לבעל חיים פחות מוכר":"מה אוכלים?"})));}
+    if(kind==="weather"){const data=[["גשום","מעיל גשם","🌧️"],["שמשי","כובע שמש","☀️"],["קר","צעיף","❄️"],["סוער","להישאר במקום מוגן","⛈️"],["חם","לשתות מים","🌡️"]],realLevel=clamp(level,1,5),answerCount=realLevel===1?2:realLevel===2?3:4,active=data.slice(0,realLevel);return repeatPool(active.flatMap(([weather,choice,icon])=>realLevel===1?[make("איזה מזג אוויר מוצג?",weather,options(weather,data.map(x=>x[0]),answerCount),icon,{skill:"מזג אוויר",type:"מזהים מזג אוויר"})]:[make(`מה מתאים ליום ${weather}?`,choice,options(choice,data.map(x=>x[1]),answerCount),icon,{skill:"מזג אוויר",type:realLevel>=4?"בוחרים פעולה בטוחה":"מתלבשים נכון"}),make("איזה מזג אוויר מוצג?",weather,options(weather,data.map(x=>x[0]),answerCount),icon,{skill:"מזג אוויר",type:"מזהים מזג אוויר"})]));}
     if(kind==="foodChain"){const chains=[["🌿","🐛","🐦"],["🌾","🐭","🦉"],["🌱","🐰","🦊"],["🌿","🦌","🦁"],["🦠","🐟","🐬"],["🌻","🐝","🦎"],["🍎","🐛","🐦"],["אצה","🐟","🐬"],["🌾","🐔","🦊"],["🥕","🐰","🦉"]];return repeatPool(chains.map(tokens=>make("סדרו את שרשרת המזון",tokens.join(" ← "),[],"",{skill:"שרשרת מזון",type:"מי אוכל את מי?",mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));}
+    if(kind==="foodChain"){const tiers=[[["🌿","🐛"]],[["🌿","🐛","🐦"],["🌾","🐭","🦉"]],[["🌱","🐰","🦊"],["🌿","🦌","🦁"]],[["🌻","🐝","🦎","🦉"],["אצה","🐟","🐬","כריש"]],[["🌿","🐛","🐦","🦅","מפרקים"],["🌾","🐭","נחש","ינשוף","מפרקים"]]],realLevel=clamp(level,1,5);return repeatPool(tiers[realLevel-1].map(tokens=>make("סדרו את שרשרת המזון",tokens.join(" ← "),[],"",{skill:"שרשרת מזון",type:`מי אוכל את מי? — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));}
     if(kind==="adaptations"){const data=[
       ["🐫","למה משמשת הדבשת של הגמל?","לשרוד במדבר","לשמור על חום הגוף|למאגר מים במדבר|להפחיד אויבים"],["🐧","למה משמשת שכבת השומן של הפינגווין?","לשמור על חום הגוף","לשחות למרחקים ארוכים|להגן עליו מפני אויבים|לשרוד כשאין מזון"],["🦆","למה משמשים קרומי השחייה של הברווז?","לשחות","להגן על הרגליים מפני פגיעה|כדי שיוכל לישון אפילו במים|לחמם את הגוזלים"],["🦎","למה משמשים צבעי ההסוואה של הלטאה?","להסתתר","להפחיד אויבים|למצוא חן בעיני בני זוג|למצוא חן בעיני בנות זוג"],["🦉","למה משמשות העיניים הגדולות של הינשוף?","לראות היטב בלילה","להפחיד אויבים|לראות היטב ביום|להיראות יפה יותר"],["🐟","למה משמשים הזימים של הדג?","לנשום במים","לנשום מחוץ למים|להגן עליו|לחמם את הדגיגונים"],["🦒","למה משמש הצוואר הארוך של הג'ירפה?","להגיע לעלים גבוהים","לשתות בלי להיכנס למים|להיראות יפה יותר|לראות למרחוק"],["🐘","למה משמש החדק של הפיל?","לשתות ולאסוף עשבים ופירות","להשמיע קולות אזהרה חזקים|לחבק את הפילפילונים|לשרוד בערבה"],["🐝","למה משמשות הכנפיים של הדבורה?","לעוף מפרח לפרח","לקרר את הגוף כשחם|להגן על הדבורים הקטנות|לחמם את הגוף כשקר"],["🐰","למה משמשות האוזניים הארוכות של הארנב?","לשמוע סכנה","לקרר את הגוף כשחם|לחמם את הגוף כשקר|לחמם את הארנבונים"],
       ["🐢","למה משמש השריון של הצב?","להגן עליו מפני סכנה","לחמם את הצבונים|להיראות יפה יותר|לאגור מים"],["🦔","למה משמשים הקוצים של הקיפוד?","להגן עליו מפני טורפים","לחמם את הקיפודונים|לשמור על חום הגוף|לקרר את הגוף כשחם"],["🦌","למה משמשות הקרניים של האייל?","להתגונן ולהרשים איילים אחרים","לשמור על חום הגוף|לאגור מים|לחפור בחול"],["🐻","למה משמשת הפרווה העבה של הדוב?","לחמם את הגוף כשקר","לאגור מזון|לאגור מים|לקרר את הגוף כשחם"],["🦓","למה משמשים הפסים של הזברה?","להגן עליה מפני חרקים עוקצים","זו הפיג'מה שלה|לבלבל טורפים|להיראות יפה"],["🐦","למה משמש המקור החזק של הנקר?","לנקר בגזעי עצים ולמצוא מזון","להגנה מפני אויבים|לשתות מים|להיראות יפה"],["🦆","למה משמש המקור הרחב של הברווז?","לסנן מזון מן המים","לשחייה|לשתיית מים|לליטוף הברווזונים"],["🦎","למה משמשת הלשון הארוכה של הזיקית?","לתפוס חרקים","לשתות מים|ללקק את הזיקיות הקטנות|לנקות את הגוף"],["🐜","למה משמשת הלשון הארוכה של דב הנמלים?","לתפוס נמלים וטרמיטים","להגיע לצוף שבתוך פרחים|לשתות מים|לשמירה על חום הגוף"],["🦚","למה משמש הזנב המרשים של הטווס?","להרשים טווסים אחרים","לקרר את הגוף|להגנה מפני אויבים|לחמם את הטווסונים"],
