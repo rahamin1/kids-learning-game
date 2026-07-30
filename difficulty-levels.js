@@ -87,7 +87,7 @@
         const answer = `${numerator}/${denominator}`;
         const colorIndex = index % fractionColors.length;
         return {
-          ...question(`איזה חלק צבוע ב${fractionColors[colorIndex]}?`, answer, choices(answer, allFractions, 4), "●".repeat(numerator) + "○".repeat(denominator - numerator), "שברים", `איזה חלק זה? — רמה ${fractionLevel}`),
+          ...question(`איזה חלק צבוע ב${fractionColors[colorIndex]}?`, answer, choices(answer, allFractions, 4), "●".repeat(numerator) + "○".repeat(denominator - numerator), "שברים", fractionLevel === 9 ? "שברים מתקדמים" : `איזה חלק זה? — רמה ${fractionLevel}`),
           fractionColor: fractionColorClasses[colorIndex]
         };
       }));
