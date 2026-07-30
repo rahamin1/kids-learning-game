@@ -21,19 +21,61 @@
     [["לא משקים צמח","הצמח נובל"],["מערבבים כחול וצהוב","נוצר ירוק"]],
     [["זורקים כדור למעלה","הכדור נופל בחזרה"],["שמים זרעים באדמה ומשקים","יכולים לצמוח נבטים"]]
   ];
+  const fractionLevels = [
+    [[1,2],[1,4]],
+    [[3,4],[1,3]],
+    [[2,3]],
+    [[1,5],[2,5]],
+    [[3,5],[4,5]],
+    [[1,6],[2,6],[3,6],[4,6],[5,6]],
+    [[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],
+    [[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8]],
+    [[1,6],[3,6],[5,6],[1,7],[4,7],[6,7],[1,8],[3,8],[5,8],[7,8]]
+  ];
+  const fractionColors = ["כחול","אדום","סגול","ירוק","כתום"];
+  const fractionColorClasses = ["blue","red","purple","green","orange"];
+  const livingItems = [
+    ["🐶","כלב","חי"],["🌳","עץ","צומח"],["⚽","כדור","דומם"],
+    ["🐝","דבורה","חי"],["🌻","חמנייה","צומח"],["🚗","מכונית","דומם"],
+    ["🐋","לווייתן","חי"],["🌵","קקטוס","צומח"],["💎","יהלום","דומם"]
+  ];
 
   window.KIDS_GAMES.build = (gameId, level, profile) => {
     const realLevel = clamp(Number(level) || 1, 1, 5);
     let pool;
-    if (gameId === "adaptations") {
+    if (gameId === "living-groups") {
+      const active = livingItems.slice(0, Math.min(livingItems.length, 2 + realLevel * 2));
+      const answerCount = realLevel === 1 ? 2 : realLevel === 2 ? 3 : 4;
+      pool = repeat(active.map(([visual, label, answer]) => question(
+        realLevel === 5 ? `לאיזו קבוצה שייך ${label}?` : "לאיזו קבוצה זה שייך?",
+        answer,
+        choices(answer, ["חי","צומח","דומם","לא בטוח"], answerCount),
+        realLevel === 5 ? "" : visual,
+        "מיון בטבע",
+        realLevel === 5 ? "מיון לפי מילה" : "חי, צומח או דומם"
+      )));
+    } else if (gameId === "adaptations") {
       const answerCount = realLevel === 1 ? 2 : realLevel === 2 ? 3 : 4;
       pool = repeat(adaptations[realLevel - 1].map(([visual, q, correct, wrong]) => question(q, correct, choices(correct, wrong, answerCount), visual, "התאמה לסביבה", `תכונה ותפקיד — רמה ${realLevel}`)));
     } else if (gameId === "cause-effect") {
       const answerCount = realLevel === 1 ? 2 : realLevel === 2 ? 3 : 4;
       const allEffects = causes.flatMap(tier => tier.map(([, effect]) => effect));
       pool = repeat(causes[realLevel - 1].map(([cause, effect]) => question(`מה יקרה אם ${cause}?`, effect, choices(effect, allEffects, answerCount), "🧪", "סיבה ותוצאה", `חושבים כמו מדענים — רמה ${realLevel}`)));
+    } else if (gameId === "fractions") {
+      const fractionLevel = clamp(Number(level) || 1, 1, 9);
+      const active = fractionLevels[fractionLevel - 1];
+      const allFractions = fractionLevels.flat().map(([numerator, denominator]) => `${numerator}/${denominator}`);
+      pool = repeat(active.map(([numerator, denominator], index) => {
+        const answer = `${numerator}/${denominator}`;
+        const colorIndex = index % fractionColors.length;
+        return {
+          ...question(`איזה חלק צבוע ב${fractionColors[colorIndex]}?`, answer, choices(answer, allFractions, 4), "●".repeat(numerator) + "○".repeat(denominator - numerator), "שברים", `איזה חלק זה? — רמה ${fractionLevel}`),
+          fractionColor: fractionColorClasses[colorIndex]
+        };
+      }));
     }
     if (!pool) return originalBuild(gameId, level, profile);
-    return pool.map((item, index) => ({ ...item, id: `${gameId}-${realLevel}-${index}`, gameId }));
+    const idLevel = gameId === "fractions" ? clamp(Number(level) || 1, 1, 9) : realLevel;
+    return pool.map((item, index) => ({ ...item, id: `${gameId}-${idLevel}-${index}`, gameId }));
   };
 })();
