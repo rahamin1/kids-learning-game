@@ -122,8 +122,15 @@
       pool = repeat(adaptations[realLevel - 1].map(([visual, q, correct, wrong]) => question(q, correct, choices(correct, wrong, answerCount), visual, "התאמה לסביבה", `תכונה ותפקיד — רמה ${realLevel}`)));
     } else if (gameId === "cause-effect") {
       const answerCount = realLevel === 1 ? 2 : realLevel === 2 ? 3 : 4;
-      const allEffects = causes.flatMap(tier => tier.map(([, effect]) => effect));
-      pool = repeat(causes[realLevel - 1].map(([cause, effect]) => question(`מה יקרה אם ${cause}?`, effect, choices(effect, allEffects, answerCount), "🧪", "סיבה ותוצאה", `חושבים כמו מדענים — רמה ${realLevel}`)));
+      const allRows = causes.flat();
+      const active = causes[realLevel - 1];
+      const allEffects = allRows.map(([, effect]) => effect);
+      const allCauses = allRows.map(([cause]) => cause);
+      pool = repeat(active.flatMap(([cause, effect]) => [
+        question(`מה יקרה אם ${cause}?`, effect, choices(effect, allEffects, answerCount), "🧪", "סיבה ותוצאה", `תוצאה — רמה ${realLevel}`),
+        question(`מה הסיבה לכך ש${effect}?`, cause, choices(cause, allCauses, answerCount), "🧪", "סיבה ותוצאה", `סיבה — רמה ${realLevel}`),
+        question(`איזו פעולה יכולה לגרום לכך ש${effect}?`, cause, choices(cause, allCauses, answerCount), "🧪", "סיבה ותוצאה", `מוצאים סיבה — רמה ${realLevel}`)
+      ]));
     } else if (gameId === "fractions") {
       const fractionLevel = clamp(Number(level) || 1, 1, 9);
       const active = fractionLevels[fractionLevel - 1];
