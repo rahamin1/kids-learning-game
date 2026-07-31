@@ -625,6 +625,7 @@ function prepareProfile(p){
   p.recentGames ||= {};
   p.gameProgress ||= {};
   p.hiddenGames ||= [];
+  p.collapsedDifficultySubjects ||= [];
   p.updatesPromptShown ??= false;
   applyDefaultHiddenGames(p);
   if(p.gameLevelAge!==p.age){
@@ -1647,11 +1648,22 @@ function renderSettings(){
 function renderDifficulty(p){
   $("#difficultyControls").innerHTML=p.subjects.map(key=>{
     const games=KIDS_GAMES.catalog.filter(game=>!game.disabled&&game.subject===key&&gameVisibleInSettings(game,p.age));
-    return `<section class="difficulty-subject"><h3>${SUBJECTS[key].icon} ${subjectName(p,key)}</h3>${games.map(game=>{
+    const collapsed=(p.collapsedDifficultySubjects||[]).includes(key);
+    return `<section class="difficulty-subject"><button type="button" class="difficulty-subject-toggle" data-difficulty-subject="${key}" aria-expanded="${!collapsed}" aria-label="${collapsed?"פתיחת":"סגירת"} קטגוריית ${subjectName(p,key)}"><h3>${SUBJECTS[key].icon} ${subjectName(p,key)}</h3><span aria-hidden="true">${collapsed?"⌄":"⌃"}</span></button><div class="difficulty-subject-games"${collapsed?" hidden":""}>${games.map(game=>{
       const feedback=p.gameFeedback[game.id]||"ok",level=p.gameLevels[game.id]||ageLevel(p.age),hidden=p.hiddenGames.includes(game.id),maxLevel=gameMaxLevel(game.id);
       return `<div class="skill-row game-level-row ${hidden?"game-is-hidden":""}"><span><b>${game.icon} ${game.name}</b><small class="level-badge">רמה ${level} מתוך ${maxLevel}</small><small class="question-count">${game.desc}</small>${hidden?`<small class="hidden-game-note">המשחק מוסתר מבחירת המשחקים</small>`:""}</span><div class="game-level-actions"><div class="level-adjust"><button ${level<=1||hidden?"disabled":""} class="${feedback==="down"?"selected":""}" data-adjust="${game.id}|down">קל יותר</button><button ${hidden?"disabled":""} class="${feedback==="ok"?"selected":""}" data-adjust="${game.id}|ok">מתאים</button><button ${level>=maxLevel||hidden?"disabled":""} class="${feedback==="up"?"selected":""}" data-adjust="${game.id}|up">קשה יותר</button></div><button class="game-visibility-button ${hidden?"restore":""}" data-game-visibility="${game.id}">${hidden?"החזרת המשחק":"הסתרת המשחק"}</button></div></div>`;
-    }).join("")}</section>`;
+    }).join("")}</div></section>`;
   }).join("");
+}
+
+function toggleDifficultySubject(subject){
+  const p=activeProfile(); if(!p)return;
+  p.collapsedDifficultySubjects ||= [];
+  p.collapsedDifficultySubjects=p.collapsedDifficultySubjects.includes(subject)
+    ? p.collapsedDifficultySubjects.filter(key=>key!==subject)
+    : [...p.collapsedDifficultySubjects,subject];
+  save();
+  renderSettings();
 }
 
 function toggleGameVisibility(gameId){
@@ -1878,6 +1890,7 @@ function bindEvents(){
     const memory=e.target.closest("[data-memory-index]"); if(memory)chooseMemoryCard(memory);
     const grid=e.target.closest("[data-grid-index]"); if(grid)chooseGridLetter(grid);
     const gridClear=e.target.closest("[data-grid-clear]"); if(gridClear)clearGridSelection();
+    const difficultySubject=e.target.closest("[data-difficulty-subject]"); if(difficultySubject)return toggleDifficultySubject(difficultySubject.dataset.difficultySubject);
     const prof=e.target.closest("[data-profile]"); if(prof){const changed=state.activeId!==prof.dataset.profile;state.activeId=prof.dataset.profile;prepareProfile(activeProfile());save();closeModal("profileModal");renderAll();if(changed)showScreen("homeScreen")}
     const edit=e.target.closest("[data-edit-profile]"); if(edit)openEdit(edit.dataset.editProfile);
     const age=e.target.closest("[data-age]"); if(age){selectedAge=+age.dataset.age;renderChoiceButtons()}

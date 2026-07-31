@@ -209,6 +209,10 @@ body{font-family:Heebo,system-ui,sans-serif}
 .game-buddy-friends button.selected{border-color:var(--blue);background:#eaf3ff;box-shadow:0 3px 0 #bcd5f5}
 .game-buddy-friends button.locked{font-size:15px;opacity:.55;filter:grayscale(.7)}
 .difficulty-subject>h3{margin:5px 0 12px;color:var(--blue-dark)}
+.difficulty-subject-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;border:0;background:transparent;padding:5px 0 12px;color:var(--blue-dark);text-align:right}
+.difficulty-subject-toggle h3{margin:0;color:inherit;font-size:17px}
+.difficulty-subject-toggle>span{font-size:24px;line-height:1;color:var(--blue)}
+.difficulty-subject-games[hidden]{display:none}
 .game-level-row{padding:14px 0}
 .game-level-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 .game-visibility-button{border:1px solid #efb1ab;border-radius:10px;background:#fff5f3;color:#a63c34;padding:6px 11px;font-size:10px;font-weight:900}
