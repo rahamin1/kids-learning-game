@@ -1247,8 +1247,9 @@ function renderQuestion(){
       fragment.append(document.createTextNode(questionLabel.slice(cursor,match.index)));
       const isolated=document.createElement("bdi");
       isolated.dir="ltr";
+      isolated.className="question-latin-run";
       const trailingPunctuation=match[0].match(/[?!.,:;]$/)?.[0];
-      isolated.textContent=trailingPunctuation?`${trailingPunctuation}${match[0].slice(0,-1)}`:match[0];
+      isolated.textContent=trailingPunctuation?`${trailingPunctuation}\u00a0${match[0].slice(0,-1)}`:match[0];
       fragment.append(isolated);
       cursor=match.index+match[0].length;
     }
