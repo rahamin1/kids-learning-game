@@ -892,7 +892,8 @@ function renderAll(){
   $("#heroBuddyText").textContent=p
     ? `בוחרים שביל, פותרים חידות ועוזרים ל${heroBuddyProfile.name} להאיר את היער הזוהר!`
     : "בוחרים שביל, פותרים חידות ועוזרים לחבר המסע להאיר את היער הזוהר!";
-  $("#continueButton").innerHTML=p?.answered ? `ממשיכים בהרפתקה <span>←</span>` : `מתחילים בהרפתקה <span>←</span>`;
+  const hasCompletedGame=!!p&&(Object.values(p.gameProgress||{}).some(progress=>(progress?.completed||0)>0)||(p.answered||0)>0);
+  $("#continueButton").innerHTML=hasCompletedGame ? `ממשיכים בהרפתקה <span>←</span>` : `מתחילים בהרפתקה <span>←</span>`;
   renderHero();
   renderSubjects();
   renderProfiles();
