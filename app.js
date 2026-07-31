@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.34";
+const APP_VERSION = "0.1.35";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -15,7 +15,7 @@ const CORRECT_FEEDBACK_LINES = [
 ];
 const INTRO_STEPS = [
   {icon:"🌟",image:"assets/app-icon-star-forest.png",tone:"forest",eyebrow:"ברוכים הבאים",title:"היער הזוהר מחכה לכם",text:"יוצאים להרפתקת למידה צבעונית וכיפית. בכל פעם משחקים קצת, מתקדמים קצת, ומגלים עוד מהיער."},
-  {icon:"🏆",tone:"trophy",eyebrow:"כוכבים, מדליות וגביעים",title:"אוספים כוכבים וזוכים בהישגים",text:"בכל משחק אוספים כוכבים. כל 25 כוכבים מקבלים מדליה, וכל 100 כוכבים זוכים בגביע חדש. בכל זכייה בגביע, צבע הכוכבים, המדליות והגביעים משתנה."},
+  {icon:"🏆",tone:"trophy",eyebrow:"כוכבים, מדליות וגביעים",title:"אוספים כוכבים וזוכים בהישגים",text:"בכל משחק אוספים כוכבים. כל 25 כוכבים מקבלים מדליה, וכל 100 כוכבים זוכים בגביע חדש. צבע הפרסים משתנה בכל גביע שני, עד הגביע ה־16."},
   {icon:"🦊",tone:"buddy",eyebrow:"חברי מסע",title:"בוחרים חבר שמלווה את ההרפתקה",text:"בתחילת הדרך בוחרים חבר למסע. בהמשך מתגלים חברים נוספים, וכל ילד יכול לבחור מי יצא איתו למסע ולהחליף חבר בדרך."},
   {icon:"⚙️",tone:"settings",eyebrow:"מתאים לכל ילד",title:"אפשר להתאים נושאים ורמות קושי",text:"אפשר לבחור נושאים, להסתיר משחקים, ולהעלות או להוריד רמת קושי לפי מה שמתאים לילד."},
   {icon:"📲",tone:"install",eyebrow:"פותחים בקלות",title:"אפשר להתקין את המשחק",text:"בהגדרות אפשר להתקין את היער הזוהר על המכשיר, כדי לפתוח אותו בקלות כמו אפליקציה."}
@@ -130,14 +130,14 @@ const STAR_GOAL = 100;
 const MEDAL_GOAL = 25;
 const REWARD_TIERS = [
   {min:0, name:"פחם", color:"#303842", glow:"rgba(48,56,66,.28)"},
-  {min:100, name:"כסף", color:"#aeb8c4", glow:"rgba(174,184,196,.42)"},
-  {min:200, name:"ברונזה", color:"#bd7850", glow:"rgba(189,120,80,.38)"},
-  {min:300, name:"זהב", color:"#e5ab1c", glow:"rgba(229,171,28,.42)"},
-  {min:400, name:"אמרלד", color:"#20a66d", glow:"rgba(32,166,109,.38)"},
-  {min:500, name:"ספיר", color:"#357bd8", glow:"rgba(53,123,216,.38)"},
-  {min:600, name:"אמטיסט", color:"#8b58c7", glow:"rgba(139,88,199,.4)"},
-  {min:800, name:"אודם", color:"#d94a4a", glow:"rgba(217,74,74,.38)"},
-  {min:1000, name:"אגדה", color:"#25b9b1", glow:"rgba(56,190,177,.48)"}
+  {min:200, name:"כסף", color:"#aeb8c4", glow:"rgba(174,184,196,.42)"},
+  {min:400, name:"ברונזה", color:"#bd7850", glow:"rgba(189,120,80,.38)"},
+  {min:600, name:"זהב", color:"#e5ab1c", glow:"rgba(229,171,28,.42)"},
+  {min:800, name:"אמרלד", color:"#20a66d", glow:"rgba(32,166,109,.38)"},
+  {min:1000, name:"ספיר", color:"#357bd8", glow:"rgba(53,123,216,.38)"},
+  {min:1200, name:"סגול", color:"#8b58c7", glow:"rgba(139,88,199,.4)"},
+  {min:1400, name:"אודם", color:"#d94a4a", glow:"rgba(217,74,74,.38)"},
+  {min:1600, name:"אגדה", color:"#25b9b1", glow:"rgba(56,190,177,.48)"}
 ];
 const BUDDY_IMAGES = {
   "🦊": "assets/brightwood-fox.png",
