@@ -1229,7 +1229,8 @@ function renderClockFace(hour,minutes){
 function renderQuestion(){
   const q=session.questions[session.index], p=activeProfile();
   $("#gameSubject").textContent=subjectName(p,session.subject);
-  $("#gameLevel").textContent=`${session.game.name} · רמה ${session.level}`;
+  const highestLevel=session.level>=gameMaxLevel(session.gameId)?" (הגבוהה ביותר)":"";
+  $("#gameLevel").textContent=`${session.game.name} · רמה ${session.level}${highestLevel}`;
   $("#questionLabel").textContent=`${session.index+1} מתוך ${session.questions.length}`;
   $("#questionBar").style.width=`${session.index/session.questions.length*100}%`;
   $("#questionType").textContent=q.type;
