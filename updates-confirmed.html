@@ -11,13 +11,19 @@
 </head>
 <body>
   <main>
-    <a class="brand" href="./" aria-label="חזרה ליער הזוהר"><span>★</span>היער הזוהר</a>
+    <a class="brand" href="./index.html?fromUpdates=1" data-return-to-game aria-label="חזרה ליער הזוהר"><span>★</span>היער הזוהר</a>
     <section class="card">
       <div class="icon">🎉</div>
       <h1>ההרשמה הושלמה!</h1>
       <p>ברוכים הבאים לעדכוני היער הזוהר. מעכשיו תקבלו עדכונים על היער הזוהר ועל משחקים נוספים, אם יהיו כאלה.</p>
-      <a class="button" href="./">למשחקים ביער הזוהר</a>
+      <a class="button" href="./index.html?fromUpdates=1" data-return-to-game>למשחקים ביער הזוהר</a>
     </section>
   </main>
+  <script>
+    document.querySelectorAll('[data-return-to-game]').forEach(link=>link.addEventListener('click',event=>{
+      event.preventDefault();
+      window.location.replace(link.href);
+    }));
+  </script>
 </body>
 </html>
