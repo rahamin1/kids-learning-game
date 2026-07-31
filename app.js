@@ -1311,7 +1311,7 @@ function renderQuestion(){
   }
   if(q.fractionColor){
     $("#questionVisual").classList.add("fraction-visual",`fraction-${q.fractionColor}`);
-    $("#questionVisual").innerHTML=Array.from(String(q.visual||"")).map(piece=>`<span class="fraction-piece ${piece==="◼"?"filled":""}"></span>`).join("");
+    $("#questionVisual").innerHTML=Array.from(String(q.visual||"")).map(piece=>`<span class="fraction-piece ${piece==="◼"||piece==="●"?"filled":""}"></span>`).join("");
   }
   if(q.pictureMath){
     $("#questionVisual").classList.add("picture-math-visual");
