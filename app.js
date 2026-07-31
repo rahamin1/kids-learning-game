@@ -1117,7 +1117,7 @@ function startGame(gameId){
   const questions=shuffled(available).slice(0,5).map(q=>({...q,a:Array.isArray(q.a)?shuffled(q.a):[]}));
   p.recentGames[gameId]=[...(p.recentGames[gameId]||[]),...questions.map(questionSignature)].slice(-Math.min(40,Math.max(12,pool.length-5)));
   save();
-  session={subject,gameId,game,level,questions,index:0,correct:0,start:Date.now(),locked:false,results:{}};
+  session={subject,gameId,game,level,questions,index:0,correct:0,start:Date.now(),locked:false,results:{},memoryRoundOutcomes:[]};
   showScreen("gameScreen",{historyData:{subject,gameId}}); renderQuestion();
 }
 
@@ -1340,7 +1340,7 @@ function renderQuestionInteraction(q){
   const grid=$("#answerGrid");
   grid.className="answer-grid";
   if(session.game?.id==="drag-word-picture")grid.classList.add("picture-choice-grid");
-  session.composed=[]; session.memoryOpen=[]; session.memoryMatched=new Set(); session.gridSelection=[];
+  session.composed=[]; session.memoryOpen=[]; session.memoryMatched=new Set(); session.memoryMistakes=0; session.gridSelection=[];
   if(q.mode==="drag"){
     grid.classList.add("drag-answer-grid");
     grid.innerHTML=`<div class="drag-source" draggable="true" data-drag-source="${escapeHtml(q.dragSource||q.visual||"")}">${escapeHtml(q.dragSource||q.visual||"")}</div><div class="drag-targets">${q.a.map(a=>`<button class="answer-btn drag-target" data-answer="${escapeHtml(a)}">${a}</button>`).join("")}</div>`;
@@ -1443,13 +1443,16 @@ function playQuestionAudio(){
   playToneSequence(notes,{interval:.18,duration:.18,volume:.18,type:index=>index%2?"triangle":"sine"});
 }
 
-function answer(value,button){
+function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
   if(session.locked)return; session.locked=true;
   const q=session.questions[session.index], right=value===q.correct, p=activeProfile();
+  const countsAsCorrect=scoreCorrect===null?right:scoreCorrect;
   session.results[q.skill] ||= {correct:0,total:0}; session.results[q.skill].total++;
   p.answered++;
-  if(right){
+  if(countsAsCorrect){
     p.correct++; session.correct++; session.results[q.skill].correct++;
+  }
+  if(right){
     button.classList.add("correct"); chime(true);
     if(q.numberLine){
       const visual=$("#questionVisual");
@@ -1467,7 +1470,7 @@ function answer(value,button){
       visual.textContent=q.visual.replace("_",q.correct);
       visual.classList.add("letter-revealed");
     }
-    $("#feedback").textContent=correctFeedbackLine(p.answered);
+    $("#feedback").textContent=feedbackText||correctFeedbackLine(p.answered);
     $("#feedback").className="feedback good";
   } else {
     button.classList.add("wrong"); chime(false);
@@ -1528,8 +1531,14 @@ function finishGame(){
   const prog=p.progress[key]; prog.completed++; prog.correct+=session.correct; prog.total+=session.questions.length;
   const gameProg=p.gameProgress[session.gameId]||={completed:0,correct:0,total:0};
   gameProg.completed++; gameProg.correct+=session.correct; gameProg.total+=session.questions.length;
-  const strongGame=session.correct>=4;
-  const challengingGame=session.correct<=1;
+  const memoryOutcomes=session.memoryRoundOutcomes||[];
+  const isMemoryGame=session.game?.kind==="memoryEnglish";
+  const strongGame=isMemoryGame
+    ? memoryOutcomes.filter(outcome=>outcome.success).length>=4
+    : session.correct>=4;
+  const challengingGame=isMemoryGame
+    ? memoryOutcomes.filter(outcome=>outcome.failed).length>=4
+    : session.correct<=1;
   gameProg.perfectStreak=strongGame?(gameProg.perfectStreak||0)+1:0;
   gameProg.challengeStreak=challengingGame?(gameProg.challengeStreak||0)+1:0;
   const currentLevel=p.gameLevels[session.gameId]||session.level;
@@ -1563,12 +1572,9 @@ function finishGame(){
     const milestone=$("#milestoneModal .modal");
     milestone.style.setProperty("--reward-color",newTier.color);
     milestone.style.setProperty("--reward-glow",newTier.glow);
-    $("#milestoneUpdatesButton").classList.add("hidden");
+    $("#milestoneUpdatesButton").classList.toggle("hidden",!(newTrophies>previousTrophies&&newTrophies===1&&!p.updatesPromptShown));
     openModal("milestoneModal");
     playMilestoneMelody();
-  } else if(!session.pendingDifficultyPrompt&&newTrophies>=1&&!p.updatesPromptShown){
-    p.updatesPromptShown=true;
-    openModal("updatesModal");
   } else {
     openModal("celebrationModal");
   }
@@ -1821,8 +1827,16 @@ function chooseMemoryCard(button){
   const [a,b]=session.memoryOpen;
   if(a.key===b.key){
     a.button.classList.add("matched");b.button.classList.add("matched");session.memoryMatched.add(a.key);session.memoryOpen=[];
-    if(session.memoryMatched.size===session.questions[session.index].pairs.length)answer("הושלם",button);
+    if(session.memoryMatched.size===session.questions[session.index].pairs.length){
+      const pairCount=session.questions[session.index].pairs.length;
+      const mistakes=session.memoryMistakes||0;
+      const success=mistakes<=Math.floor(pairCount/2);
+      const failed=mistakes>=pairCount;
+      session.memoryRoundOutcomes.push({pairCount,mistakes,success,failed});
+      answer("הושלם",button,{scoreCorrect:success,feedbackText:success?"מצוין! מצאתם את כל הזוגות.":"השלמתם את הלוח!"});
+    }
   }else{
+    session.memoryMistakes=(session.memoryMistakes||0)+1;
     setTimeout(()=>{a.button.classList.remove("open");b.button.classList.remove("open");session.memoryOpen=[]},700);
   }
 }
@@ -1980,7 +1994,7 @@ function bindEvents(){
     ].join("\n");
     throw new Error("Legacy mail fallback disabled");
   };
-  $("#milestoneUpdatesButton").onclick=()=>{closeModal("milestoneModal");openModal("updatesModal")};
+  $("#milestoneUpdatesButton").onclick=()=>{const p=activeProfile();if(p){p.updatesPromptShown=true;save();}closeModal("milestoneModal");openModal("updatesModal")};
   $("#updatesSignupButton").onclick=()=>{window.location.href=UPDATES_SIGNUP_PAGE};
   $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&m.id!=="introModal"&&m.id!=="analyticsConsentModal"&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
 }
