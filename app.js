@@ -1549,7 +1549,7 @@ function finishGame(){
   p.log.unshift({subject:key,gameId:session.gameId,gameName:session.game.name,correct:session.correct,total:session.questions.length,earned,date:new Date().toLocaleDateString("he-IL",{month:"short",day:"numeric"})});
   p.log=p.log.slice(0,8); save();
   $("#celebrateBuddy").textContent=p.buddy;
-  $("#earnedStarsTitle").textContent=`אספתם ${earned} ${earned===1?"כוכב":"כוכבים"}`;
+  $("#earnedStarsTitle").textContent=earned===1?"אספתם כוכב אחד":`אספתם ${earned} כוכבים`;
   $("#finishEncouragement").textContent="";
   const tierChanged=previousTier.min!==newTier.min;
   if(newMedals>previousMedals || newTrophies>previousTrophies || tierChanged){
