@@ -1546,7 +1546,7 @@ function finishGame(){
   gameProg.challengeStreak=challengingGame?(gameProg.challengeStreak||0)+1:0;
   const currentLevel=p.gameLevels[session.gameId]||session.level;
   const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%2===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<gameMaxLevel(session.gameId)&&!gameProg.promotionAutoPromptDisabled&&(gameProg.promotionCooldownUntil||0)<gameProg.completed;
-  const easierLevelDue=gameProg.challengeStreak>0&&gameProg.challengeStreak%3===0&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1&&!gameProg.easierAutoPromptDisabled&&(gameProg.easierCooldownUntil||0)<gameProg.completed;
+  const easierLevelDue=gameProg.challengeStreak>0&&gameProg.challengeStreak%2===0&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1&&!gameProg.easierAutoPromptDisabled&&(gameProg.easierCooldownUntil||0)<gameProg.completed;
   if(promotionDue){
     gameProg.lastPromotionPrompt=gameProg.perfectStreak;
     session.pendingDifficultyPrompt={direction:"up",gameId:session.gameId,gameName:session.game.name,currentLevel};
