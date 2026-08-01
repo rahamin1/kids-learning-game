@@ -501,9 +501,10 @@ function openPrivacyScreen(from="settingsScreen"){
 }
 
 function activeProfile(){ return state.profiles.find(p => p.id === state.activeId); }
-const EXTENDED_LEVEL_GAME_IDS = new Set(["count","number-quantity","more-groups","number-sequence","number-line","addition","picture-subtraction","multiplication","shapes","clock","word-problems","visual-pattern"]);
+const EXTENDED_LEVEL_GAME_IDS = new Set(["count","number-quantity","more-groups","number-sequence","number-line","addition","picture-subtraction","multiplication","clock","word-problems","visual-pattern"]);
+const FIVE_LEVEL_GAME_IDS = new Set(["shapes"]);
 const DIFFICULTY_PROMPT_COOLDOWN_GAMES = 5;
-function gameMaxLevel(gameId){ return EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:9; }
+function gameMaxLevel(gameId){ return EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9; }
 function ageLevel(age){ return clamp(Number(age)||3,1,9); }
 function defaultGameLevel(gameId,age){
   if(gameId==="count"||gameId==="number-quantity")return ({3:1,4:2,5:4,6:7,7:9})[Number(age)]||1;
