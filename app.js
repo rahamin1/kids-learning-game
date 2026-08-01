@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.34-test";
+const APP_VERSION = "0.1.35-test";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -15,14 +15,14 @@ const CORRECT_FEEDBACK_LINES = [
 ];
 const INTRO_STEPS = [
   {icon:"🌟",image:"assets/app-icon-star-forest.png",tone:"forest",eyebrow:"ברוכים הבאים",title:"היער הזוהר מחכה לכם",text:"יוצאים להרפתקת למידה צבעונית וכיפית. בכל פעם משחקים קצת, מתקדמים קצת, ומגלים עוד מהיער."},
-  {icon:"🏆",tone:"trophy",eyebrow:"כוכבים, מדליות וגביעים",title:"אוספים כוכבים וזוכים בהישגים",text:"בכל משחק אוספים כוכבים. כל 25 כוכבים מקבלים מדליה, וכל 100 כוכבים זוכים בגביע חדש. אפשר להמשיך לאסוף עוד ועוד הישגים."},
+  {icon:"🏆",tone:"trophy",eyebrow:"כוכבים, מדליות וגביעים",title:"אוספים כוכבים וזוכים בהישגים",text:"בכל משחק אוספים כוכבים. כל 25 כוכבים מקבלים מדליה, וכל 100 כוכבים זוכים בגביע חדש. צבע הפרסים משתנה בכל גביע שני, עד הגביע ה־16."},
   {icon:"🦊",tone:"buddy",eyebrow:"חברי מסע",title:"בוחרים חבר שמלווה את ההרפתקה",text:"בתחילת הדרך בוחרים חבר למסע. בהמשך מתגלים חברים נוספים, וכל ילד יכול לבחור מי יצא איתו למסע ולהחליף חבר בדרך."},
   {icon:"⚙️",tone:"settings",eyebrow:"מתאים לכל ילד",title:"אפשר להתאים נושאים ורמות קושי",text:"אפשר לבחור נושאים, להסתיר משחקים, ולהעלות או להוריד רמת קושי לפי מה שמתאים לילד."},
   {icon:"📲",tone:"install",eyebrow:"פותחים בקלות",title:"אפשר להתקין את המשחק",text:"בהגדרות אפשר להתקין את היער הזוהר על המכשיר, כדי לפתוח אותו בקלות כמו אפליקציה."}
 ];
 
 if (APP_VERSION.endsWith("-test")) {
-  INTRO_STEPS[1].text = "בגרסת הבדיקה, כל 10 כוכבים מקבלים מדליה וכל 20 כוכבים זוכים בגביע חדש. בכל זכייה בגביע, צבע הכוכבים, המדליות והגביעים משתנה.";
+  INTRO_STEPS[1].text = "בגרסת הבדיקה, כל 10 כוכבים מקבלים מדליה וכל 20 כוכבים זוכים בגביע חדש. צבע הפרסים משתנה בכל גביע שני, עד הגביע ה־16.";
 }
 
 const SUBJECTS = {
@@ -134,14 +134,14 @@ const STAR_GOAL = 20;
 const MEDAL_GOAL = 10;
 const REWARD_TIERS = [
   {min:0, name:"פחם", color:"#303842", glow:"rgba(48,56,66,.28)"},
-  {min:20, name:"כסף", color:"#aeb8c4", glow:"rgba(174,184,196,.42)"},
-  {min:40, name:"ברונזה", color:"#bd7850", glow:"rgba(189,120,80,.38)"},
-  {min:60, name:"זהב", color:"#e5ab1c", glow:"rgba(229,171,28,.42)"},
-  {min:80, name:"אמרלד", color:"#20a66d", glow:"rgba(32,166,109,.38)"},
-  {min:100, name:"ספיר", color:"#357bd8", glow:"rgba(53,123,216,.38)"},
-  {min:120, name:"אמטיסט", color:"#8b58c7", glow:"rgba(139,88,199,.4)"},
-  {min:140, name:"אודם", color:"#d94a4a", glow:"rgba(217,74,74,.38)"},
-  {min:160, name:"אגדה", color:"#25b9b1", glow:"rgba(56,190,177,.48)"}
+  {min:40, name:"כסף", color:"#aeb8c4", glow:"rgba(174,184,196,.42)"},
+  {min:80, name:"ברונזה", color:"#bd7850", glow:"rgba(189,120,80,.38)"},
+  {min:120, name:"זהב", color:"#e5ab1c", glow:"rgba(229,171,28,.42)"},
+  {min:160, name:"אמרלד", color:"#20a66d", glow:"rgba(32,166,109,.38)"},
+  {min:200, name:"ספיר", color:"#357bd8", glow:"rgba(53,123,216,.38)"},
+  {min:240, name:"סגול", color:"#8b58c7", glow:"rgba(139,88,199,.4)"},
+  {min:280, name:"אודם", color:"#d94a4a", glow:"rgba(217,74,74,.38)"},
+  {min:320, name:"אגדה", color:"#25b9b1", glow:"rgba(56,190,177,.48)"}
 ];
 const BUDDY_IMAGES = {
   "🦊": "assets/brightwood-fox.png",
@@ -506,16 +506,8 @@ function openPrivacyScreen(from="settingsScreen"){
 
 function activeProfile(){ return state.profiles.find(p => p.id === state.activeId); }
 const EXTENDED_LEVEL_GAME_IDS = new Set(["count","number-quantity","more-groups","number-sequence","number-line","addition","picture-subtraction","multiplication","shapes","clock","word-problems","visual-pattern"]);
-// These games have five genuinely distinct task levels. Do not offer a
-// cosmetic "next level" after the child reaches the final meaningful level.
-const FIVE_LEVEL_GAME_IDS = new Set([
-  "letter-picture","first-letter","image-word","drag-word-picture","word-categories",
-  "starts-hebrew","hebrew-word-picture","sentence-order-en","event-order","sentence-order-he",
-  "inference","true-false","story-title","living-groups","seasons","life-cycle","plant-parts",
-  "animal-food","weather","food-chain","adaptations","cause-effect"
-]);
 const DIFFICULTY_PROMPT_COOLDOWN_GAMES = 5;
-function gameMaxLevel(gameId){ return EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9; }
+function gameMaxLevel(gameId){ return EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:9; }
 function ageLevel(age){ return clamp(Number(age)||3,1,9); }
 function defaultGameLevel(gameId,age){
   if(gameId==="count"||gameId==="number-quantity")return ({3:1,4:2,5:4,6:7,7:9})[Number(age)]||1;
@@ -637,6 +629,7 @@ function prepareProfile(p){
   p.recentGames ||= {};
   p.gameProgress ||= {};
   p.hiddenGames ||= [];
+  p.collapsedDifficultySubjects ||= [];
   p.updatesPromptShown ??= false;
   applyDefaultHiddenGames(p);
   if(p.gameLevelAge!==p.age){
@@ -901,12 +894,13 @@ function renderAll(){
   $("#homeGoalCount").textContent=`${medalCycle} / ${MEDAL_GOAL}`;
   $("#homeGoalBar").style.width=`${medalCycle/MEDAL_GOAL*100}%`;
   const rewardHelp=$("#helpScreen .reward-help-card p");
-  if(rewardHelp)rewardHelp.textContent="בגרסת הבדיקה, על כל 10 כוכבים מקבלים מדליה חדשה ועל כל 20 כוכבים מקבלים גם גביע חדש. בכל זכייה בגביע משתנה גם צבע הכוכבים, המדליות והגביעים.";
+  if(rewardHelp)rewardHelp.textContent="בגרסת הבדיקה, על כל 10 כוכבים מקבלים מדליה חדשה ועל כל 20 כוכבים מקבלים גם גביע חדש. צבע הפרסים משתנה בכל גביע שני, עד הגביע ה־16.";
   const heroBuddyProfile=p ? (BUDDY_PROFILES[p.buddy]||{name:BUDDY_TITLES[p.buddy]||"חבר המסע"}) : null;
   $("#heroBuddyText").textContent=p
     ? `בוחרים שביל, פותרים חידות ועוזרים ל${heroBuddyProfile.name} להאיר את היער הזוהר!`
     : "בוחרים שביל, פותרים חידות ועוזרים לחבר המסע להאיר את היער הזוהר!";
-  $("#continueButton").innerHTML=p?.answered ? `ממשיכים בהרפתקה <span>←</span>` : `מתחילים בהרפתקה <span>←</span>`;
+  const hasCompletedGame=!!p&&(Object.values(p.gameProgress||{}).some(progress=>(progress?.completed||0)>0)||(p.answered||0)>0);
+  $("#continueButton").innerHTML=hasCompletedGame ? `ממשיכים בהרפתקה <span>←</span>` : `מתחילים בהרפתקה <span>←</span>`;
   renderHero();
   renderSubjects();
   renderProfiles();
@@ -1130,7 +1124,7 @@ function startGame(gameId){
   const questions=shuffled(available).slice(0,5).map(q=>({...q,a:Array.isArray(q.a)?shuffled(q.a):[]}));
   p.recentGames[gameId]=[...(p.recentGames[gameId]||[]),...questions.map(questionSignature)].slice(-Math.min(40,Math.max(12,pool.length-5)));
   save();
-  session={subject,gameId,game,level,questions,index:0,correct:0,start:Date.now(),locked:false,results:{}};
+  session={subject,gameId,game,level,questions,index:0,correct:0,start:Date.now(),locked:false,results:{},memoryRoundOutcomes:[]};
   showScreen("gameScreen",{historyData:{subject,gameId}}); renderQuestion();
 }
 
@@ -1177,13 +1171,14 @@ function renderDifficultyPrompt(){
   const prompt=session?.pendingDifficultyPrompt;
   if(!prompt)return;
   const nextLevel=prompt.currentLevel+(prompt.direction==="up"?1:-1);
+  const promptGameName=String(prompt.gameName||"").replace(/[?？]+$/u,"");
   $("#difficultyPromptIcon").textContent=prompt.direction==="up"?"🚀":"🌱";
   $("#difficultyPromptEyebrow").textContent=prompt.direction==="up"?"מוכנים לאתגר חדש?":"משחקים בקצב שמתאים לכם";
   $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מושלם פעם אחת!":"נראה שהמשחק קצת מאתגר עכשיו.";
   const rtlQuestionMark="\u200F?";
   $("#difficultyPromptText").textContent=prompt.direction==="up"
-    ? `רוצה לעלות לרמה ${nextLevel} במשחק „${prompt.gameName}”${rtlQuestionMark}`
-    : `רוצה לנסות רמה ${nextLevel} במשחק „${prompt.gameName}”${rtlQuestionMark}`;
+    ? `רוצה לעלות לרמה ${nextLevel} במשחק „${promptGameName}”${rtlQuestionMark}`
+    : `רוצה לנסות רמה ${nextLevel} במשחק „${promptGameName}”${rtlQuestionMark}`;
   $("#difficultyPromptAccept").textContent=prompt.direction==="up"?"כן, לעלות רמה":"כן, רמה קלה יותר";
 }
 
@@ -1241,7 +1236,8 @@ function renderClockFace(hour,minutes){
 function renderQuestion(){
   const q=session.questions[session.index], p=activeProfile();
   $("#gameSubject").textContent=subjectName(p,session.subject);
-  $("#gameLevel").textContent=`${session.game.name} · רמה ${session.level}`;
+  const highestLevel=session.level>=gameMaxLevel(session.gameId)?" (הגבוהה ביותר)":"";
+  $("#gameLevel").textContent=`${session.game.name} · רמה ${session.level}${highestLevel}`;
   $("#questionLabel").textContent=`${session.index+1} מתוך ${session.questions.length}`;
   $("#questionBar").style.width=`${session.index/session.questions.length*100}%`;
   $("#questionType").textContent=q.type;
@@ -1259,8 +1255,9 @@ function renderQuestion(){
       fragment.append(document.createTextNode(questionLabel.slice(cursor,match.index)));
       const isolated=document.createElement("bdi");
       isolated.dir="ltr";
+      isolated.className="question-latin-run";
       const trailingPunctuation=match[0].match(/[?!.,:;]$/)?.[0];
-      isolated.textContent=trailingPunctuation?`${trailingPunctuation}${match[0].slice(0,-1)}`:match[0];
+      isolated.textContent=trailingPunctuation?`${trailingPunctuation}\u00a0${match[0].slice(0,-1)}`:match[0];
       fragment.append(isolated);
       cursor=match.index+match[0].length;
     }
@@ -1325,7 +1322,7 @@ function renderQuestion(){
   }
   if(q.fractionColor){
     $("#questionVisual").classList.add("fraction-visual",`fraction-${q.fractionColor}`);
-    $("#questionVisual").innerHTML=Array.from(String(q.visual||"")).map(piece=>`<span class="fraction-piece ${piece==="◼"?"filled":""}"></span>`).join("");
+    $("#questionVisual").innerHTML=Array.from(String(q.visual||"")).map(piece=>`<span class="fraction-piece ${piece==="◼"||piece==="●"?"filled":""}"></span>`).join("");
   }
   if(q.pictureMath){
     $("#questionVisual").classList.add("picture-math-visual");
@@ -1352,7 +1349,7 @@ function renderQuestionInteraction(q){
   const grid=$("#answerGrid");
   grid.className="answer-grid";
   if(session.game?.id==="drag-word-picture")grid.classList.add("picture-choice-grid");
-  session.composed=[]; session.memoryOpen=[]; session.memoryMatched=new Set(); session.gridSelection=[];
+  session.composed=[]; session.memoryOpen=[]; session.memoryMatched=new Set(); session.memoryMistakes=0; session.gridSelection=[];
   if(q.mode==="drag"){
     grid.classList.add("drag-answer-grid");
     grid.innerHTML=`<div class="drag-source" draggable="true" data-drag-source="${escapeHtml(q.dragSource||q.visual||"")}">${escapeHtml(q.dragSource||q.visual||"")}</div><div class="drag-targets">${q.a.map(a=>`<button class="answer-btn drag-target" data-answer="${escapeHtml(a)}">${a}</button>`).join("")}</div>`;
@@ -1455,13 +1452,16 @@ function playQuestionAudio(){
   playToneSequence(notes,{interval:.18,duration:.18,volume:.18,type:index=>index%2?"triangle":"sine"});
 }
 
-function answer(value,button){
+function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
   if(session.locked)return; session.locked=true;
   const q=session.questions[session.index], right=value===q.correct, p=activeProfile();
+  const countsAsCorrect=scoreCorrect===null?right:scoreCorrect;
   session.results[q.skill] ||= {correct:0,total:0}; session.results[q.skill].total++;
   p.answered++;
-  if(right){
+  if(countsAsCorrect){
     p.correct++; session.correct++; session.results[q.skill].correct++;
+  }
+  if(right){
     button.classList.add("correct"); chime(true);
     if(q.numberLine){
       const visual=$("#questionVisual");
@@ -1479,7 +1479,7 @@ function answer(value,button){
       visual.textContent=q.visual.replace("_",q.correct);
       visual.classList.add("letter-revealed");
     }
-    $("#feedback").textContent=correctFeedbackLine(p.answered);
+    $("#feedback").textContent=feedbackText||correctFeedbackLine(p.answered);
     $("#feedback").className="feedback good";
   } else {
     button.classList.add("wrong"); chime(false);
@@ -1540,8 +1540,14 @@ function finishGame(){
   const prog=p.progress[key]; prog.completed++; prog.correct+=session.correct; prog.total+=session.questions.length;
   const gameProg=p.gameProgress[session.gameId]||={completed:0,correct:0,total:0};
   gameProg.completed++; gameProg.correct+=session.correct; gameProg.total+=session.questions.length;
-  const strongGame=session.correct===session.questions.length;
-  const challengingGame=session.correct<=1;
+  const memoryOutcomes=session.memoryRoundOutcomes||[];
+  const isMemoryGame=session.game?.kind==="memoryEnglish";
+  const strongGame=isMemoryGame
+    ? memoryOutcomes.filter(outcome=>outcome.success).length>=4
+    : session.correct>=4;
+  const challengingGame=isMemoryGame
+    ? memoryOutcomes.filter(outcome=>outcome.failed).length>=4
+    : session.correct<=1;
   gameProg.perfectStreak=strongGame?(gameProg.perfectStreak||0)+1:0;
   gameProg.challengeStreak=challengingGame?(gameProg.challengeStreak||0)+1:0;
   const currentLevel=p.gameLevels[session.gameId]||session.level;
@@ -1561,7 +1567,7 @@ function finishGame(){
   p.log.unshift({subject:key,gameId:session.gameId,gameName:session.game.name,correct:session.correct,total:session.questions.length,earned,date:new Date().toLocaleDateString("he-IL",{month:"short",day:"numeric"})});
   p.log=p.log.slice(0,8); save();
   $("#celebrateBuddy").textContent=p.buddy;
-  $("#earnedStarsTitle").textContent=`אספתם ${earned} ${earned===1?"כוכב":"כוכבים"}`;
+  $("#earnedStarsTitle").textContent=earned===1?"אספתם כוכב אחד":`אספתם ${earned} כוכבים`;
   $("#finishEncouragement").textContent="";
   const tierChanged=previousTier.min!==newTier.min;
   if(newMedals>previousMedals || newTrophies>previousTrophies || tierChanged){
@@ -1575,12 +1581,9 @@ function finishGame(){
     const milestone=$("#milestoneModal .modal");
     milestone.style.setProperty("--reward-color",newTier.color);
     milestone.style.setProperty("--reward-glow",newTier.glow);
-    $("#milestoneUpdatesButton").classList.add("hidden");
+    $("#milestoneUpdatesButton").classList.toggle("hidden",!(newTrophies>previousTrophies&&newTrophies===1&&!p.updatesPromptShown));
     openModal("milestoneModal");
     playMilestoneMelody();
-  } else if(!session.pendingDifficultyPrompt&&newTrophies>=1&&!p.updatesPromptShown){
-    p.updatesPromptShown=true;
-    openModal("updatesModal");
   } else {
     openModal("celebrationModal");
   }
@@ -1651,11 +1654,22 @@ function renderSettings(){
 function renderDifficulty(p){
   $("#difficultyControls").innerHTML=p.subjects.map(key=>{
     const games=KIDS_GAMES.catalog.filter(game=>!game.disabled&&game.subject===key&&gameVisibleInSettings(game,p.age));
-    return `<section class="difficulty-subject"><h3>${SUBJECTS[key].icon} ${subjectName(p,key)}</h3>${games.map(game=>{
+    const collapsed=(p.collapsedDifficultySubjects||[]).includes(key);
+    return `<section class="difficulty-subject"><button type="button" class="difficulty-subject-toggle" data-difficulty-subject="${key}" aria-expanded="${!collapsed}" aria-label="${collapsed?"פתיחת":"סגירת"} קטגוריית ${subjectName(p,key)}"><h3>${SUBJECTS[key].icon} ${subjectName(p,key)}</h3><span aria-hidden="true">${collapsed?"⌄":"⌃"}</span></button><div class="difficulty-subject-games"${collapsed?" hidden":""}>${games.map(game=>{
       const feedback=p.gameFeedback[game.id]||"ok",level=p.gameLevels[game.id]||ageLevel(p.age),hidden=p.hiddenGames.includes(game.id),maxLevel=gameMaxLevel(game.id);
       return `<div class="skill-row game-level-row ${hidden?"game-is-hidden":""}"><span><b>${game.icon} ${game.name}</b><small class="level-badge">רמה ${level} מתוך ${maxLevel}</small><small class="question-count">${game.desc}</small>${hidden?`<small class="hidden-game-note">המשחק מוסתר מבחירת המשחקים</small>`:""}</span><div class="game-level-actions"><div class="level-adjust"><button ${level<=1||hidden?"disabled":""} class="${feedback==="down"?"selected":""}" data-adjust="${game.id}|down">קל יותר</button><button ${hidden?"disabled":""} class="${feedback==="ok"?"selected":""}" data-adjust="${game.id}|ok">מתאים</button><button ${level>=maxLevel||hidden?"disabled":""} class="${feedback==="up"?"selected":""}" data-adjust="${game.id}|up">קשה יותר</button></div><button class="game-visibility-button ${hidden?"restore":""}" data-game-visibility="${game.id}">${hidden?"החזרת המשחק":"הסתרת המשחק"}</button></div></div>`;
-    }).join("")}</section>`;
+     }).join("")}</div></section>`;
   }).join("");
+}
+
+function toggleDifficultySubject(subject){
+  const p=activeProfile(); if(!p)return;
+  p.collapsedDifficultySubjects ||= [];
+  p.collapsedDifficultySubjects=p.collapsedDifficultySubjects.includes(subject)
+    ? p.collapsedDifficultySubjects.filter(key=>key!==subject)
+    : [...p.collapsedDifficultySubjects,subject];
+  save();
+  renderSettings();
 }
 
 function toggleGameVisibility(gameId){
@@ -1833,8 +1847,16 @@ function chooseMemoryCard(button){
   const [a,b]=session.memoryOpen;
   if(a.key===b.key){
     a.button.classList.add("matched");b.button.classList.add("matched");session.memoryMatched.add(a.key);session.memoryOpen=[];
-    if(session.memoryMatched.size===session.questions[session.index].pairs.length)answer("הושלם",button);
+    if(session.memoryMatched.size===session.questions[session.index].pairs.length){
+      const pairCount=session.questions[session.index].pairs.length;
+      const mistakes=session.memoryMistakes||0;
+      const success=mistakes<=Math.floor(pairCount/2);
+      const failed=mistakes>=pairCount;
+      session.memoryRoundOutcomes.push({pairCount,mistakes,success,failed});
+      answer("הושלם",button,{scoreCorrect:success,feedbackText:success?"מצוין! מצאתם את כל הזוגות.":"השלמתם את הלוח!"});
+    }
   }else{
+    session.memoryMistakes=(session.memoryMistakes||0)+1;
     setTimeout(()=>{a.button.classList.remove("open");b.button.classList.remove("open");session.memoryOpen=[]},700);
   }
 }
@@ -1874,6 +1896,7 @@ function bindEvents(){
     const memory=e.target.closest("[data-memory-index]"); if(memory)chooseMemoryCard(memory);
     const grid=e.target.closest("[data-grid-index]"); if(grid)chooseGridLetter(grid);
     const gridClear=e.target.closest("[data-grid-clear]"); if(gridClear)clearGridSelection();
+    const difficultySubject=e.target.closest("[data-difficulty-subject]"); if(difficultySubject)return toggleDifficultySubject(difficultySubject.dataset.difficultySubject);
     const prof=e.target.closest("[data-profile]"); if(prof){const changed=state.activeId!==prof.dataset.profile;state.activeId=prof.dataset.profile;prepareProfile(activeProfile());save();closeModal("profileModal");renderAll();if(changed)showScreen("homeScreen")}
     const edit=e.target.closest("[data-edit-profile]"); if(edit)openEdit(edit.dataset.editProfile);
     const age=e.target.closest("[data-age]"); if(age){selectedAge=+age.dataset.age;renderChoiceButtons()}
@@ -1992,7 +2015,7 @@ function bindEvents(){
     ].join("\n");
     throw new Error("Legacy mail fallback disabled");
   };
-  $("#milestoneUpdatesButton").onclick=()=>{closeModal("milestoneModal");openModal("updatesModal")};
+  $("#milestoneUpdatesButton").onclick=()=>{const p=activeProfile();if(p){p.updatesPromptShown=true;save();}closeModal("milestoneModal");openModal("updatesModal")};
   $("#updatesSignupButton").onclick=()=>{window.location.href=UPDATES_SIGNUP_PAGE};
   $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&m.id!=="introModal"&&m.id!=="analyticsConsentModal"&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
 }

@@ -120,10 +120,11 @@
     if (gameId === "adaptations") pool = adaptations[realLevel - 1].map(([visual, q, correct]) => make(q, correct, pick(correct, adaptationAnswers, realLevel === 1 ? 2 : realLevel === 2 ? 3 : 4), visual, { skill: "התאמה לסביבה", type: `תכונה ותפקיד — רמה ${realLevel}` }));
     if (gameId === "shapes") pool = shapeLevels[realLevel - 1].map(row => {
       const [first, second, third] = row;
-      const isDirect = first.length <= 2;
-      const q = isDirect ? "איזו צורה זו?" : first;
-      const correct = isDirect ? second : (third || second);
-      const visual = isDirect ? first : (third ? first : "🔷");
+      const hasShapeVisual = row.length === 3;
+      const isDirect = !hasShapeVisual && first.length <= 2;
+      const q = hasShapeVisual ? second : (isDirect ? "איזו צורה זו?" : first);
+      const correct = hasShapeVisual ? third : second;
+      const visual = (hasShapeVisual || isDirect) ? first : "";
       const answers = /^\d+$/.test(correct) ? ["0","3","4","5","6"] : shapeNames;
       return make(q, correct, pick(correct, answers, realLevel === 1 ? 2 : realLevel === 2 ? 3 : 4), visual, { skill: "צורות", type: `מגלים צורות — רמה ${realLevel}` });
     });

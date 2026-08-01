@@ -52,6 +52,7 @@ body{font-family:Heebo,system-ui,sans-serif}
 .math-question-text span{display:block;direction:ltr!important;unicode-bidi:isolate-override}
 .question-visual.math-expression.no-visual{min-height:0!important;padding:0!important;margin:0 auto 18px!important}
 .game-card #questionText[dir="rtl"]{unicode-bidi:plaintext}
+.game-card #questionText[dir="rtl"] .question-latin-run{white-space:nowrap;unicode-bidi:isolate}
 .question-visual.shape-question-visual.no-visual{min-height:24px;padding:0;margin:0 auto 10px}
 .answer-grid.shape-answers .answer-btn{min-height:122px;font-size:clamp(72px,16vw,110px);line-height:1}
 .fraction-visual{min-height:140px;gap:10px;direction:ltr}
@@ -104,7 +105,7 @@ body{font-family:Heebo,system-ui,sans-serif}
 .brand-mark{overflow:hidden}
 .brand-mark img{width:100%;height:100%;display:block;object-fit:cover}
 .brand-group{display:flex;align-items:center;gap:8px}
-.header-version{padding:4px 7px;border-radius:8px;background:#eef3f7;color:var(--muted);font-size:10px;font-weight:800;white-space:nowrap}
+.header-version{padding:4px 7px;border-radius:8px;background:#ffc36b;color:#703b00;font-size:10px;font-weight:800;white-space:nowrap}
 .header-tool{font-size:19px}
 .icon-btn{display:grid;place-items:center;overflow:hidden}
 .magic-icon{position:relative;width:31px;height:31px;border-radius:12px;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 58% 35%,rgba(255,216,77,.72),rgba(36,114,192,.72) 48%,#061f45 100%);box-shadow:inset -3px -4px rgba(3,24,52,.18),inset 3px 3px rgba(255,255,255,.18),0 4px 9px rgba(16,66,120,.18);color:#fff;font-family:Rubik,Heebo,sans-serif;font-weight:900;text-shadow:0 2px 0 rgba(0,0,0,.25),0 0 10px rgba(255,222,84,.28)}
@@ -138,7 +139,7 @@ body{font-family:Heebo,system-ui,sans-serif}
   .top-actions{gap:7px}
   .streak-chip{padding:0 9px;gap:4px}
   .streak-chip .streak-text{max-width:58px;font-size:9px}
-  .header-version .version-label{display:none}
+  .header-version .version-label{display:inline}
   .icon-btn{width:36px;height:36px}
   .hero{
     height:700px;
@@ -218,6 +219,10 @@ body{font-family:Heebo,system-ui,sans-serif}
 .game-buddy-friends button.selected{border-color:var(--blue);background:#eaf3ff;box-shadow:0 3px 0 #bcd5f5}
 .game-buddy-friends button.locked{font-size:15px;opacity:.55;filter:grayscale(.7)}
 .difficulty-subject>h3{margin:5px 0 12px;color:var(--blue-dark)}
+.difficulty-subject-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;border:0;background:transparent;padding:5px 0 12px;color:var(--blue-dark);text-align:right}
+.difficulty-subject-toggle h3{margin:0;color:inherit;font-size:17px}
+.difficulty-subject-toggle>span{font-size:24px;line-height:1;color:var(--blue)}
+.difficulty-subject-games[hidden]{display:none}
 .game-level-row{padding:14px 0}
 .game-level-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 .game-visibility-button{border:1px solid #efb1ab;border-radius:10px;background:#fff5f3;color:#a63c34;padding:6px 11px;font-size:10px;font-weight:900}
