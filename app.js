@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.35";
+const APP_VERSION = "0.1.36";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -502,7 +502,10 @@ function openPrivacyScreen(from="settingsScreen"){
 
 function activeProfile(){ return state.profiles.find(p => p.id === state.activeId); }
 const EXTENDED_LEVEL_GAME_IDS = new Set(["count","number-quantity","more-groups","number-sequence","number-line","addition","picture-subtraction","multiplication","clock","word-problems","visual-pattern"]);
-const FIVE_LEVEL_GAME_IDS = new Set(["shapes"]);
+// These games currently have five genuinely distinct learning stages.  Do not
+// show invented levels beyond their real question bank just to make every
+// game look the same.
+const FIVE_LEVEL_GAME_IDS = new Set(["shapes","life-cycle","plant-parts","animal-food","weather","cause-effect"]);
 const DIFFICULTY_PROMPT_COOLDOWN_GAMES = 5;
 function gameMaxLevel(gameId){ return EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9; }
 function ageLevel(age){ return clamp(Number(age)||3,1,9); }
@@ -1088,7 +1091,6 @@ function questionSignature(q){
     q.visual,
     q.correct,
     Array.isArray(q.patternTiles)?q.patternTiles.join("|"):"",
-    Array.isArray(q.tokens)?q.tokens.join("|"):"",
     q.dragSource||"",
     q.audio?.key||q.audio?.text||"",
     q.clock?`${q.clock.hour}:${q.clock.minutes}`:"",
@@ -1113,10 +1115,18 @@ function startGame(gameId){
   const subject=game.subject,level=p.gameLevels[gameId]||ageLevel(p.age);
   trackEvent("game_started",{subject,game_id:gameId,game_level:level});
   const pool=uniqueQuestions(KIDS_GAMES.build(gameId,level,p));
-  const recent=new Set(p.recentGames[gameId]||[]);
-  let available=pool.filter(q=>!recent.has(questionSignature(q)));
-  if(available.length<5)available=pool;
-  const questions=shuffled(available).slice(0,5).map(q=>({...q,a:Array.isArray(q.a)?shuffled(q.a):[]}));
+  const history=p.recentGames[gameId]||[];
+  const recent=new Set(history);
+  const previousGame=new Set(history.slice(-5));
+  // Prefer questions the player has not seen recently. When a level has a
+  // small pool, reuse older questions before reusing anything from the game
+  // played immediately before this one.
+  const unseen=pool.filter(q=>!recent.has(questionSignature(q)));
+  const older=pool.filter(q=>recent.has(questionSignature(q))&&!previousGame.has(questionSignature(q)));
+  const lastResort=pool.filter(q=>previousGame.has(questionSignature(q)));
+  const questions=[...shuffled(unseen),...shuffled(older),...shuffled(lastResort)]
+    .slice(0,Math.min(5,pool.length))
+    .map(q=>({...q,a:Array.isArray(q.a)?shuffled(q.a):[]}));
   p.recentGames[gameId]=[...(p.recentGames[gameId]||[]),...questions.map(questionSignature)].slice(-Math.min(40,Math.max(12,pool.length-5)));
   save();
   session={subject,gameId,game,level,questions,index:0,correct:0,start:Date.now(),locked:false,results:{},memoryRoundOutcomes:[]};
@@ -1353,6 +1363,7 @@ function renderQuestionInteraction(q){
   if(q.mode==="build"){
     grid.classList.add("build-answer-grid");
     grid.innerHTML=`<div class="build-result" id="buildResult">בחרו לפי הסדר</div><div class="token-bank">${q.tokens.map((token,index)=>`<button class="token-btn" data-token-index="${index}">${escapeHtml(token)}</button>`).join("")}</div><div class="build-actions"><button class="outline-btn" data-build-undo>מחיקה</button></div>`;
+    grid.insertAdjacentHTML("afterbegin",`<div class="correct-build-answer" id="correctBuildAnswer" hidden></div>`);
     return;
   }
   if(q.mode==="memory"){
@@ -1365,6 +1376,7 @@ function renderQuestionInteraction(q){
   if(q.mode==="wordsearch"){
     grid.classList.add("word-search-wrap");
     grid.innerHTML=`<div class="word-selection" id="wordSelection">בחרו אותיות לפי הסדר</div><div class="word-search-grid" style="--grid-size:${q.size}">${q.grid.map((letter,index)=>`<button data-grid-index="${index}">${letter}</button>`).join("")}</div><div class="build-actions"><button class="outline-btn" data-grid-clear>ניקוי</button></div>`;
+    grid.insertAdjacentHTML("afterbegin",`<div class="correct-build-answer" id="correctBuildAnswer" hidden></div>`);
     return;
   }
   grid.innerHTML=q.a.map(a=>{
@@ -1512,13 +1524,24 @@ function revealCorrectAnswer(q){
       result.dir=/[\u0590-\u05FF]/.test(submitted)?"rtl":"ltr";
       result.classList.add("wrong-answer-reveal");
     }
+    revealCorrectBuildAnswer(q);
     $$(".token-btn,[data-build-undo]").forEach(item=>item.disabled=true);
   }
   if(q.mode==="wordsearch"){
     const result=$("#wordSelection");
     if(result){result.classList.add("wrong-answer-reveal");}
+    revealCorrectBuildAnswer(q);
     $$("[data-grid-index],[data-grid-clear]").forEach(item=>item.disabled=true);
   }
+}
+
+function revealCorrectBuildAnswer(q){
+  const correct=$("#correctBuildAnswer");
+  if(!correct)return;
+  const value=String(q.correct);
+  correct.hidden=false;
+  correct.innerHTML=`<span>התשובה הנכונה:</span> <b>${escapeHtml(value)}</b>`;
+  correct.dir=/[\u0590-\u05FF]/.test(value)?"rtl":"ltr";
 }
 
 function finishGame(){

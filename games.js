@@ -154,14 +154,16 @@
     };
     const useScaledIcons = level < 6;
     const makeCompare=(question,items,correct,extra={})=>make(question,correct,shuffle(items),extra.visual||"",{skill:"גדול וקטן",type:extra.type||"משווים גדלים",imageAnswers:extra.imageAnswers,answerScales:useScaledIcons?extra.answerScales:null,word:extra.word,explain:extra.explain||`התשובה הנכונה היא ${correct}.`});
-    const makeOrder=(question,tokens,extra={})=>make(question,tokens.join(" ← "),[],extra.visual||"",{skill:"גדול וקטן",type:extra.type||"מסדרים לפי גודל",mode:"build",tokens:shuffle(tokens),joinWith:" ← ",explain:extra.explain||`הסדר הנכון הוא ${tokens.join(" ← ")}.`});
+    const makeOrder=(question,tokens,extra={})=>make(question,tokens.join(" → "),[],extra.visual||"",{skill:"גדול וקטן",type:extra.type||"מסדרים לפי גודל",mode:"build",tokens:shuffle(tokens),joinWith:" → ",explain:extra.explain||`הסדר הנכון הוא ${tokens.join(" → ")}.`});
     const questions=[];
     pairs.forEach(([small,big],i)=>{
       if(level===1){
         questions.push(makeCompare(i%2?"מי קטן יותר?":"מי גדול יותר?",[small,big],i%2?small:big,{imageAnswers:true,answerScales:pairScale(small,big),type:"גדול או קטן"}));
       }
     });
-    const groupCountForLevel = () => level >= 7 ? 6 : level >= 6 ? 4 : level >= 4 ? 6 : 4;
+    // Each early level adds another item to compare; previously levels 2/3
+    // and 4/5 accidentally created the same exercise pool.
+    const groupCountForLevel = () => level >= 7 ? 6 : level >= 6 ? 4 : level >= 5 ? 6 : level === 4 ? 5 : level === 3 ? 4 : 3;
     if(level>=2&&level<6){
       groups.forEach(group=>{
         const count=groupCountForLevel(),active=group.slice(0,count),small=active[0][0],big=active.at(-1)[0];
@@ -199,7 +201,7 @@
     }
     if(level>=8){
       groups.forEach(group=>{
-        const active=group.slice(0,4).sort((a,b)=>a[1]-b[1]).map(x=>x[0]);
+        const active=group.slice(0,level>=9?5:4).sort((a,b)=>a[1]-b[1]).map(x=>x[0]);
         questions.push(makeOrder("סדרו מהקטן לגדול",active,{type:"סדר גודל"}));
         questions.push(makeOrder("סדרו מהגדול לקטן",[...active].reverse(),{type:"סדר גודל"}));
       });
@@ -219,32 +221,26 @@
     });
   }
   function patterns(level){
-    const configs=[
-      {pattern:["🔴","🔵"],pool:["🔴","🔵","🟡","🟢"]},
-      {pattern:["⭐","🌙"],pool:["⭐","🌙","☀️","☁️"]},
-      {pattern:["🍎","🍐"],pool:["🍎","🍐","🍌","🍓"]},
-      {pattern:["🐶","🐱"],pool:["🐶","🐱","🐰","🐻"]},
-      {pattern:["🟨","🔺"],pool:["🟨","🔺","🔵","🟢"]},
-      {pattern:["🌸","🍃"],pool:["🌸","🍃","🌼","🌳"]},
-      {pattern:["🧸","🎈"],pool:["🧸","🎈","🎁","⭐"]},
-      {pattern:["🔺","🔵","🟨"],pool:["🔺","🔵","🟨","🟢"]},
-      {pattern:["🐶","🐱","🐰"],pool:["🐶","🐱","🐰","🐻"]},
-      {pattern:["🍌","🍓","🍎"],pool:["🍌","🍓","🍎","🍐"]}
+    // Do not keep easy AB patterns in the high levels.  Every band introduces
+    // a new pattern rule, while the three levels inside it grow in length.
+    const tiers=[
+      [["🔴","🔵"],["⭐","🌙"],["🍎","🍐"]],
+      [["🔺","🔵","🟨"],["🐶","🐱","🐰"],["🍌","🍓","🍎"]],
+      [["🧸","🧸","🎈"],["🌸","🍃","🍃"],["🐶","🐱","🐱"]],
+      [["🔴","🔵","🟡","🟢"],["🍎","🍐","🍌","🍓"],["🐶","🐱","🐰","🐻"]],
+      [["⭐","⭐","🌙","☀️"],["🔺","🔵","🔵","🟨"],["🍎","🍐","🍐","🍌"]]
     ];
-    const active=configs.slice(0,clamp(3+level,4,configs.length));
-    const maxLength=clamp(3+Math.floor(level/2),3,11);
+    const tierIndex=clamp(Math.ceil(level/3),1,tiers.length)-1;
+    const active=tiers[tierIndex].map(pattern=>({pattern,pool:[...new Set([...pattern,"🟢","☁️","🎁","🐻","🍓","🟨","🔺","🔵","🌙","☀️"])]}));
+    const maxLength=3+(level-1)%3+tierIndex;
     const questions=[];
     active.forEach(({pattern,pool})=>{
       for(let length=3;length<=maxLength;length++){
         const seq=Array.from({length},(_,j)=>pattern[j%pattern.length]),correct=pattern[length%pattern.length];
         questions.push(make("מה מגיע עכשיו?",correct,options(correct,pool),"",{skill:"דפוסים",type:"ממשיכים דפוס",patternTiles:[...seq,"?"],explain:`הדפוס חוזר על עצמו: ${pattern.join(" ")}.`}));
       }
-      if(level>=6&&pattern.length===2){
-        const shifted=[pattern[1],pattern[0]],seq=Array.from({length:maxLength},(_,j)=>shifted[j%shifted.length]),correct=shifted[maxLength%shifted.length];
-        questions.push(make("מה מגיע עכשיו?",correct,options(correct,pool),"",{skill:"דפוסים",type:"ממשיכים דפוס",patternTiles:[...seq,"?"],explain:`הדפוס חוזר על עצמו: ${shifted.join(" ")}.`}));
-      }
-      if(level>=10){
-        const missingIndex=2+(pattern.length===3?1:0),seq=Array.from({length:maxLength},(_,j)=>pattern[j%pattern.length]),correct=seq[missingIndex];
+      if(level>=7){
+        const missingIndex=1+(level%Math.max(2,pattern.length)),seq=Array.from({length:maxLength+2},(_,j)=>pattern[j%pattern.length]),correct=seq[missingIndex];
         seq[missingIndex]="?";
         questions.push(make("מה חסר בדפוס?",correct,options(correct,pool),"",{skill:"דפוסים",type:"מוצאים חלק חסר",patternTiles:seq,explain:`הדפוס חוזר על עצמו: ${pattern.join(" ")}.`}));
       }
@@ -358,9 +354,9 @@
   }
 
   function wordQuestions(kind,level){
-    const realLevel=clamp(level,1,5);
-    const count=realLevel===5?englishWords.length:clamp(6+realLevel*4,8,englishWords.length),active=englishWords.slice(0,count);
-    const choiceCount=realLevel===1?2:realLevel===2?3:4;
+    const realLevel=clamp(level,1,9);
+    const count=clamp(5+realLevel*3,8,englishWords.length),active=englishWords.slice(0,count);
+    const choiceCount=realLevel===1?2:realLevel===2?3:realLevel<=5?4:realLevel<=7?5:6;
     const englishLetters="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     const letterChoices=letter=>{
       const near={A:["A","E","O","U"],B:["B","D","P","R"],C:["C","G","O","Q"],D:["D","B","P","O"],F:["F","E","P","T"],M:["M","N","W","H"],S:["S","C","Z","T"],W:["W","M","V","H"]};
@@ -374,7 +370,37 @@
     if(kind==="buildEnglish")return repeatPool(active.filter(x=>x[1].length<=clamp(3+Math.floor(level/2),4,8)).map(([icon,word])=>make("בנו את המילה מהאותיות",word,[],icon,{skill:"איות",type:"בונים מילה",mode:"build",tokens:shuffle([...word,...shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")).slice(0,clamp(level-3,1,4))]),joinWith:"",word:true})));
     if(kind==="dragEnglish")return repeatPool(active.map(([icon,word,,cat])=>{const pool=realLevel>=4?active.filter(x=>x[3]===cat).map(x=>x[0]):active.map(x=>x[0]);return make(`לחצו על התמונה המתאימה למילה ${word}`,icon,options(icon,pool,choiceCount),"",{skill:"התאמה",type:realLevel>=4?"תמונות מאותה קבוצה":"מילה ותמונה"});}));
     if(kind==="listenEnglish")return repeatPool(animals.slice(0,count).map(animal=>make("לחצו על הרמקול ובחרו את בעל החיים ששמעתם",animal.icon,options(animal.icon,animals.map(x=>x.icon)),"🔊",{skill:"האזנה",type:"לחצו ושמעו",audio:{kind:"speech",text:animal.en}})));
-    if(kind==="englishCategories"){const categoryPools={ANIMAL:["DOG","CAT","BEAR","FISH","LION","FROG","OWL"],FOOD:["APPLE","EGG","JUICE","BANANA","MANGO","CHEESE"],OBJECT:["GIFT","HAT","KEY","CAR","DRUM"],NATURE:["SUN","MOON","TREE","STAR"]},categoryIcons={ANIMAL:"🐾",FOOD:"🍎",OBJECT:"🎒",NATURE:"🌿"};return repeatPool(active.map(([icon,word,letter,cat])=>{if(realLevel===5)return make(`לאיזו קטגוריה שייכת המילה ${word}?`,cat,options(cat,Object.keys(categoryPools),4),categoryIcons[cat]||"✨",{skill:"קטגוריות",type:"מיון הפוך"});const distractors=Object.entries(categoryPools).filter(([key])=>key!==cat).flatMap(([,words])=>words);return make(`איזו מילה שייכת לקטגוריה ${cat}?`,word,options(word,distractors,choiceCount),categoryIcons[cat]||"✨",{skill:"קטגוריות",type:"מיון מילים"});}));}
+    if(kind==="englishCategories"){
+      const categoryLevel=clamp(level,1,9);
+      const categoryPools=Object.fromEntries([...new Set(englishWords.map(([, , , category])=>category))].map(category=>[category,englishWords.filter(([, , , itemCategory])=>itemCategory===category)]));
+      const categoryNames=Object.keys(categoryPools);
+      const categoryWords=categoryLevel<=5?active:englishWords;
+      if(categoryLevel<=4)return repeatPool(categoryWords.map(([icon,word,,cat])=>{
+        const distractors=categoryWords.filter(([, , , itemCategory])=>itemCategory!==cat).map(([,itemWord])=>itemWord);
+        return make(`איזו מילה שייכת לקטגוריה ${cat}?`,word,options(word,distractors,choiceCount),icon||"",{skill:"קטגוריות",type:"מיון מילים"});
+      }));
+      if(categoryLevel<=6)return repeatPool(categoryWords.map(([icon,word,,cat])=>make(
+        `לאיזו קטגוריה שייכת המילה ${word}?`,cat,options(cat,categoryNames,categoryLevel===5?4:5),icon||"",
+        {skill:"קטגוריות",type:categoryLevel===5?"מיון הפוך":"חמש קטגוריות"}
+      )));
+      if(categoryLevel===7)return repeatPool(categoryNames.flatMap(cat=>categoryPools[cat].map(([icon,word])=>{
+        const distractors=englishWords.filter(([, , , itemCategory])=>itemCategory!==cat).map(([,itemWord])=>itemWord);
+        return make(`איזו מילה שייכת לקטגוריה ${cat}?`,word,options(word,distractors,5),icon||"",{skill:"קטגוריות",type:"בחירה מחמש מילים"});
+      })));
+      if(categoryLevel===8)return repeatPool(categoryNames.filter(cat=>categoryPools[cat].length>=4).flatMap(cat=>englishWords.filter(([, , , itemCategory])=>itemCategory!==cat).map(([icon,word])=>{
+        const matching=categoryPools[cat].map(([,itemWord])=>itemWord);
+        return make(`איזו מילה אינה שייכת לקטגוריה ${cat}?`,word,options(word,matching,5),icon||"",{skill:"קטגוריות",type:"יוצא דופן"});
+      })));
+      const sameCategoryPairs=categoryNames.flatMap(cat=>{
+        const words=categoryPools[cat].map(([,word])=>word);
+        return words.slice(0,-1).map((word,index)=>[`${word} + ${words[index+1]}`,cat]);
+      });
+      return repeatPool(sameCategoryPairs.map(([pair,cat],index)=>{
+        const [first]=pair.split(" + ");
+        const wrongPairs=categoryNames.filter(other=>other!==cat).map((other,offset)=>`${first} + ${categoryPools[other][offset%categoryPools[other].length][1]}`);
+        return make("איזה זוג מילים שייך לאותה קטגוריה?",pair,options(pair,wrongPairs,4),"",{skill:"קטגוריות",type:"זוגות מאותה קטגוריה"});
+      }));
+    }
     return [];
   }
   function memoryEnglish(level){
@@ -551,7 +577,7 @@
       ["🐢","למה משמש השריון של הצב?","להגן עליו מפני סכנה","לחמם את הצבונים|להיראות יפה יותר|לאגור מים"],["🦔","למה משמשים הקוצים של הקיפוד?","להגן עליו מפני טורפים","לחמם את הקיפודונים|לשמור על חום הגוף|לקרר את הגוף כשחם"],["🦌","למה משמשות הקרניים של האייל?","להתגונן ולהרשים איילים אחרים","לשמור על חום הגוף|לאגור מים|לחפור בחול"],["🐻","למה משמשת הפרווה העבה של הדוב?","לחמם את הגוף כשקר","לאגור מזון|לאגור מים|לקרר את הגוף כשחם"],["🦓","למה משמשים הפסים של הזברה?","להגן עליה מפני חרקים עוקצים","זו הפיג'מה שלה|לבלבל טורפים|להיראות יפה"],["🐦","למה משמש המקור החזק של הנקר?","לנקר בגזעי עצים ולמצוא מזון","להגנה מפני אויבים|לשתות מים|להיראות יפה"],["🦆","למה משמש המקור הרחב של הברווז?","לסנן מזון מן המים","לשחייה|לשתיית מים|לליטוף הברווזונים"],["🦎","למה משמשת הלשון הארוכה של הזיקית?","לתפוס חרקים","לשתות מים|ללקק את הזיקיות הקטנות|לנקות את הגוף"],["🐜","למה משמשת הלשון הארוכה של דב הנמלים?","לתפוס נמלים וטרמיטים","להגיע לצוף שבתוך פרחים|לשתות מים|לשמירה על חום הגוף"],["🦚","למה משמש הזנב המרשים של הטווס?","להרשים טווסים אחרים","לקרר את הגוף|להגנה מפני אויבים|לחמם את הטווסונים"],
       ["🦫","למה משמש הזנב השטוח של הבונה?","לשחות ולתקשר במים","להגנה מפני אויבים|לבניית סכרים במים|לחימום הגוף"],["🦩","למה משמשות הרגליים הארוכות של הפלמינגו?","לעמוד וללכת במים רדודים","להגנה מפני אויבים|לעוף יותר טוב|לחמם את הגוזלים"],["🦊","למה משמשת הפרווה הלבנה של שועל השלג?","להסתתר בשלג","לשמור על חום הגוף|להיראות יפה|להגנה מפני השמש"],["🐬","למה משמשים סנפירי הדולפין?","לשחות ולשנות כיוון במים","לחימום הדולפינים הקטנים|לזחול על היבשה|לקירור הגוף"],["🦭","למה משמשת שכבת השומן של כלב הים?","לשמור על חום הגוף במים קרים","לאגור מזון|לאגור מים|לחימום כלבלבי הים"],["🦅","למה משמשים הטפרים החזקים של הנשר?","לתפוס מזון","לעוף יותר טוב|לליטוף הגוזלים|לעמידה יציבה על האדמה"],["🐻‍❄️","למה משמשות הכפות הרחבות של דוב הקוטב?","ללכת על שלג ולשחות","לטפס על עצים|לחימום הדובונים|לשמור על חום הגוף"],["🌵","למה משמשים הקוצים של הקקטוס?","להגן עליו ולצמצם איבוד מים","לצמוח גבוה מבלי להתכופף|לפזר את הזרעים|למשוך חרקים"],["🪷","למה משמשים העלים הרחבים של שושנת המים?","לקלוט כמה שיותר אור שמש","לשאת את הפרחים|למשוך דבורים|להגנה מפני דגים"]
     ];return repeatPool(data.map(([icon,q,correct,wrong])=>make(q,correct,shuffle([correct,...wrong.split("|")]),icon,{skill:"התאמה לסביבה",type:"תכונה ותפקיד"})));}
-    if(kind==="causeEffect"){const data=[["משקים צמח","הצמח גדל"],["שמים מים במקפיא","המים קופאים"],["מחממים קרח","הקרח נמס"],["מכבים את האור","החדר מחשיך"],["שמים חפץ בשמש","החפץ מתחמם"],["לא משקים צמח","הצמח נובל"],["מערבבים כחול וצהוב","נוצר ירוק"],["פותחים חלון","נכנס אוויר"],["זורקים כדור למעלה","הכדור נופל בחזרה"],["שמים זרעים באדמה ומשקים","יכולים לצמוח נבטים"]];return repeatPool(data.map(([cause,effect])=>make(`מה יקרה אם ${cause}?`,effect,options(effect,data.map(x=>x[1])),"🧪",{skill:"סיבה ותוצאה",type:"חושבים כמו מדענים"})));}
+    if(kind==="causeEffect"){const data=[["משקים צמח","הצמח גדל"],["שמים מים במקפיא","המים קופאים"],["מחממים קרח","הקרח נמס"],["מכבים את האור","החדר מחשיך"],["שמים חפץ בשמש","החפץ מתחמם"],["לא משקים צמח","הצמח נובל"],["מערבבים כחול וצהוב","נוצר ירוק"],["פותחים חלון","נכנס אוויר"],["זורקים כדור למעלה","הכדור נופל בחזרה"],["שמים זרעים באדמה ומשקים","יכולים לצמוח נבטים"]];return repeatPool(data.map(([cause,effect])=>make(`מה יקרה אם ${cause}?`,effect,options(effect,data.map(x=>x[1])),"",{skill:"סיבה ותוצאה",type:"חושבים כמו מדענים"})));}
     return [];
   }
 
