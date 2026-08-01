@@ -1501,7 +1501,10 @@ function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
     revealCorrectAnswer(q);
   }
   save();
-  setTimeout(()=>{session.index++;session.index<session.questions.length?renderQuestion():finishGame()},2600);
+  // In these ordering games, a wrong answer also reveals the full correct
+  // sequence. Leave it on screen one extra second so it can be read.
+  const extraReadTime=!ok&&["event-order","sentence-order-he"].includes(session.gameId)?1000:0;
+  setTimeout(()=>{session.index++;session.index<session.questions.length?renderQuestion():finishGame()},2600+extraReadTime);
 }
 
 function revealCorrectAnswer(q){
