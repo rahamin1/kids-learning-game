@@ -1168,7 +1168,7 @@ function renderDifficultyPrompt(){
   const promptGameName=String(prompt.gameName||"").replace(/[?？]+$/u,"");
   $("#difficultyPromptIcon").textContent=prompt.direction==="up"?"🚀":"🌱";
   $("#difficultyPromptEyebrow").textContent=prompt.direction==="up"?"מוכנים לאתגר חדש?":"משחקים בקצב שמתאים לכם";
-  $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מצוין 4 פעמים!":"נראה שהמשחק קצת מאתגר עכשיו.";
+  $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מצוין פעמיים!":"נראה שהמשחק קצת מאתגר עכשיו.";
   const rtlQuestionMark="\u200F?";
   $("#difficultyPromptText").textContent=prompt.direction==="up"
     ? `רוצה לעלות לרמה ${nextLevel} במשחק „${promptGameName}”${rtlQuestionMark}`
@@ -1545,7 +1545,7 @@ function finishGame(){
   gameProg.perfectStreak=strongGame?(gameProg.perfectStreak||0)+1:0;
   gameProg.challengeStreak=challengingGame?(gameProg.challengeStreak||0)+1:0;
   const currentLevel=p.gameLevels[session.gameId]||session.level;
-  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%4===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<gameMaxLevel(session.gameId)&&!gameProg.promotionAutoPromptDisabled&&(gameProg.promotionCooldownUntil||0)<gameProg.completed;
+  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%2===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<gameMaxLevel(session.gameId)&&!gameProg.promotionAutoPromptDisabled&&(gameProg.promotionCooldownUntil||0)<gameProg.completed;
   const easierLevelDue=gameProg.challengeStreak>0&&gameProg.challengeStreak%3===0&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1&&!gameProg.easierAutoPromptDisabled&&(gameProg.easierCooldownUntil||0)<gameProg.completed;
   if(promotionDue){
     gameProg.lastPromotionPrompt=gameProg.perfectStreak;
