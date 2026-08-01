@@ -240,6 +240,8 @@ body{font-family:Heebo,system-ui,sans-serif}
 .drag-target{font-size:31px}
 .build-result,.word-selection{min-height:58px;border:3px solid #dce8f0;border-radius:16px;background:#f8fbfd;padding:13px;text-align:center;color:var(--blue-dark);font-size:22px;font-weight:900}
 .build-result{unicode-bidi:isolate}
+.correct-build-answer{padding:10px 14px;border:3px solid #35b983;border-radius:16px;background:#d8f5e9;color:#137251;text-align:center;font-size:19px;font-weight:800;unicode-bidi:isolate}
+.correct-build-answer b{font-size:22px;letter-spacing:.02em}
 .build-result.correct-answer-reveal,.word-selection.correct-answer-reveal{border-color:#35b983;background:#d8f5e9;color:#137251}
 .build-result.wrong-answer-reveal,.word-selection.wrong-answer-reveal{border-color:#ed665b;background:#ffe4e0;color:#a52d26}
 .question-visual.correct-answer-reveal{color:#137251}
@@ -373,7 +375,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 
 /* Keep answer choices inside the game card on narrow mobile screens. */
 .answer-grid{width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}
-.answer-btn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:clip!important;overflow-wrap:normal;word-break:keep-all;direction:rtl;unicode-bidi:plaintext}
+.answer-btn{min-width:0;min-height:74px;display:flex;align-items:center;justify-content:center;white-space:normal;overflow:visible;text-overflow:initial!important;overflow-wrap:break-word;word-break:normal;line-height:1.18;padding:10px 12px;text-align:center;direction:rtl;unicode-bidi:plaintext}
 .answer-btn.text-answer{font-size:23px}
 .answer-btn.fit-text-answer{padding-inline:8px}
 
@@ -401,7 +403,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   .game-screen,.game-shell,.game-card{max-width:100vw;overflow-x:hidden}
   .game-card{padding-left:14px;padding-right:14px}
   .answer-grid{gap:10px;max-width:100%}
-  .answer-btn{font-size:clamp(18px,6.2vw,30px);line-height:1.08;padding:10px 5px}
+  .answer-btn{font-size:clamp(18px,6.2vw,30px);line-height:1.15;padding:10px 9px}
   .answer-grid.image-answers .answer-btn{font-size:72px;min-height:118px}
   .answer-grid.image-answers .answer-btn.text-answer{font-size:clamp(18px,6.2vw,30px)}
   .number-line-visual{font-size:clamp(24px,7.8vw,38px);gap:2px;padding-left:0;padding-right:0;max-width:100%;overflow:visible}

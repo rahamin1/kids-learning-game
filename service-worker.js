@@ -1,4 +1,4 @@
-const CACHE_NAME = "brightwood-pwa-test038";
+const CACHE_NAME = "brightwood-pwa-test039";
 const CORE_FILES = [
   "./",
   "./index.html",
@@ -6,12 +6,12 @@ const CORE_FILES = [
   "./remove-updates.html",
   "./updates-pending.html",
   "./updates-confirmed.html",
-  "./styles.css?build=test038",
-  "./games.js?build=test038",
-  "./difficulty-levels.js?build=test038",
-  "./expanded-question-banks.js?build=test038",
-  "./app.js?build=test038",
-  "./manifest.test.webmanifest?v=0.1.35-test",
+  "./styles.css?build=test039",
+  "./games.js?build=test039",
+  "./difficulty-levels.js?build=test039",
+  "./expanded-question-banks.js?build=test039",
+  "./app.js?build=test039",
+  "./manifest.test.webmanifest?v=0.1.36-test",
   "./assets/app-icon-192.png",
   "./assets/app-icon-512.png",
   "./assets/app-icon-star-forest.png",
