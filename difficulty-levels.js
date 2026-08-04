@@ -28,9 +28,13 @@
     [[1,5],[2,5]],
     [[3,5],[4,5]],
     [[1,6],[2,6],[3,6],[4,6],[5,6]],
-    [[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],
-    [[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8]],
-    [[1,6],[3,6],[5,6],[1,7],[4,7],[6,7],[1,8],[3,8],[5,8],[7,8]]
+    [[1,6],[3,6],[5,6],[1,7],[4,7],[6,7],[1,8],[3,8],[5,8],[7,8]],
+    [[2,4],[3,6],[4,8],[2,6],[4,6],[6,8],[5,10]],
+    [[6,9],[8,12],[9,12],[10,15],[12,16],[14,21],[15,20]]
+  ];
+  const simplifiedFractionLevels = [
+    [[2,4,1,2],[3,6,1,2],[4,8,1,2],[2,6,1,3],[4,6,2,3],[6,8,3,4],[5,10,1,2]],
+    [[6,9,2,3],[8,12,2,3],[9,12,3,4],[10,15,2,3],[12,16,3,4],[14,21,2,3],[15,20,3,4]]
   ];
   const fractionColors = ["כחול","אדום","סגול","ירוק","כתום"];
   const fractionColorClasses = ["blue","red","purple","green","orange"];
@@ -83,6 +87,9 @@
     const realLevel = clamp(Number(level) || 1, 1, 5);
     let pool;
     if (gameId === "story-title") {
+      // Keep the full Story Title curriculum from games.js: 30 distinct
+      // stories at each of its four difficulty levels.
+      return originalBuild(gameId, clamp(Number(level) || 1, 1, 4), profile);
       const storyLevel = clamp(Number(level) || 1, 1, 5);
       const active = storyTitleQuestions.slice((storyLevel - 1) * 6, storyLevel * 6);
       const titles = storyTitleQuestions.map(([, title]) => title);
@@ -118,28 +125,28 @@
         realLevel === 5 ? "מיון לפי מילה" : "חי, צומח או דומם"
       )));
     } else if (gameId === "adaptations") {
-      const answerCount = realLevel === 1 ? 2 : realLevel === 2 ? 3 : 4;
-      pool = repeat(adaptations[realLevel - 1].map(([visual, q, correct, wrong]) => question(q, correct, choices(correct, wrong, answerCount), visual, "התאמה לסביבה", `תכונה ותפקיד — רמה ${realLevel}`)));
+      // The complete Adaptations curriculum is defined in games.js.
+      return originalBuild(gameId, level, profile);
     } else if (gameId === "cause-effect") {
-      const answerCount = realLevel === 1 ? 2 : realLevel === 2 ? 3 : 4;
-      const allRows = causes.flat();
-      const active = causes[realLevel - 1];
-      const allEffects = allRows.map(([, effect]) => effect);
-      const allCauses = allRows.map(([cause]) => cause);
-      pool = repeat(active.flatMap(([cause, effect]) => [
-        question(`מה יקרה אם ${cause}?`, effect, choices(effect, allEffects, answerCount), "🧪", "סיבה ותוצאה", `תוצאה — רמה ${realLevel}`),
-        question(`מה הסיבה לכך ש${effect}?`, cause, choices(cause, allCauses, answerCount), "🧪", "סיבה ותוצאה", `סיבה — רמה ${realLevel}`),
-        question(`איזו פעולה יכולה לגרום לכך ש${effect}?`, cause, choices(cause, allCauses, answerCount), "🧪", "סיבה ותוצאה", `מוצאים סיבה — רמה ${realLevel}`)
-      ]));
+      // The full five-level Cause and Effect curriculum is defined in games.js.
+      return originalBuild(gameId, level, profile);
     } else if (gameId === "fractions") {
       const fractionLevel = clamp(Number(level) || 1, 1, 9);
       const active = fractionLevels[fractionLevel - 1];
-      const allFractions = fractionLevels.flat().map(([numerator, denominator]) => `${numerator}/${denominator}`);
-      pool = repeat(active.map(([numerator, denominator], index) => {
+      const simplification = fractionLevel >= 8 ? simplifiedFractionLevels[fractionLevel - 8] : null;
+      // In the reduction levels, choices must be reduced fractions too.  Keep a
+      // shared bank so each question still has four meaningful alternatives.
+      const reducedChoices = ["1/2", "1/3", "2/3", "3/4", "1/4", "2/5", "3/5", "4/5"];
+      const allFractions = simplification ? reducedChoices : fractionLevels.flat().map(([numerator, denominator]) => `${numerator}/${denominator}`);
+      const source = simplification || active;
+      pool = repeat(source.map((item, index) => {
+        const [shownNumerator, shownDenominator, reducedNumerator, reducedDenominator] = item;
+        const numerator = reducedNumerator || shownNumerator;
+        const denominator = reducedDenominator || shownDenominator;
         const answer = `${numerator}/${denominator}`;
         const colorIndex = index % fractionColors.length;
         return {
-          ...question(`איזה חלק צבוע ב${fractionColors[colorIndex]}?`, answer, choices(answer, allFractions, 4), "●".repeat(numerator) + "○".repeat(denominator - numerator), "שברים", fractionLevel === 9 ? "שברים מתקדמים" : `איזה חלק זה? — רמה ${fractionLevel}`),
+          ...question(simplification ? `איזה שבר מצומצם מתאים לחלק הצבוע ב${fractionColors[colorIndex]}?` : `איזה חלק צבוע ב${fractionColors[colorIndex]}?`, answer, choices(answer, allFractions, 4), "●".repeat(shownNumerator) + "○".repeat(shownDenominator - shownNumerator), "שברים", simplification ? "מצמצמים שברים" : fractionLevel === 7 ? "שברים מתקדמים" : `איזה חלק זה? — רמה ${fractionLevel}`),
           fractionColor: fractionColorClasses[colorIndex]
         };
       }));

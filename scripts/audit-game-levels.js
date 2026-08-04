@@ -16,12 +16,19 @@ const vm = require("vm");
 const root = path.resolve(__dirname, "..");
 const requestedIds = process.argv.slice(2);
 const extendedIds = new Set([
-  "count", "number-quantity", "more-groups", "number-sequence", "number-line",
-  "addition", "picture-subtraction", "multiplication", "clock", "word-problems",
-  "visual-pattern"
+  "count", "number-quantity", "more-groups", "number-sequence",
+  "picture-subtraction"
 ]);
-const fiveLevelIds = new Set(["shapes", "life-cycle", "plant-parts", "animal-food", "weather", "cause-effect"]);
-const maxLevel = id => extendedIds.has(id) ? 15 : fiveLevelIds.has(id) ? 5 : 9;
+// Keep this in step with app.js.  These games intentionally have five real
+// stages; checking invented levels 6–9 only produces false failures.
+const fiveLevelIds = new Set([
+  "picture-word-memory", "life-cycle", "plant-parts", "animal-food", "weather", "cause-effect",
+  "sentence-order-en",
+  "event-order", "sentence-order-he", "true-false", "story-title",
+  "living-groups", "seasons", "food-chain", "adaptations"
+]);
+const customMaxLevels = { "count": 4, "number-quantity": 6, "big-small": 7, "more-groups": 7, "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 5, "number-line": 4, "shapes": 4, "clock": 4, "addition": 6, "multiplication": 5, "multiplication-numbers": 5, "letter-picture": 4, "first-letter": 4, "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4, "build-word-en": 4, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "word-problems": 8, "word-categories": 6, "story-title": 4, "word-search": 3, "odd-one-out": 3, "habitat": 3, "baby-adult": 4, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
+const maxLevel = id => customMaxLevels[id] || (extendedIds.has(id) ? 15 : fiveLevelIds.has(id) ? 5 : 9);
 
 // Stable randomness makes the generated pools reproducible while preserving
 // the same code path that runs in the browser.
@@ -57,7 +64,7 @@ function stable(value) {
 }
 
 function logicalQuestion(question) {
-  const fields = ["q", "correct", "visual", "mode", "tokens", "joinWith", "word", "grid", "numberLine", "groups"];
+  const fields = ["q", "correct", "visual", "mode", "tokens", "joinWith", "word", "grid", "numberLine", "groups", "pairs"];
   const item = {};
   fields.forEach(field => { if (question[field] !== undefined) item[field] = question[field]; });
   if (Array.isArray(question.a)) item.answers = [...question.a].sort();
