@@ -4,6 +4,7 @@
 
 ```powershell
 node scripts/prepublish-check.js shapes word-categories
+node scripts/content-integrity-check.js
 ```
 
 הבדיקה בודקת תחביר ומוודאת ששתי רמות רצופות אינן יוצרות אותו מאגר שאלות לוגי. אם היא נכשלת, לא מפרסמים עד שמוסיפים תוכן שמעלה את הקושי בפועל.

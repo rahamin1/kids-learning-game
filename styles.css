@@ -239,8 +239,12 @@ body{font-family:Heebo,system-ui,sans-serif}
 .drag-targets{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%}
 .drag-target{font-size:31px}
 .build-result,.word-selection{min-height:58px;border:3px solid #dce8f0;border-radius:16px;background:#f8fbfd;padding:13px;text-align:center;color:var(--blue-dark);font-size:22px;font-weight:900}
+.word-targets{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:10px}
+.word-targets span{padding:6px 12px;border:2px solid #dce8f0;border-radius:999px;background:#fff;color:var(--blue-dark);font-weight:900}
+.word-targets span.correct-answer-reveal{border-color:#35b983;background:#d8f5e9;color:#137251}
 .build-result{unicode-bidi:isolate}
 .correct-build-answer{padding:10px 14px;border:3px solid #35b983;border-radius:16px;background:#d8f5e9;color:#137251;text-align:center;font-size:19px;font-weight:800;unicode-bidi:isolate}
+.correct-build-label{display:block;margin-bottom:4px}
 .correct-build-answer b{font-size:22px;letter-spacing:.02em}
 .build-result.correct-answer-reveal,.word-selection.correct-answer-reveal{border-color:#35b983;background:#d8f5e9;color:#137251}
 .build-result.wrong-answer-reveal,.word-selection.wrong-answer-reveal{border-color:#ed665b;background:#ffe4e0;color:#a52d26}
@@ -248,6 +252,7 @@ body{font-family:Heebo,system-ui,sans-serif}
 .token-bank{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
 .token-btn{min-width:48px;min-height:48px;border:2px solid #bdd2e5;border-radius:13px;background:#fff;color:var(--blue-dark);font-size:20px;font-weight:900;padding:7px 11px}
 .token-btn:disabled{opacity:.3;transform:scale(.92)}
+.token-btn.correct-answer-reveal:disabled{opacity:1;transform:none;background:#d8f5e9;border-color:#35b983;color:#137251}
 .build-actions{display:flex;justify-content:center;gap:12px}
 .memory-grid{grid-template-columns:repeat(4,1fr);max-width:680px}
 .memory-card{min-height:78px;border:2px solid #cbdbe8;border-radius:15px;background:var(--blue);color:#fff;position:relative;font-size:20px;font-weight:900}
@@ -255,6 +260,8 @@ body{font-family:Heebo,system-ui,sans-serif}
 .word-search-grid{display:grid;grid-template-columns:repeat(var(--grid-size),1fr);gap:5px;direction:rtl;width:min(430px,100%);margin:auto}
 .word-search-grid button{aspect-ratio:1;border:2px solid #cadbe9;border-radius:9px;background:#fff;color:var(--ink);font-size:18px;font-weight:900}
 .word-search-grid button.selected{background:#ffe38b;border-color:#d9a900}
+.word-search-grid button.selected.correct-answer-reveal{background:#d8f5e9;border-color:#35b983;color:#137251}
+.word-search-grid button.word-found{background:#d8f5e9;border-color:#35b983;color:#137251}
 @media(max-width:800px){.game-choices{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){
   .game-choices{grid-template-columns:1fr}

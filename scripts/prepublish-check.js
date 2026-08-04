@@ -21,7 +21,8 @@ const checks = [
   [process.execPath, ["--check", "games.js"]],
   [process.execPath, ["--check", "difficulty-levels.js"]],
   [process.execPath, ["--check", "expanded-question-banks.js"]],
-  [process.execPath, ["scripts/audit-game-levels.js", ...gameIds]]
+  [process.execPath, ["scripts/audit-game-levels.js", ...gameIds]],
+  [process.execPath, ["scripts/content-integrity-check.js"]]
 ];
 
 for (const [command, args] of checks) {

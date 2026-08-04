@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.36-test";
+const APP_VERSION = "0.1.37-test";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -505,19 +505,34 @@ function openPrivacyScreen(from="settingsScreen"){
 }
 
 function activeProfile(){ return state.profiles.find(p => p.id === state.activeId); }
-const EXTENDED_LEVEL_GAME_IDS = new Set(["count","number-quantity","more-groups","number-sequence","number-line","addition","picture-subtraction","multiplication","clock","word-problems","visual-pattern"]);
+const EXTENDED_LEVEL_GAME_IDS = new Set(["count","number-quantity","more-groups","number-sequence","picture-subtraction"]);
 // These games currently have five genuinely distinct learning stages.  Do not
 // show invented levels beyond their real question bank just to make every
 // game look the same.
-const FIVE_LEVEL_GAME_IDS = new Set(["shapes","life-cycle","plant-parts","animal-food","weather","cause-effect"]);
+const FIVE_LEVEL_GAME_IDS = new Set([
+  "picture-word-memory","life-cycle","plant-parts","animal-food","weather","cause-effect",
+  "sentence-order-en",
+  "event-order","sentence-order-he","true-false","story-title",
+  "living-groups","seasons","food-chain","adaptations"
+]);
+// A few vocabulary games have eight genuinely different stages.  Do not
+// advertise a ninth stage when it would only repeat the eighth.
+const CUSTOM_MAX_LEVELS = { "count": 4, "number-quantity": 6, "big-small": 7, "more-groups": 7, "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 5, "number-line": 4, "shapes": 4, "clock": 4, "addition": 6, "multiplication": 5, "multiplication-numbers": 5, "letter-picture": 4, "first-letter": 4, "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4, "build-word-en": 4, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "word-problems": 8, "word-categories": 6, "story-title": 4, "word-search": 3, "odd-one-out": 3, "habitat": 3, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
 const DIFFICULTY_PROMPT_COOLDOWN_GAMES = 5;
-function gameMaxLevel(gameId){ return EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9; }
+function gameMaxLevel(gameId){ return CUSTOM_MAX_LEVELS[gameId] || (EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9); }
 function ageLevel(age){ return clamp(Number(age)||3,1,9); }
 function defaultGameLevel(gameId,age){
-  if(gameId==="count"||gameId==="number-quantity")return ({3:1,4:2,5:4,6:7,7:9})[Number(age)]||1;
-  if(gameId==="big-small"&&Number(age)===5)return 6;
-  if(gameId==="number-sequence")return ({5:3,6:4,7:5})[Number(age)]||ageLevel(age);
-  if(gameId==="number-line")return ({5:2,6:3,7:4})[Number(age)]||ageLevel(age);
+  if(gameId==="count")return ({3:1,4:1,5:2,6:3,7:3})[Number(age)]||1;
+  if(gameId==="number-quantity")return ({3:1,4:2,5:3,6:4,7:5,8:6,9:6})[Number(age)]||1;
+  if(gameId==="big-small")return ({3:1,4:2,5:4,6:5,7:6,8:7,9:7})[Number(age)]||1;
+  if(gameId==="more-groups")return ({3:1,4:2,5:3,6:5,7:7,8:7,9:7})[Number(age)]||1;
+  if(gameId==="number-sequence")return ({4:1,5:2,6:3,7:4,8:5,9:5})[Number(age)]||1;
+  if(gameId==="picture-subtraction")return ({5:1,6:2,7:3,8:4,9:5})[Number(age)]||1;
+  if(gameId==="number-line")return ({4:1,5:2,6:3,7:4,8:4,9:4})[Number(age)]||1;
+  if(gameId==="addition")return ({4:1,5:2,6:3,7:4,8:5,9:6})[Number(age)]||1;
+  if(gameId==="multiplication-numbers")return ({6:1,7:2,8:3,9:4})[Number(age)]||1;
+  if(gameId==="multiplication")return ({5:1,6:2,7:3,8:4,9:5})[Number(age)]||1;
+  if(gameId==="shapes")return ({5:1,6:2,7:3,8:4,9:4})[Number(age)]||1;
   return ageLevel(age);
 }
 function applyDefaultHiddenGames(p){
@@ -631,6 +646,7 @@ function prepareProfile(p){
   p.gameLevels ||= {};
   p.gameFeedback ||= {};
   p.recentGames ||= {};
+  p.lastGameQuestionSignatures ||= [];
   p.gameProgress ||= {};
   p.hiddenGames ||= [];
   p.collapsedDifficultySubjects ||= [];
@@ -666,6 +682,21 @@ function prepareProfile(p){
       if(!p.gameFeedback[id])p.gameLevels[id]=defaultGameLevel(id,p.age);
     });
     p.gameDefaultTuningVersion=1;
+  }
+  if(p.numberSequenceRedesignVersion!==2){
+    p.gameLevels["number-sequence"]=defaultGameLevel("number-sequence",p.age);
+    p.recentQuestions.math=[];
+    p.numberSequenceRedesignVersion=2;
+  }
+  if(p.pictureSubtractionRedesignVersion!==1){
+    p.gameLevels["picture-subtraction"]=defaultGameLevel("picture-subtraction",p.age);
+    p.recentQuestions.math=[];
+    p.pictureSubtractionRedesignVersion=1;
+  }
+  if(p.numberLineRedesignVersion!==1){
+    p.gameLevels["number-line"]=defaultGameLevel("number-line",p.age);
+    p.recentQuestions.math=[];
+    p.numberLineRedesignVersion=1;
   }
   return p;
 }
@@ -1122,18 +1153,22 @@ function startGame(gameId){
   trackEvent("game_started",{subject,game_id:gameId,game_level:level});
   const pool=uniqueQuestions(KIDS_GAMES.build(gameId,level,p));
   const history=p.recentGames[gameId]||[];
+  const immediatelyPreviousGame=new Set(p.lastGameQuestionSignatures||[]);
   const recent=new Set(history);
   const previousGame=new Set(history.slice(-5));
-  // Prefer questions the player has not seen recently. When a level has a
-  // small pool, reuse older questions before reusing anything from the game
-  // played immediately before this one.
-  const unseen=pool.filter(q=>!recent.has(questionSignature(q)));
-  const older=pool.filter(q=>recent.has(questionSignature(q))&&!previousGame.has(questionSignature(q)));
-  const lastResort=pool.filter(q=>previousGame.has(questionSignature(q)));
-  const questions=[...shuffled(unseen),...shuffled(older),...shuffled(lastResort)]
+  // Never repeat a question from the game played immediately before this one
+  // when another question is available.  Then prefer questions not seen
+  // recently in the current game.
+  const notFromImmediatelyPrevious=pool.filter(q=>!immediatelyPreviousGame.has(questionSignature(q)));
+  const unseen=notFromImmediatelyPrevious.filter(q=>!recent.has(questionSignature(q)));
+  const older=notFromImmediatelyPrevious.filter(q=>recent.has(questionSignature(q))&&!previousGame.has(questionSignature(q)));
+  const lastResort=notFromImmediatelyPrevious.filter(q=>previousGame.has(questionSignature(q)));
+  const immediateFallback=pool.filter(q=>immediatelyPreviousGame.has(questionSignature(q)));
+  const questions=[...shuffled(unseen),...shuffled(older),...shuffled(lastResort),...shuffled(immediateFallback)]
     .slice(0,Math.min(5,pool.length))
     .map(q=>({...q,a:Array.isArray(q.a)?shuffled(q.a):[]}));
   p.recentGames[gameId]=[...(p.recentGames[gameId]||[]),...questions.map(questionSignature)].slice(-Math.min(40,Math.max(12,pool.length-5)));
+  p.lastGameQuestionSignatures=questions.map(questionSignature);
   save();
   session={subject,gameId,game,level,questions,index:0,correct:0,start:Date.now(),locked:false,results:{},memoryRoundOutcomes:[]};
   showScreen("gameScreen",{historyData:{subject,gameId}}); renderQuestion();
@@ -1185,7 +1220,7 @@ function renderDifficultyPrompt(){
   const promptGameName=String(prompt.gameName||"").replace(/[?？]+$/u,"");
   $("#difficultyPromptIcon").textContent=prompt.direction==="up"?"🚀":"🌱";
   $("#difficultyPromptEyebrow").textContent=prompt.direction==="up"?"מוכנים לאתגר חדש?":"משחקים בקצב שמתאים לכם";
-  $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מושלם פעם אחת!":"נראה שהמשחק קצת מאתגר עכשיו.";
+  $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מצוין בשני משחקים רצופים!":"נראה שהמשחק קצת מאתגר עכשיו.";
   const rtlQuestionMark="\u200F?";
   $("#difficultyPromptText").textContent=prompt.direction==="up"
     ? `רוצה לעלות לרמה ${nextLevel} במשחק „${promptGameName}”${rtlQuestionMark}`
@@ -1381,7 +1416,9 @@ function renderQuestionInteraction(q){
   }
   if(q.mode==="wordsearch"){
     grid.classList.add("word-search-wrap");
-    grid.innerHTML=`<div class="word-selection" id="wordSelection">בחרו אותיות לפי הסדר</div><div class="word-search-grid" style="--grid-size:${q.size}">${q.grid.map((letter,index)=>`<button data-grid-index="${index}">${letter}</button>`).join("")}</div><div class="build-actions"><button class="outline-btn" data-grid-clear>ניקוי</button></div>`;
+    session.wordFound=new Set();
+    const targets=q.wordTargets||[q.correct];
+    grid.innerHTML=`<div class="word-targets">${targets.map(target=>`<span data-word-target="${escapeHtml(target)}">${escapeHtml(target)}</span>`).join("")}</div><div class="word-selection" id="wordSelection">בחרו אותיות לפי הסדר</div><div class="word-search-grid" style="--grid-size:${q.size}">${q.grid.map((letter,index)=>`<button data-grid-index="${index}">${letter}</button>`).join("")}</div><div class="build-actions"><button class="outline-btn" data-grid-clear>ניקוי</button></div>`;
     grid.insertAdjacentHTML("afterbegin",`<div class="correct-build-answer" id="correctBuildAnswer" hidden></div>`);
     return;
   }
@@ -1476,6 +1513,16 @@ function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
   }
   if(right){
     button.classList.add("correct"); chime(true);
+    // In games where the player builds an answer step by step, keep the
+    // completed answer visible and mark it green when its order is correct.
+    if(q.mode==="build"){
+      $("#buildResult")?.classList.add("correct-answer-reveal");
+      $$(".token-btn:disabled").forEach(item=>item.classList.add("correct-answer-reveal"));
+    }
+    if(q.mode==="wordsearch"){
+      $("#wordSelection")?.classList.add("correct-answer-reveal");
+      $$("[data-grid-index].selected").forEach(item=>item.classList.add("correct-answer-reveal"));
+    }
     if(q.numberLine){
       const visual=$("#questionVisual");
       const items=q.numberLine.items.map(item=>item==="□"?q.correct:item);
@@ -1503,7 +1550,7 @@ function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
   save();
   // In these ordering games, a wrong answer also reveals the full correct
   // sequence. Leave it on screen one extra second so it can be read.
-  const extraReadTime=!ok&&["event-order","sentence-order-he"].includes(session.gameId)?1000:0;
+  const extraReadTime=!right&&["event-order","sentence-order-he"].includes(session.gameId)?1000:0;
   setTimeout(()=>{session.index++;session.index<session.questions.length?renderQuestion():finishGame()},2600+extraReadTime);
 }
 
@@ -1549,7 +1596,7 @@ function revealCorrectBuildAnswer(q){
   if(!correct)return;
   const value=String(q.correct);
   correct.hidden=false;
-  correct.innerHTML=`<span>התשובה הנכונה:</span> <b>${escapeHtml(value)}</b>`;
+  correct.innerHTML=`<span class="correct-build-label">התשובה הנכונה:</span><b>${escapeHtml(value)}</b>`;
   correct.dir=/[\u0590-\u05FF]/.test(value)?"rtl":"ltr";
 }
 
@@ -1578,7 +1625,7 @@ function finishGame(){
   gameProg.perfectStreak=strongGame?(gameProg.perfectStreak||0)+1:0;
   gameProg.challengeStreak=challengingGame?(gameProg.challengeStreak||0)+1:0;
   const currentLevel=p.gameLevels[session.gameId]||session.level;
-  const promotionDue=gameProg.perfectStreak>0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<gameMaxLevel(session.gameId)&&!gameProg.promotionAutoPromptDisabled&&(gameProg.promotionCooldownUntil||0)<gameProg.completed;
+  const promotionDue=gameProg.perfectStreak>=2&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<gameMaxLevel(session.gameId)&&!gameProg.promotionAutoPromptDisabled&&(gameProg.promotionCooldownUntil||0)<gameProg.completed;
   const easierLevelDue=challengingGame&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1&&!gameProg.easierAutoPromptDisabled&&(gameProg.easierCooldownUntil||0)<gameProg.completed;
   if(promotionDue){
     gameProg.lastPromotionPrompt=gameProg.perfectStreak;
@@ -1793,7 +1840,7 @@ function importProgressFile(file){
 function resetProgress(){
   const p=activeProfile(); if(!p)return;
   if(!confirm(`לאפס את כל ההתקדמות של ${p.name}? הפעולה אינה ניתנת לביטול.`))return;
-  Object.assign(p,{stars:0,streak:0,progress:{},log:[],correct:0,answered:0,minutes:0,daily:0,dailyDate:"",skillLevels:{},skillFeedback:{},recentQuestions:{},gameLevels:{},gameFeedback:{},recentGames:{},gameProgress:{},gameLevelAge:null,updatesPromptShown:false});
+  Object.assign(p,{stars:0,streak:0,progress:{},log:[],correct:0,answered:0,minutes:0,daily:0,dailyDate:"",skillLevels:{},skillFeedback:{},recentQuestions:{},gameLevels:{},gameFeedback:{},recentGames:{},lastGameQuestionSignatures:[],gameProgress:{},gameLevelAge:null,updatesPromptShown:false});
   prepareProfile(p); save(); renderAll();
   if($("#dashboardScreen").classList.contains("active"))renderDashboard();
   if($("#settingsScreen").classList.contains("active"))renderSettings();
@@ -1892,12 +1939,39 @@ function chooseGridLetter(button){
   if(session.locked||button.classList.contains("selected"))return;
   const index=Number(button.dataset.gridIndex),q=session.questions[session.index];
   button.classList.add("selected");session.gridSelection.push({index,letter:q.grid[index]});
-  $("#wordSelection").textContent=session.gridSelection.map(x=>x.letter).join("");
-  if(session.gridSelection.length>=Array.from(String(q.correct)).length)answer(session.gridSelection.map(x=>x.letter).join(""),button);
+  const selectedWord=session.gridSelection.map(x=>x.letter).join("");
+  const targets=q.wordTargets||[q.correct];
+  const found=session.wordFound||new Set();
+  $("#wordSelection").textContent=selectedWord;
+  const matched=targets.find(word=>word===selectedWord&&!found.has(word));
+  if(matched){
+    found.add(matched);session.wordFound=found;
+    session.gridSelection.forEach(item=>{
+      const cell=$(`[data-grid-index="${item.index}"]`);
+      cell?.classList.remove("selected");cell?.classList.add("correct-answer-reveal","word-found");
+    });
+    const target=$(`[data-word-target="${matched}"]`);target?.classList.add("correct-answer-reveal");
+    session.gridSelection=[];
+    if(found.size===targets.length){
+      $("#wordSelection").textContent="מצאתם את כל המילים!";
+      answer(q.correct,button);
+    }else{
+      $("#wordSelection").textContent=`נמצאה המילה: ${matched}. מצאו את המילה הבאה`;
+    }
+    return;
+  }
+  const stillPossible=targets.some(word=>!found.has(word)&&word.startsWith(selectedWord));
+  const longest=Math.max(...targets.map(word=>[...word].length));
+  if(!stillPossible||session.gridSelection.length>=longest){
+    session.gridSelection.forEach(item=>$(`[data-grid-index="${item.index}"]`)?.classList.add("wrong-answer-reveal"));
+    setTimeout(()=>clearGridSelection(),450);
+  }
 }
 
 function clearGridSelection(){
-  session.gridSelection=[];$$("[data-grid-index]").forEach(button=>button.classList.remove("selected"));$("#wordSelection").textContent="בחרו אותיות לפי הסדר";
+  session.gridSelection=[];$$('[data-grid-index]').forEach(button=>button.classList.remove("selected","wrong-answer-reveal"));
+  const q=session.questions?.[session.index],targets=q?.wordTargets||[q?.correct].filter(Boolean),found=session.wordFound||new Set();
+  $("#wordSelection").textContent=found.size?`נמצאו ${found.size} מתוך ${targets.length} מילים. בחרו את המילה הבאה`:`בחרו אותיות לפי הסדר`;
 }
 
 function bindEvents(){
