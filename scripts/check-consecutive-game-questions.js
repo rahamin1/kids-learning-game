@@ -53,7 +53,8 @@ for(const id of reviewedIds){
   for(let level=1; level<=maxLevel(id); level++){
     const distinct=[...new Map((context.window.KIDS_GAMES.build(id,level,{age:8}) || []).map(q => [signature(q),q])).values()];
     // A five-question round must always leave at least five different choices
-    // for its immediate successor.
+    // for its immediate successor. startGame intentionally has no immediate
+    // repeat fallback, so this check protects the rule for every reviewed bank.
     if(distinct.length < 10) errors.push(`${id} L${level}: only ${distinct.length} distinct questions; need at least 10`);
   }
 }

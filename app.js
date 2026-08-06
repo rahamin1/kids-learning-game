@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.37";
+const APP_VERSION = "0.1.38";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -513,7 +513,7 @@ const FIVE_LEVEL_GAME_IDS = new Set([
 ]);
 // A few vocabulary games have eight genuinely different stages.  Do not
 // advertise a ninth stage when it would only repeat the eighth.
-const CUSTOM_MAX_LEVELS = { "count": 4, "number-quantity": 6, "big-small": 7, "more-groups": 7, "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 5, "number-line": 4, "shapes": 4, "clock": 4, "addition": 6, "multiplication": 5, "multiplication-numbers": 5, "letter-picture": 4, "first-letter": 4, "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4, "build-word-en": 4, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "word-problems": 8, "word-categories": 6, "story-title": 4, "word-search": 3, "odd-one-out": 3, "habitat": 3, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
+const CUSTOM_MAX_LEVELS = { "count": 4, "number-quantity": 6, "big-small": 7, "more-groups": 6, "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 5, "number-line": 4, "shapes": 4, "clock": 4, "addition": 6, "multiplication": 5, "multiplication-numbers": 5, "letter-picture": 4, "first-letter": 4, "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4, "build-word-en": 4, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "word-problems": 8, "word-categories": 6, "story-title": 4, "word-search": 3, "odd-one-out": 3, "habitat": 3, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
 const DIFFICULTY_PROMPT_COOLDOWN_GAMES = 5;
 function gameMaxLevel(gameId){ return CUSTOM_MAX_LEVELS[gameId] || (EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9); }
 function ageLevel(age){ return clamp(Number(age)||3,1,9); }
@@ -521,7 +521,7 @@ function defaultGameLevel(gameId,age){
   if(gameId==="count")return ({3:1,4:1,5:2,6:3,7:3})[Number(age)]||1;
   if(gameId==="number-quantity")return ({3:1,4:2,5:3,6:4,7:5,8:6,9:6})[Number(age)]||1;
   if(gameId==="big-small")return ({3:1,4:2,5:4,6:5,7:6,8:7,9:7})[Number(age)]||1;
-  if(gameId==="more-groups")return ({3:1,4:2,5:3,6:5,7:7,8:7,9:7})[Number(age)]||1;
+  if(gameId==="more-groups")return ({3:1,4:2,5:3,6:5,7:6,8:6,9:6})[Number(age)]||1;
   if(gameId==="number-sequence")return ({4:1,5:2,6:3,7:4,8:5,9:5})[Number(age)]||1;
   if(gameId==="picture-subtraction")return ({5:1,6:2,7:3,8:4,9:5})[Number(age)]||1;
   if(gameId==="number-line")return ({4:1,5:2,6:3,7:4,8:4,9:4})[Number(age)]||1;
@@ -646,6 +646,10 @@ function prepareProfile(p){
   p.gameProgress ||= {};
   p.hiddenGames ||= [];
   p.collapsedDifficultySubjects ||= [];
+  if(p.difficultySubjectsCollapseVersion!==1){
+    p.collapsedDifficultySubjects=[...p.subjects];
+    p.difficultySubjectsCollapseVersion=1;
+  }
   p.updatesPromptShown ??= false;
   applyDefaultHiddenGames(p);
   if(p.gameLevelAge!==p.age){
@@ -1157,8 +1161,10 @@ function startGame(gameId){
   const unseen=notFromImmediatelyPrevious.filter(q=>!recent.has(questionSignature(q)));
   const older=notFromImmediatelyPrevious.filter(q=>recent.has(questionSignature(q))&&!previousGame.has(questionSignature(q)));
   const lastResort=notFromImmediatelyPrevious.filter(q=>previousGame.has(questionSignature(q)));
-  const immediateFallback=pool.filter(q=>immediatelyPreviousGame.has(questionSignature(q)));
-  const questions=[...shuffled(unseen),...shuffled(older),...shuffled(lastResort),...shuffled(immediateFallback)]
+  // Do not fall back to the questions from the immediately preceding game.
+  // Every enabled bank is checked before publishing to contain enough distinct
+  // questions for two full five-question rounds.
+  const questions=[...shuffled(unseen),...shuffled(older),...shuffled(lastResort)]
     .slice(0,Math.min(5,pool.length))
     .map(q=>({...q,a:Array.isArray(q.a)?shuffled(q.a):[]}));
   p.recentGames[gameId]=[...(p.recentGames[gameId]||[]),...questions.map(questionSignature)].slice(-Math.min(40,Math.max(12,pool.length-5)));
@@ -1214,7 +1220,10 @@ function renderDifficultyPrompt(){
   const promptGameName=String(prompt.gameName||"").replace(/[?？]+$/u,"");
   $("#difficultyPromptIcon").textContent=prompt.direction==="up"?"🚀":"🌱";
   $("#difficultyPromptEyebrow").textContent=prompt.direction==="up"?"מוכנים לאתגר חדש?":"משחקים בקצב שמתאים לכם";
-  $("#difficultyPromptTitle").textContent=prompt.direction==="up"?"שיחקת מצוין בשני משחקים רצופים!":"נראה שהמשחק קצת מאתגר עכשיו.";
+  const testBuild=document.body.classList.contains("test-build");
+  $("#difficultyPromptTitle").textContent=prompt.direction==="up"
+    ?(testBuild?"שיחקת מצוין במשחק אחד!":"שיחקת מצוין בשני משחקים רצופים!")
+    :(testBuild?"נראה שהמשחק מאתגר עכשיו.":"נראה שהמשחק קצת מאתגר עכשיו.");
   const rtlQuestionMark="\u200F?";
   $("#difficultyPromptText").textContent=prompt.direction==="up"
     ? `רוצה לעלות לרמה ${nextLevel} במשחק „${promptGameName}”${rtlQuestionMark}`
@@ -1233,6 +1242,8 @@ function resolveDifficultyPrompt(accept){
     p.recentGames[prompt.gameId]=[];
     gameProg.perfectStreak=0;
     gameProg.challengeStreak=0;
+    delete gameProg.lastPromotionPrompt;
+    delete gameProg.lastEasierPrompt;
     gameProg.promotionDeclines=0;
     gameProg.easierDeclines=0;
     gameProg.promotionAutoPromptDisabled=false;
@@ -1326,8 +1337,9 @@ function renderQuestion(){
   // Word-building activities use a picture, so keep that picture visible.
   const hideCategoryVisual=q.type==="מיון מילים";
   $("#questionVisual").textContent=hideCategoryVisual || q.audio || q.patternTiles || q.clock || q.pictureMath || q.numberLine ? "" : (q.visual||"");
-  $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"")+(isMathExpression?" math-expression":"")+(q.type==="צלעות וקודקודים"?" shape-visual":"")+(q.shapeAnswers?" shape-question-visual":"")+(isPictureChoice?" picture-choice-visual":"");
-  $("#questionVisual").dir=isMathExpression?"ltr":"auto";
+  const isHebrewMissingWord=typeof q.visual==="string"&&q.visual.includes("_")&&/[\u0590-\u05FF]/.test(q.visual);
+  $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"")+(isMathExpression?" math-expression":"")+(q.type==="צלעות וקודקודים"?" shape-visual":"")+(q.shapeAnswers?" shape-question-visual":"")+(q.compactGroupVisual?" compact-group-visual":"")+(isPictureChoice?" picture-choice-visual":"")+(isHebrewMissingWord?" hebrew-missing-word":"");
+  $("#questionVisual").dir=isMathExpression?"ltr":isHebrewMissingWord?"rtl":"auto";
   // Keep arithmetic as one isolated LTR unit. Separate number/operator spans
   // were still reordered by some Android browsers inside the Hebrew UI.
   if(isMathExpression){
@@ -1357,7 +1369,8 @@ function renderQuestion(){
     $("#questionVisual").innerHTML=renderClockFace(q.clock.hour,q.clock.minutes);
   }
   if(q.patternTiles){
-    $("#questionVisual").classList.add("pattern-visual");
+    const density=q.patternTiles.length>=14?"pattern-long":q.patternTiles.length>=9?"pattern-medium":"pattern-short";
+    $("#questionVisual").classList.add("pattern-visual",density);
     $("#questionVisual").innerHTML=q.patternTiles.map(tile=>`<span class="${tile==="?"?"pattern-missing":"pattern-tile"}">${escapeHtml(tile)}</span>`).join("");
   }
   if(q.fractionColor){
@@ -1423,12 +1436,16 @@ function renderQuestionInteraction(q){
     return `<button class="answer-btn ${answerClass}" data-answer="${escapeHtml(a)}">${content}</button>`;
   }).join("");
   const answersAreIconOnly=q.a.every(answerIsIconOnly);
+  // Icon-only choices need their own generous sizing even outside the youngest
+  // nature games.  Keep shape, scaled, and object-grid activities in control
+  // of their specialised layouts.
+  const iconOnlyImageAnswers=answersAreIconOnly&&!q.shapeAnswers&&!q.answerObjectGrid&&!q.answerScales;
   const youngNatureImageAnswers=session.subject==="nature"&&activeProfile().age<=4&&answersAreIconOnly;
   grid.classList.toggle("object-grid-answers",Boolean(q.answerObjectGrid));
   grid.classList.toggle("shape-answers",Boolean(q.shapeAnswers));
-  grid.classList.toggle("image-answers",Boolean(q.imageAnswers)||youngNatureImageAnswers);
+  grid.classList.toggle("image-answers",Boolean(q.imageAnswers)||youngNatureImageAnswers||iconOnlyImageAnswers);
   grid.classList.toggle("scaled-image-answers",Boolean(q.answerScales));
-  const imageLike=Boolean(q.imageAnswers)||youngNatureImageAnswers;
+  const imageLike=Boolean(q.imageAnswers)||youngNatureImageAnswers||iconOnlyImageAnswers;
   grid.classList.toggle("roomy-image-answers",imageLike&&q.a.length<=4);
   const maxObjectCount=q.answerObjectGrid?Math.max(...q.a.map(a=>String(a).split(/\s+/).filter(Boolean).length)):0;
   grid.classList.toggle("large-object-grid-answers",Boolean(q.answerObjectGrid)&&maxObjectCount>8&&maxObjectCount<=14);
@@ -1496,6 +1513,16 @@ function playQuestionAudio(){
   playToneSequence(notes,{interval:.18,duration:.18,volume:.18,type:index=>index%2?"triangle":"sine"});
 }
 
+function revealMissingLetters(visual,q,correctAnswer=q.correct){
+  const letters=Array.from(String(correctAnswer));
+  let position=0;
+  visual.textContent=String(q.visual).replace(/_/g,()=>letters[position++]||"_");
+  if(/[\u0590-\u05FF]/.test(String(q.visual))){
+    visual.dir="rtl";
+    visual.classList.add("hebrew-missing-word");
+  }
+}
+
 function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
   if(session.locked)return; session.locked=true;
   const q=session.questions[session.index], right=value===q.correct, p=activeProfile();
@@ -1530,7 +1557,7 @@ function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
     }
     if(typeof q.visual==="string"&&q.visual.includes("_")){
       const visual=$("#questionVisual");
-      visual.textContent=q.visual.replace("_",q.correct);
+      revealMissingLetters(visual,q);
       visual.classList.add("letter-revealed");
     }
     $("#feedback").textContent=feedbackText||correctFeedbackLine(p.answered);
@@ -1560,9 +1587,10 @@ function revealCorrectAnswer(q){
     visual.classList.add("number-line-visual","correct-answer-reveal");
   }else if(q.patternTiles){
     visual.innerHTML=q.patternTiles.map(tile=>`<span class="pattern-tile">${escapeHtml(tile==="?"?q.correct:tile)}</span>`).join("");
-    visual.classList.add("pattern-visual","correct-answer-reveal");
+    const density=q.patternTiles.length>=14?"pattern-long":q.patternTiles.length>=9?"pattern-medium":"pattern-short";
+    visual.classList.add("pattern-visual",density,"correct-answer-reveal");
   }else if(typeof q.visual==="string"&&q.visual.includes("_")){
-    visual.textContent=q.visual.replace("_",q.correct);
+    revealMissingLetters(visual,q);
     visual.classList.add("letter-revealed","correct-answer-reveal");
   }
   if(q.mode==="build"){
@@ -1619,8 +1647,11 @@ function finishGame(){
   gameProg.perfectStreak=strongGame?(gameProg.perfectStreak||0)+1:0;
   gameProg.challengeStreak=challengingGame?(gameProg.challengeStreak||0)+1:0;
   const currentLevel=p.gameLevels[session.gameId]||session.level;
-  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%2===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<gameMaxLevel(session.gameId)&&!gameProg.promotionAutoPromptDisabled&&(gameProg.promotionCooldownUntil||0)<gameProg.completed;
-  const easierLevelDue=gameProg.challengeStreak>0&&gameProg.challengeStreak%2===0&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1&&!gameProg.easierAutoPromptDisabled&&(gameProg.easierCooldownUntil||0)<gameProg.completed;
+  const testBuild=document.body.classList.contains("test-build");
+  const promotionThreshold=testBuild?1:2;
+  const easierThreshold=testBuild?1:2;
+  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%promotionThreshold===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<gameMaxLevel(session.gameId)&&!gameProg.promotionAutoPromptDisabled&&(gameProg.promotionCooldownUntil||0)<gameProg.completed;
+  const easierLevelDue=gameProg.challengeStreak>0&&gameProg.challengeStreak%easierThreshold===0&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1&&!gameProg.easierAutoPromptDisabled&&(gameProg.easierCooldownUntil||0)<gameProg.completed;
   if(promotionDue){
     gameProg.lastPromotionPrompt=gameProg.perfectStreak;
     session.pendingDifficultyPrompt={direction:"up",gameId:session.gameId,gameName:session.game.name,currentLevel};
@@ -1764,6 +1795,8 @@ function adjustDifficulty(data){
   if(gameProg){
     gameProg.perfectStreak=0;
     gameProg.challengeStreak=0;
+    delete gameProg.lastPromotionPrompt;
+    delete gameProg.lastEasierPrompt;
     gameProg.promotionDeclines=0;
     gameProg.easierDeclines=0;
     gameProg.promotionAutoPromptDisabled=false;
