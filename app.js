@@ -1,4 +1,4 @@
-const APP_VERSION = "test-0.1.40";
+const APP_VERSION = "test-0.1.41";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -1326,7 +1326,7 @@ function renderQuestion(){
       questionText.replaceChildren(fragment);
     }
   }
-  const isMathExpression=q.type==="חיסור"||q.type==="חיבור";
+  const isMathExpression=/^(חיסור|חיבור)/.test(String(q.type||""));
   if(isMathExpression){
     const values=(String(q.q||"").match(/\d+/g)||[]).map(Number);
     if(values.length===2){

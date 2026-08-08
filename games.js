@@ -473,8 +473,12 @@
       }else{
         for(let i=0;i<30;i++){
           const total=Math.round(2+((config.max-2)*i/29));
-          const left=Math.max(1,Math.floor(total*(0.34+(i%5)*0.08)));
-          candidates.push([left,total-left]);
+          const first=Math.max(1,Math.floor(total*(0.34+(i%5)*0.08)));
+          const second=total-first;
+          // Keep the larger addend on the left in every level.  In Hebrew
+          // screens this also makes the visual convention consistent with
+          // subtraction: the larger number is always read first.
+          candidates.push([Math.max(first,second),Math.min(first,second)]);
         }
       }
       const selected=Array.from({length:30},(_,index)=>candidates[Math.round(index*(candidates.length-1)/29)]);
