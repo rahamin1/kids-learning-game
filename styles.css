@@ -31,9 +31,9 @@ body{font-family:Heebo,system-ui,sans-serif}
 .number-line-number,.number-line-dash,.number-line-missing{display:inline-flex;align-items:center;justify-content:center;line-height:1}
 .number-line-missing{flex:0 0 .78em;width:.78em;height:.78em;border:.06em solid currentColor;border-radius:.06em;background:#fff}
 .pattern-tile,.pattern-missing{width:clamp(24px,8vw,72px);height:clamp(24px,8vw,72px);min-width:clamp(24px,8vw,72px);display:inline-flex;align-items:center;justify-content:center;font-size:clamp(22px,6.8vw,58px);line-height:1}
-.pattern-visual.pattern-medium{gap:clamp(4px,1.2vw,8px);padding:10px}
-.pattern-visual.pattern-medium .pattern-tile,.pattern-visual.pattern-medium .pattern-missing{width:clamp(23px,7vw,52px);height:clamp(23px,7vw,52px);min-width:clamp(23px,7vw,52px);font-size:clamp(21px,6.1vw,44px)}
-.pattern-visual.pattern-long{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));white-space:normal;gap:8px 4px;padding:10px 8px}
+.pattern-visual.pattern-medium{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));white-space:normal;gap:8px;max-width:360px;padding:10px}
+.pattern-visual.pattern-medium .pattern-tile,.pattern-visual.pattern-medium .pattern-missing{width:100%;height:auto;aspect-ratio:1;min-width:0;font-size:clamp(25px,8vw,48px)}
+.pattern-visual.pattern-long{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));white-space:normal;gap:8px 6px;max-width:390px;padding:10px 8px}
 .pattern-visual.pattern-long .pattern-tile,.pattern-visual.pattern-long .pattern-missing{width:100%;height:auto;aspect-ratio:1;min-width:0;font-size:clamp(18px,5.8vw,36px)}
 .pattern-missing{border:3px solid #dbe7f0;border-radius:16px;background:#f8fbfd;color:var(--blue-dark);font-family:Rubik,Heebo,sans-serif;font-size:46px;font-weight:900}
 .picture-math-visual{display:flex;align-items:center;justify-content:center;gap:clamp(8px,2vw,20px);direction:ltr;flex-wrap:nowrap;width:100%}
@@ -41,6 +41,8 @@ body{font-family:Heebo,system-ui,sans-serif}
    visible instead of letting the bottom row disappear on a phone. */
 .picture-math-group{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;align-items:center;justify-items:center;width:min(42vw,230px);max-width:calc((100% - 52px)/2)}
 .picture-math-group span{font-size:clamp(22px,7.5vw,38px);line-height:1}
+.picture-math-visual.picture-math-dense .picture-math-group{grid-template-columns:repeat(6,minmax(0,1fr));gap:3px}
+.picture-math-visual.picture-math-dense .picture-math-group span{font-size:clamp(18px,5.8vw,30px)}
 .picture-math-operator{font-family:Rubik,Heebo,sans-serif;font-size:62px;font-weight:900;color:var(--blue-dark);line-height:1}
 .pip-corner{right:auto;left:28px}
 .pip-corner{display:flex;align-items:center;gap:4px}
@@ -93,7 +95,7 @@ body{font-family:Heebo,system-ui,sans-serif}
 .question-count{display:block;margin-top:4px;color:var(--muted);font-size:10px;font-weight:700}
 .adventure-choices{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:20px}.adventure-choice{border:2px solid var(--line);background:#f8fbfd;border-radius:17px;padding:17px;text-align:center;color:var(--ink);font-weight:900}.adventure-choice:hover{border-color:var(--blue);background:#edf5ff;transform:translateY(-2px)}.adventure-choice span{display:block;font-size:34px;margin-bottom:5px}.adventure-choice b{display:block;font-family:Rubik,Heebo,sans-serif;font-size:17px}.adventure-choice small{display:block;margin-top:5px;color:var(--muted);font-size:11px;line-height:1.4}
 @media(max-width:420px){.adventure-choices{grid-template-columns:1fr}}
-.answer-grid.image-answers .answer-btn{min-height:132px;font-size:82px;line-height:1}
+.answer-grid.image-answers .answer-btn{min-height:142px;font-size:clamp(78px,10vw,98px);line-height:1}
 .answer-grid.image-answers .scaled-answer-icon{display:inline-flex;align-items:center;justify-content:center;line-height:1}
 .answer-grid.scaled-image-answers{align-items:center}
 .answer-grid.scaled-image-answers .answer-btn{border:0;background:transparent;box-shadow:none;min-height:158px;padding:8px}
@@ -420,7 +422,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   .game-card{padding-left:14px;padding-right:14px}
   .answer-grid{gap:10px;max-width:100%}
   .answer-btn{font-size:clamp(18px,6.2vw,30px);line-height:1.15;padding:10px 9px}
-  .answer-grid.image-answers .answer-btn{font-size:72px;min-height:118px}
+  .answer-grid.image-answers .answer-btn{font-size:clamp(76px,19vw,104px);min-height:132px}
   .answer-grid.image-answers .answer-btn.text-answer{font-size:clamp(18px,6.2vw,30px)}
   .number-line-visual{font-size:clamp(24px,7.8vw,38px);gap:2px;padding-left:0;padding-right:0;max-width:100%;overflow:visible}
   .number-line-visual .number-line-missing{flex-basis:.78em;width:.78em;height:.78em}
@@ -464,7 +466,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .answer-grid.picture-choice-grid{margin-top:18px}
 .answer-grid.picture-choice-grid .answer-btn{min-height:clamp(132px,19vw,164px);font-size:clamp(76px,11vw,108px);line-height:1}
 .build-answer-grid{gap:18px}
-.answer-grid.roomy-image-answers .answer-btn{font-size:clamp(92px,12vw,132px);min-height:168px}
+.answer-grid.roomy-image-answers .answer-btn{font-size:clamp(102px,16vw,142px);min-height:176px}
 .answer-grid.roomy-object-grid-answers .answer-btn{font-size:clamp(24px,4.8vw,38px);min-height:140px;line-height:1.25}
 .answer-grid.large-object-grid-answers .answer-btn{font-size:clamp(20px,3.8vw,28px);min-height:132px;line-height:1.2}
 .pip-corner{top:12px;left:22px;z-index:2}
@@ -479,7 +481,7 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   .question-visual.picture-choice-visual.no-visual{min-height:0;padding:0}
   .answer-grid.picture-choice-grid{margin-top:16px}
   .answer-grid.picture-choice-grid .answer-btn{min-height:132px;font-size:clamp(72px,20vw,98px)}
-  .answer-grid.roomy-image-answers .answer-btn{font-size:clamp(86px,20vw,118px);min-height:150px}
+  .answer-grid.roomy-image-answers .answer-btn{font-size:clamp(94px,22vw,128px);min-height:158px}
   .answer-grid.roomy-object-grid-answers .answer-btn{font-size:clamp(24px,8vw,34px);min-height:126px}
   .answer-grid.large-object-grid-answers .answer-btn{font-size:clamp(19px,6.5vw,25px);min-height:124px}
   .pip-corner{top:10px;left:16px}

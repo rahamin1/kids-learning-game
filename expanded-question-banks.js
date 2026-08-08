@@ -247,11 +247,11 @@
     ["מטפטף בחוץ","מעיל גשם",["מעיל גשם","בגד ים","חולצה קצרה"]],
     ["השמש מסנוורת","כובע שמש",["כובע שמש","צעיף","מעיל גשם"]]
   ];
-  const weatherLevelTwo = weatherLevelTwoBases.flatMap(([condition,correct,answers])=>[
-    {q:`איזה בגד מתאים כש${condition}?`,correct,visual:"",answers},
-    {q:`מה כדאי ללבוש אם ${condition}?`,correct,visual:"",answers},
-    {q:`בחוץ ${condition}. באיזה בגד כדאי לבחור?`,correct,visual:"",answers}
-  ]);
+  // A weather situation is represented once only, so it cannot appear twice
+  // in one five-question game just with slightly different wording.
+  const weatherLevelTwo = weatherLevelTwoBases.map(([condition,correct,answers]) =>
+    ({q:`איזה בגד מתאים כש${condition}?`,correct,visual:"",answers})
+  );
   const weatherLevelThreeBases = [
     ["יש סיכוי לגשם","לקחת מטרייה",["לקחת מטרייה","למרוח קרם הגנה","ללבוש צעיף","לנעול סנדלים"]],
     ["השמש חזקה מאוד","למרוח קרם הגנה",["למרוח קרם הגנה","לקחת מטרייה","ללבוש מעיל","לנעול מגפיים"]],
@@ -264,11 +264,9 @@
     ["רוצים לצאת לטיול","לבדוק את תחזית מזג האוויר",["לבדוק את תחזית מזג האוויר","לבחור צעצוע","לכבות את האור","לצחצח שיניים"]],
     ["נשארים הרבה זמן בשמש","לשתות מים",["לשתות מים","ללבוש צעיף","לנעול מגפיים","לפתוח מטרייה בתוך הבית"]]
   ];
-  const weatherLevelThree = weatherLevelThreeBases.flatMap(([condition,correct,answers])=>[
-    {q:`מה כדאי לעשות אם ${condition}?`,correct,visual:"",answers},
-    {q:`${condition}. מה הפעולה המתאימה ביותר?`,correct,visual:"",answers},
-    {q:`איך כדאי להתכונן כש${condition}?`,correct,visual:"",answers}
-  ]);
+  const weatherLevelThree = weatherLevelThreeBases.map(([condition,correct,answers]) =>
+    ({q:`מה כדאי לעשות אם ${condition}?`,correct,visual:"",answers})
+  );
   const weatherLevelFourBases = [
     ["יורד גשם. למה לובשים מעיל גשם?","כדי לא להירטב",["כדי לא להירטב","כדי להתחמם ביום קר","כדי להגן מהרוח","כדי להיות בולטים בחושך"]],
     ["השמש חזקה. למה מורחים קרם הגנה?","כדי להגן על העור",["כדי להגן על העור","כדי לקרר את הגוף","כדי להשתזף","כדי לשמור על חום הגוף"]],
@@ -281,11 +279,9 @@
     ["גשום ויש שלוליות. למה נועלים מגפיים?","כדי לא להירטב בשלוליות",["כדי לא להירטב בשלוליות","כדי שהגשם ייפסק","כדי לרוץ מהר יותר","כדי להתחמם בקיץ"]],
     ["יש ברקים ורעמים. למה נכנסים למקום סגור?","כדי להישאר בטוחים",["כדי להישאר בטוחים","כדי לראות את הברקים מקרוב","כדי לעמוד מתחת לעץ","כדי לעוף עם הרוח"]]
   ];
-  const weatherLevelFour = weatherLevelFourBases.flatMap(([q,correct,answers])=>[
-    {q,correct,visual:"",answers},
-    {q:`${q} בחרו את ההסבר המתאים.`,correct,visual:"",answers},
-    {q:`חשבו על מזג האוויר: ${q}`,correct,visual:"",answers}
-  ]);
+  const weatherLevelFour = weatherLevelFourBases.map(([q,correct,answers]) =>
+    ({q,correct,visual:"",answers})
+  );
   const weatherLevelFiveBases = [
     ["בבוקר השמים אפורים ויש רוחות. אחר כך צפוי גשם. איזה בגד כדאי לשים בתיק לבית הספר?","מעיל גשם",["מעיל רוח","סווטשירט","מעיל גשם","ביום כזה עדיף להישאר בבית"]],
     ["יוצאים לפיקניק ביום חם מאוד. איפה עדיף לשבת?","בצל",["בצל","במקום פתוח ללא צל","ליד קיר שמתחמם בשמש","במכונית סגורה"]],
@@ -298,10 +294,9 @@
     ["השמש חזקה והילדים משחקים זמן רב בחוץ. מה חשוב לעשות כדי לא להתייבש?","לשתות מים",["לשתות מים","להמשיך לשחק בלי הפסקה","לרוץ מהר יותר","ללבוש מעיל"]],
     ["התחיל לטפטף בזמן הטיול. איזה בגד עדיף ללבוש כדי להישאר יבשים?","מעיל גשם",["מעיל גשם","מעיל צמר","חולצה ארוכה","סוודר"]]
   ];
-  const weatherLevelFive = weatherLevelFiveBases.flatMap(([q,correct,answers])=>[
-    {q,correct,visual:"",answers},
-    {q:`קראו היטב: ${q}`,correct,visual:"",answers}
-  ]);
+  const weatherLevelFive = weatherLevelFiveBases.map(([q,correct,answers]) =>
+    ({q,correct,visual:"",answers})
+  );
   const weatherLevels = [weatherLevelOne,weatherLevelTwo,weatherLevelThree,weatherLevelFour,weatherLevelFive];
 
   const adaptations = [
@@ -478,20 +473,20 @@
   const adultNames = babyAdultRows.map(([adult])=>adult);
   const babyAdultLevels = [
     babyAdultRows.flatMap(([adult,baby,icon])=>[
-      {q:`מי הגור של ${adult}?`,correct:baby,visual:icon,answers:pick(baby,babyNames,2)},
-      {q:`איך נקרא ה${adult} הצעיר?`,correct:baby,visual:icon,answers:pick(baby,babyNames,2)}
+      {q:`מי הגור של ${adult}?`,repeatKey:`baby-adult:${adult}`,correct:baby,visual:icon,answers:pick(baby,babyNames,2)},
+      {q:`איך נקרא ה${adult} הצעיר?`,repeatKey:`baby-adult:${adult}`,correct:baby,visual:icon,answers:pick(baby,babyNames,2)}
     ]),
     babyAdultRows.flatMap(([adult,baby])=>[
-      {q:`איך נקרא הגור של ${adult}?`,correct:baby,visual:"",answers:pick(baby,babyNames,4)},
-      {q:`איזה שם מתאים לגור של ${adult}?`,correct:baby,visual:"",answers:pick(baby,babyNames,4)}
+      {q:`איך נקרא הגור של ${adult}?`,repeatKey:`baby-adult:${adult}`,correct:baby,visual:"",answers:pick(baby,babyNames,4)},
+      {q:`איזה שם מתאים לגור של ${adult}?`,repeatKey:`baby-adult:${adult}`,correct:baby,visual:"",answers:pick(baby,babyNames,4)}
     ]),
     babyAdultRows.flatMap(([adult,baby])=>[
-      {q:`מי הבוגר של ${baby}?`,correct:adult,visual:"",answers:pick(adult,adultNames,4)},
-      {q:`לאיזה בעל חיים גדל ${baby}?`,correct:adult,visual:"",answers:pick(adult,adultNames,4)}
+      {q:`מי הבוגר של ${baby}?`,repeatKey:`baby-adult:${adult}`,correct:adult,visual:"",answers:pick(adult,adultNames,4)},
+      {q:`לאיזה בעל חיים גדל ${baby}?`,repeatKey:`baby-adult:${adult}`,correct:adult,visual:"",answers:pick(adult,adultNames,4)}
     ]),
     babyAdultRows.flatMap(([adult,baby])=>[
-      {q:`בגן החיות ראו ${baby}. לאיזה בעל חיים בוגר הוא מתאים?`,correct:adult,visual:"",answers:pick(adult,adultNames,4)},
-      {q:`החיה הצעירה נקראת ${baby}. מי יהיה הבוגר שלה?`,correct:adult,visual:"",answers:pick(adult,adultNames,4)}
+      {q:`בגן החיות ראו ${baby}. לאיזה בעל חיים בוגר הוא מתאים?`,repeatKey:`baby-adult:${adult}`,correct:adult,visual:"",answers:pick(adult,adultNames,4)},
+      {q:`החיה הצעירה נקראת ${baby}. מי יהיה הבוגר שלה?`,repeatKey:`baby-adult:${adult}`,correct:adult,visual:"",answers:pick(adult,adultNames,4)}
     ])
   ];
 
@@ -536,7 +531,7 @@
       const distractors = animalFoodDistractors[correct] || animalFoodChoices.filter(item => item !== correct);
       return make(q, correct, shuffle([correct, ...shuffle(distractors).slice(0, answerCount - 1)]), visual, { skill: "תזונת בעלי חיים", type: `מה בעלי חיים אוכלים? — רמה ${animalFoodLevel}` });
     });
-    if (gameId === "baby-adult") pool = babyAdultLevels[clamp(Number(level) || 1, 1, babyAdultLevels.length) - 1].map(({q, correct, visual, answers}) => make(q, correct, shuffle(answers), visual, { skill: "משפחות בעלי חיים", type: `גור ובוגר — רמה ${clamp(Number(level) || 1, 1, babyAdultLevels.length)}` }));
+    if (gameId === "baby-adult") pool = babyAdultLevels[clamp(Number(level) || 1, 1, babyAdultLevels.length) - 1].map(({q, repeatKey, correct, visual, answers}) => make(q, correct, shuffle(answers), visual, { skill: "משפחות בעלי חיים", type: `גור ובוגר — רמה ${clamp(Number(level) || 1, 1, babyAdultLevels.length)}`, repeatKey }));
     // Event Order is maintained in games.js, where every level has 20
     // distinct sequences and the arrows point in the intended direction.
     if (["event-order", "sentence-order-he"].includes(gameId)) return previousBuild(gameId, level, profile);

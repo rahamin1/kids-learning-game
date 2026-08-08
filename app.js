@@ -1,4 +1,4 @@
-const APP_VERSION = "test-0.1.42";
+const APP_VERSION = "test-0.1.44";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -23,11 +23,12 @@ const INTRO_STEPS = [
 
 const SUBJECTS = {
   math: { name: "חשבון", icon: "🔢", class: "math", desc: "סופרים, משווים ופותרים", trail: "אחו המספרים" },
-  english: { name: "אנגלית", icon: "🔤", class: "english", desc: "אותיות, צלילים ומילים", trail: "יער המילים" },
   reading: { name: "עברית", icon: "📖", class: "reading", desc: "אותיות, מילים והבנת הנקרא", trail: "מפרץ הסיפורים" },
-  nature: { name: "טבע", icon: "🌿", class: "nature", desc: "חיות, מזג אוויר והעולם", trail: "גן התגליות" },
-  thinking: { name: "חשיבה", icon: "🦉", class: "thinking", desc: "זיכרון, התאמה והבחנה חזותית", trail: "שביל החשיבה" }
+  nature: { name: "טבע", icon: "🌿", class: "nature", desc: "חיות והעולם", trail: "גן התגליות" },
+  thinking: { name: "חשיבה", icon: "🦉", class: "thinking", desc: "זיכרון, התאמה והבחנה חזותית", trail: "שביל החשיבה" },
+  english: { name: "אנגלית", icon: "🔤", class: "english", desc: "אותיות, צלילים ומילים", trail: "יער המילים" }
 };
+const SUBJECT_ORDER = ["math", "reading", "nature", "thinking", "english"];
 
 const BUDDIES = ["🦊", "🐼", "🐰", "🦁", "🐶", "🐱", "🦉", "🐧", "🐿️", "🦔", "🧸", "🦝"];
 const BUDDY_TITLES = {
@@ -642,6 +643,7 @@ function renderGameBuddyPanel(){
 function prepareProfile(p){
   p.photo ||= "";
   p.subjects ||= ["math","english"];
+  p.subjects = SUBJECT_ORDER.filter(subject => p.subjects.includes(subject));
   p.progress ||= {};
   p.log ||= [];
   p.stars ||= 0; p.streak ||= 0; p.correct ||= 0; p.answered ||= 0; p.minutes ||= 0; p.daily ||= 0;
@@ -1131,7 +1133,7 @@ function questionSignature(q){
   return [
     q.skill,
     q.type,
-    q.q,
+    q.repeatKey || q.q,
     q.visual,
     q.correct,
     Array.isArray(q.patternTiles)?q.patternTiles.join("|"):"",
@@ -1387,7 +1389,9 @@ function renderQuestion(){
     $("#questionVisual").innerHTML=Array.from(String(q.visual||"")).map(piece=>`<span class="fraction-piece ${piece==="◼"||piece==="●"?"filled":""}"></span>`).join("");
   }
   if(q.pictureMath){
+    const largestPictureGroup=Math.max(...q.pictureMath.groups.map(group=>group.length));
     $("#questionVisual").classList.add("picture-math-visual");
+    $("#questionVisual").classList.toggle("picture-math-dense",largestPictureGroup>=10);
     $("#questionVisual").innerHTML=q.pictureMath.groups.map((group,index)=>`${index?`<span class="picture-math-operator">${escapeHtml(q.pictureMath.operator)}</span>`:""}<span class="picture-math-group">${group.map(icon=>`<span>${escapeHtml(icon)}</span>`).join("")}</span>`).join("");
   }
   if(q.numberLine){
@@ -1411,7 +1415,7 @@ function renderQuestionInteraction(q){
   const grid=$("#answerGrid");
   grid.className="answer-grid";
   if(session.game?.id==="drag-word-picture")grid.classList.add("picture-choice-grid");
-  session.composed=[]; session.memoryOpen=[]; session.memoryMatched=new Set(); session.memoryMistakes=0; session.gridSelection=[];
+  session.composed=[]; session.memoryOpen=[]; session.memoryMatched=new Set(); session.memoryMistakes=0; session.gridSelection=[]; session.wordSearchMistakes=0;
   if(q.mode==="drag"){
     grid.classList.add("drag-answer-grid");
     grid.innerHTML=`<div class="drag-source" draggable="true" data-drag-source="${escapeHtml(q.dragSource||q.visual||"")}">${escapeHtml(q.dragSource||q.visual||"")}</div><div class="drag-targets">${q.a.map(a=>`<button class="answer-btn drag-target" data-answer="${escapeHtml(a)}">${a}</button>`).join("")}</div>`;
@@ -1625,7 +1629,9 @@ function revealCorrectAnswer(q){
 function revealCorrectBuildAnswer(q){
   const correct=$("#correctBuildAnswer");
   if(!correct)return;
-  const value=String(q.correct);
+  // In word search, the useful correction is the list of words that remained
+  // hidden, rather than the internal completion marker.
+  const value=q.mode==="wordsearch"?(q.wordTargets||[q.correct]).join(" • "):String(q.correct);
   correct.hidden=false;
   correct.innerHTML=`<span class="correct-build-label">התשובה הנכונה:</span><b>${escapeHtml(value)}</b>`;
   correct.dir=/[\u0590-\u05FF]/.test(value)?"rtl":"ltr";
@@ -1967,8 +1973,22 @@ function chooseMemoryCard(button){
     }
   }else{
     session.memoryMistakes=(session.memoryMistakes||0)+1;
-    setTimeout(()=>{a.button.classList.remove("open");b.button.classList.remove("open");session.memoryOpen=[]},700);
+    const pairCount=session.questions[session.index].pairs.length;
+    if(session.memoryMistakes>=pairCount){
+      setTimeout(()=>failMemoryRound(a.button),700);
+    }else{
+      setTimeout(()=>{a.button.classList.remove("open");b.button.classList.remove("open");session.memoryOpen=[]},700);
+    }
   }
+}
+
+function failMemoryRound(button){
+  if(session.locked)return;
+  const q=session.questions[session.index], pairCount=q.pairs.length;
+  session.memoryOpen=[];
+  $$(".memory-card").forEach(card=>card.classList.add("open"));
+  session.memoryRoundOutcomes.push({pairCount,mistakes:session.memoryMistakes||0,success:false,failed:true});
+  answer("לא הושלם",button,{scoreCorrect:false});
 }
 
 function chooseGridLetter(button){
@@ -2000,8 +2020,21 @@ function chooseGridLetter(button){
   const longest=Math.max(...targets.map(word=>[...word].length));
   if(!stillPossible||session.gridSelection.length>=longest){
     session.gridSelection.forEach(item=>$(`[data-grid-index="${item.index}"]`)?.classList.add("wrong-answer-reveal"));
-    setTimeout(()=>clearGridSelection(),450);
+    session.wordSearchMistakes=(session.wordSearchMistakes||0)+1;
+    if(session.wordSearchMistakes>=targets.length){
+      setTimeout(()=>failWordSearchRound(button),450);
+    }else{
+      setTimeout(()=>clearGridSelection(),450);
+    }
   }
+}
+
+function failWordSearchRound(button){
+  if(session.locked)return;
+  const q=session.questions[session.index], targets=q.wordTargets||[q.correct];
+  $("#wordSelection").textContent=`לא מצאתם את כל המילים. המילים היו: ${targets.join(" • ")}`;
+  $$('[data-grid-index],[data-grid-clear]').forEach(item=>item.disabled=true);
+  answer("לא הושלם",button,{scoreCorrect:false});
 }
 
 function clearGridSelection(){

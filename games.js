@@ -3,7 +3,7 @@
     {id:"count",subject:"math",minAge:3,name:"כמה עצמים יש?",icon:"🔢",desc:"סופרים עצמים ובוחרים מספר",kind:"count"},
     {id:"number-quantity",subject:"math",minAge:3,name:"מספר וכמות",icon:"🍎",desc:"מתאימים מספר לקבוצת עצמים",kind:"numberQuantity"},
     {id:"big-small",subject:"thinking",minAge:3,name:"גדול וקטן",icon:"↕️",desc:"משווים גדלים",kind:"bigSmall"},
-    {id:"more-groups",subject:"math",minAge:3,maxAge:7,name:"איפה יש יותר?",icon:"⚖️",desc:"משווים בין שתי כמויות",kind:"moreGroups"},
+    {id:"more-groups",subject:"math",minAge:3,maxAge:7,name:"איפה יש יותר?",icon:"⚖️",desc:"משווים בין שתי כמויות",kind:"moreGroups",maxLevel:6},
     {id:"visual-pattern",subject:"thinking",minAge:4,name:"דפוסים",icon:"🔴",desc:"מגלים מה מגיע בהמשך",kind:"pattern",maxLevel:5},
     {id:"number-sequence",subject:"math",minAge:4,name:"רצף מספרים",icon:"➡️",desc:"משלימים מספר חסר ברצף",kind:"sequence",maxLevel:5},
     {id:"addition",subject:"math",minAge:4,name:"חיבור",icon:"➕",desc:"מחברים מספרים בהדרגה",kind:"addition",maxLevel:6},
@@ -53,7 +53,6 @@
     {id:"life-cycle",subject:"nature",minAge:4,name:"מחזור חיים",icon:"🦋",desc:"מסדרים שלבי התפתחות",kind:"lifeCycle",maxLevel:4},
     {id:"plant-parts",subject:"nature",minAge:4,name:"איזה חלק בצמח?",icon:"🌻",desc:"מכירים שורש, גבעול, עלה, פרח ופרי",kind:"plantParts",maxLevel:4},
     {id:"animal-food",subject:"nature",minAge:3,name:"מה בעלי חיים אוכלים?",icon:"🥕",desc:"מתאימים מזון לבעל חיים",kind:"animalFood",maxLevel:5},
-    {id:"weather",subject:"nature",minAge:3,name:"מזג אוויר",icon:"🌦️",desc:"מתאימים לבוש ופעילות למזג האוויר",kind:"weather",maxLevel:5},
     {id:"food-chain",subject:"nature",minAge:5,name:"שרשרת מזון",icon:"🔗",desc:"מסדרים מי אוכל את מי",kind:"foodChain",maxLevel:5},
 {id:"adaptations",subject:"nature",minAge:4,name:"התאמה לסביבה",icon:"🦎",desc:"מגלים כיצד בעלי חיים מסתגלים",kind:"adaptations",maxLevel:5},
 {id:"cause-effect",subject:"thinking",minAge:7,name:"סיבה ותוצאה",icon:"🧪",desc:"חושבים כמו מדענים",kind:"causeEffect"}
@@ -201,7 +200,8 @@
     // demanding version of the former pair, so difficulty never decreases.
     level=[1,3,5,6,7,8,9][clamp(level,1,7)-1];
     const pairs=[
-      ["🐭","🐘"],["🐜","🐻"],["🐇","🦒"],["🐱","🐴"],["🐌","🐋"],["🐞","🦁"],["🐥","🦉"],["🌱","🌳"],["🐞","🐘"],["🐭","🐴"]
+      ["🐭","🐘"],["🐜","🐻"],["🐇","🦒"],["🐱","🐴"],["🐌","🐋"],["🐞","🦁"],["🐥","🦉"],["🌱","🌳"],["🐞","🐘"],["🐭","🐴"],
+      ["🐛","🦒"],["🐸","🐘"],["🐹","🐎"],["🐝","🦁"],["🐢","🐋"],["🐤","🦚"]
     ];
     const groups=[
       [["🐭",1],["🐰",2],["🐱",3],["🐶",4],["🐴",5],["🐘",6]],
@@ -209,7 +209,9 @@
       [["🐌",1],["🐰",2],["🐶",3],["🐴",4],["🦁",5],["🐘",6]],
       [["🐞",1],["🐥",2],["🐰",3],["🐶",4],["🐴",5],["🐘",6]],
       [["🐭",1],["🐱",2],["🐶",3],["🐻",4],["🦁",5],["🦒",6]],
-      [["🐜",1],["🐞",2],["🐥",3],["🐰",4],["🐶",5],["🐴",6]]
+      [["🐜",1],["🐞",2],["🐥",3],["🐰",4],["🐶",5],["🐴",6]],
+      [["🐛",1],["🐭",2],["🐱",3],["🐑",4],["🐴",5],["🦒",6]],
+      [["🐝",1],["🐥",2],["🐰",3],["🐶",4],["🐻",5],["🐘",6]]
     ];
     const scalesFor = pairs => Object.fromEntries(pairs.map(([icon,size])=>[icon,size]));
     const pairScale = (small,big) => ({[small]:.52,[big]:1.75});
@@ -291,6 +293,9 @@
       if(ones)rows.push(Array(ones).fill(icon).join(" "));
       return rows.join("\n");
     };
+    // Changing the pictured objects makes a genuinely different visual
+    // comparison, even when the quantities share the same rule.
+    const comparisonIcons=["🍎","🍐","🍊","🍓","🌼","⭐","⚽","🧸","🚗","🐟","🐞","🦋","🍪","🖍️","🎈","🐚"];
     // Thirty different comparisons leave a comfortable 25-question minimum.
     return Array.from({length:30},(_,i)=>{
       // Adjacent quantities differ by at most 20% of this level's maximum.
@@ -302,7 +307,7 @@
       const span=gap*(stage.choices-1);
       const start=1+((i*7)%(stage.max-span));
       const values=Array.from({length:stage.choices},(_,choice)=>start+(choice*gap));
-      const icon=pictures[i%pictures.length],groups=values.map(value=>groupRows(icon,value));
+      const icon=comparisonIcons[i%comparisonIcons.length],groups=values.map(value=>groupRows(icon,value));
       const askLess=stage.less&&i%2===1;
       const target=askLess?Math.min(...values):Math.max(...values);
       return make(askLess?"באיזו קבוצה יש פחות?":"באיזו קבוצה יש יותר?",groups[values.indexOf(target)],shuffle(groups),"",{skill:"השוואה",type:askLess?"פחות":"יותר",answerObjectGrid:true});
@@ -530,15 +535,18 @@
   }
   function clockQuestions(level){
     const makeClock=(q,answer,answers,hour,minutes,type)=>make(q,answer,answers,"",{skill:"שעון",type,clock:{hour,minutes}});
-    // The first stage contains all twelve genuinely different whole hours;
-    // later stages have larger banks because the minute hand also changes.
-    const total=level===1?12:level===2?24:30;
+    // Besides the twelve whole-hour readings, the first stage has four
+    // separate prompts about the hands.  They reinforce the same skill
+    // without cloning an exercise.
+    const total=level===1?16:level===2?24:30;
     return Array.from({length:total},(_,i)=>{
-      const hour=level===1?i+1:level===2?Math.floor(i/2)+1:level===3?Math.floor(i/4)+1:(i%12)+1;
+      const wholeHourExtra=[3,6,9,12];
+      const hour=level===1?(i<12?i+1:wholeHourExtra[i-12]):level===2?Math.floor(i/2)+1:level===3?Math.floor(i/4)+1:(i%12)+1;
       const hourText=String(hour).padStart(2,"0");
       if(level===1){
         const answer=`${hourText}:00`;
-        return makeClock("מה השעה?",answer,options(answer,[`${String((hour%12)+1).padStart(2,"0")}:00`,`${String(((hour+1)%12)+1).padStart(2,"0")}:00`,`${String(((hour+2)%12)+1).padStart(2,"0")}:00`]),hour,0,"שעות שלמות");
+        const prompt=i<12?"מה השעה?":`המחוג הקצר מצביע על ${hour} והמחוג הארוך על 12. מה השעה?`;
+        return makeClock(prompt,answer,options(answer,[`${String((hour%12)+1).padStart(2,"0")}:00`,`${String(((hour+1)%12)+1).padStart(2,"0")}:00`,`${String(((hour+2)%12)+1).padStart(2,"0")}:00`]),hour,0,"שעות שלמות");
       }
       if(level===2){
         const half=i%2===0,minutes=half?30:0,answer=`${hourText}:${half?"30":"00"}`;
@@ -596,6 +604,9 @@
       for(let first=1;first<=config.first;first++){
         for(let second=1;second<=config.second;second++)candidates.push([first,second]);
       }
+      // Level 1 otherwise has exactly fifteen factor pairs.  The reversed
+      // expression is a real additional question and introduces commutativity.
+      if(level===1)candidates.push([5,3]);
     }else{
       for(let first=1;first<=10;first++)for(let second=1;second<=10;second++)for(let third=1;third<=10;third++)candidates.push([first,second,third]);
     }
@@ -775,18 +786,18 @@
     // vocabulary from the former levels 1–7 into thirds; the last stage is a
     // cumulative challenge based on the former levels 8–9.
     const firstLetterStages=[
-      {start:0,wordCount:9,choiceCount:2,nearLetters:false},
-      {start:9,wordCount:9,choiceCount:3,nearLetters:false},
-      {start:18,wordCount:8,choiceCount:4,nearLetters:true},
+      {start:0,wordCount:16,choiceCount:2,nearLetters:false},
+      {start:8,wordCount:16,choiceCount:3,nearLetters:false},
+      {start:16,wordCount:16,choiceCount:4,nearLetters:true},
       {start:0,wordCount:28,choiceCount:4,nearLetters:true}
     ];
     const firstLetterStage=kind==="firstLetter"?firstLetterStages[clamp(level,1,4)-1]:null;
     // The two word/picture matching games share the same four-stage
     // progression: three vocabulary thirds followed by a cumulative challenge.
     const pictureMatchingStages=[
-      {start:0,wordCount:9,choiceCount:2,sameCategory:false},
-      {start:9,wordCount:9,choiceCount:3,sameCategory:false},
-      {start:18,wordCount:8,choiceCount:4,sameCategory:true},
+      {start:0,wordCount:16,choiceCount:2,sameCategory:false},
+      {start:8,wordCount:16,choiceCount:3,sameCategory:false},
+      {start:16,wordCount:16,choiceCount:4,sameCategory:true},
       {start:0,wordCount:28,choiceCount:4,sameCategory:true}
     ];
     const pictureMatchingStage=(kind==="imageWord"||kind==="dragEnglish")?pictureMatchingStages[clamp(level,1,4)-1]:null;
@@ -840,7 +851,8 @@
         {maxLength:7,extraLetters:4}
       ];
       const stage=buildStages[clamp(level,1,4)-1];
-      return repeatPool(active.filter(x=>x[1].length<=stage.maxLength).map(([icon,word])=>make("בנו את המילה מהאותיות",word,[],icon,{skill:"איות",type:"בונים מילה",mode:"build",tokens:shuffle([...word,...shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")).slice(0,stage.extraLetters)]),joinWith:"",word:true})));
+      const buildVocabulary=englishWords.filter(x=>x[1].length<=stage.maxLength);
+      return repeatPool(buildVocabulary.map(([icon,word])=>make("בנו את המילה מהאותיות",word,[],icon,{skill:"איות",type:"בונים מילה",mode:"build",tokens:shuffle([...word,...shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")).slice(0,stage.extraLetters)]),joinWith:"",word:true})));
     }
     if(kind==="dragEnglish")return repeatPool(active.map(([icon,word,,cat])=>{
       const categoryPictures=englishWords.filter(x=>x[3]===cat).map(x=>x[0]);
@@ -926,17 +938,18 @@
   }
   function memoryEnglish(level){
     // Five real stages: more pairs and longer vocabulary at every stage.
-    // Each stage has ten distinct boards, rather than repeating one board.
+    // Each stage has sixteen distinct boards, rather than repeating one board.
     const realLevel=clamp(level,1,5);
     const pairCounts=[3,4,5,6,7];
     const wordLimits=[10,16,22,englishWords.length,englishWords.length];
     const pairCount=pairCounts[realLevel-1];
     const active=englishWords.slice(0,wordLimits[realLevel-1]);
-    return Array.from({length:10},(_,i)=>{
-      // Advance one word at a time so the ten boards are genuinely distinct
-      // even when the word-bank length shares a factor with the pair count.
+    return Array.from({length:16},(_,i)=>{
+      // The second set of boards uses a wider stride, producing different
+      // combinations even in the ten-word beginner bank.
       const start=(i+realLevel-1)%active.length;
-      const selected=Array.from({length:pairCount},(_,j)=>active[(start+j)%active.length]);
+      const stride=1+Math.floor(i/active.length);
+      const selected=Array.from({length:pairCount},(_,j)=>active[(start+j*stride)%active.length]);
       return make("התאימו בין כל תמונה למילה שלה","הושלם",[],"",{
         skill:"זיכרון",
         type:`משחק זיכרון — רמה ${realLevel}`,
@@ -1284,8 +1297,9 @@
       const placedLetters=Array(size*size).fill(null);
       targets.forEach((word,targetIndex)=>{
         const wordLetters=[...word];
-        // Levels 2 and 3 also contain vertical words. Level 1 stays horizontal.
-        const directions=realLevel===1?[[0,1]]:(targetIndex%2===1?[[1,0],[0,1]]:[[0,1],[1,0]]);
+        // The two higher levels always include vertical words. Level 1 stays horizontal.
+        // Place the first target vertically so this remains true even if a puzzle has one target.
+        const directions=realLevel===1?[[0,1]]:(targetIndex%2===0?[[1,0],[0,1]]:[[0,1],[1,0]]);
         let placedPath=null;
         for(const [rowStep,columnStep] of directions){
           const maxRow=size-(rowStep?(wordLetters.length-1):0);
@@ -1416,7 +1430,9 @@
       ];
       // מפרקים מחזירים חומרים לאדמה, אבל אינם אוכלים את היצורים
       // בשרשרת שלפניהם. לכן הם אינם מוצגים כחוליה בשרשרת מזון ליניארית.
-      const cleanChain = row => row.filter(token => token !== "מפרקים" && token !== "אדמה");
+      // Keep chains child-friendly: decomposers and technical sea-life terms are
+      // not presented as a link in this activity.
+      const cleanChain = row => row.filter(token => !["מפרקים", "אדמה", "קריל"].includes(token));
       // Present the chain from the hunter back to its food source. This makes
       // the direction explicit: ינשוף ← נחש ← צפרדע ← דבורה ← פרחים.
       const reverseChain = row => cleanChain(row).reverse();
