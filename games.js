@@ -1297,8 +1297,9 @@
       const placedLetters=Array(size*size).fill(null);
       targets.forEach((word,targetIndex)=>{
         const wordLetters=[...word];
-        // Levels 2 and 3 also contain vertical words. Level 1 stays horizontal.
-        const directions=realLevel===1?[[0,1]]:(targetIndex%2===1?[[1,0],[0,1]]:[[0,1],[1,0]]);
+        // The two higher levels always include vertical words. Level 1 stays horizontal.
+        // Place the first target vertically so this remains true even if a puzzle has one target.
+        const directions=realLevel===1?[[0,1]]:(targetIndex%2===0?[[1,0],[0,1]]:[[0,1],[1,0]]);
         let placedPath=null;
         for(const [rowStep,columnStep] of directions){
           const maxRow=size-(rowStep?(wordLetters.length-1):0);
