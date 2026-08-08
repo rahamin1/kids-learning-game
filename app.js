@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.38";
+const APP_VERSION = "0.1.39";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -513,7 +513,7 @@ const FIVE_LEVEL_GAME_IDS = new Set([
 ]);
 // A few vocabulary games have eight genuinely different stages.  Do not
 // advertise a ninth stage when it would only repeat the eighth.
-const CUSTOM_MAX_LEVELS = { "count": 4, "number-quantity": 6, "big-small": 7, "more-groups": 6, "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 5, "number-line": 4, "shapes": 4, "clock": 4, "addition": 6, "multiplication": 5, "multiplication-numbers": 5, "letter-picture": 4, "first-letter": 4, "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4, "build-word-en": 4, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "word-problems": 8, "word-categories": 6, "story-title": 4, "word-search": 3, "odd-one-out": 3, "habitat": 3, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
+const CUSTOM_MAX_LEVELS = { "count": 4, "number-quantity": 6, "big-small": 7, "more-groups": 6, "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 5, "number-line": 4, "shapes": 4, "clock": 4, "addition": 6, "multiplication": 5, "multiplication-numbers": 5, "letter-picture": 4, "first-letter": 4, "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4, "build-word-en": 4, "sentence-order-en": 5, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "word-problems": 8, "word-categories": 6, "story-title": 4, "word-search": 3, "odd-one-out": 3, "habitat": 3, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
 const DIFFICULTY_PROMPT_COOLDOWN_GAMES = 5;
 function gameMaxLevel(gameId){ return CUSTOM_MAX_LEVELS[gameId] || (EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9); }
 function ageLevel(age){ return clamp(Number(age)||3,1,9); }
@@ -529,6 +529,15 @@ function defaultGameLevel(gameId,age){
   if(gameId==="multiplication-numbers")return ({6:1,7:2,8:3,9:4})[Number(age)]||1;
   if(gameId==="multiplication")return ({5:1,6:2,7:3,8:4,9:5})[Number(age)]||1;
   if(gameId==="shapes")return ({5:1,6:2,7:3,8:4,9:4})[Number(age)]||1;
+  if(gameId==="build-word-en")return ({6:1,7:2})[Number(age)]||1;
+  if(gameId==="sentence-order-en")return ({6:1,7:2,8:3,9:4})[Number(age)]||1;
+  const game=KIDS_GAMES.catalog.find(item=>item.id===gameId);
+  const playerAge=Number(age)||3;
+  if(game?.minAge===4){
+    if(playerAge===4)return 1;
+    if(playerAge===5)return 2;
+  }
+  if(game?.minAge===5 && playerAge===5)return 1;
   return ageLevel(age);
 }
 function applyDefaultHiddenGames(p){

@@ -300,7 +300,6 @@
   ];
   const weatherLevelFive = weatherLevelFiveBases.flatMap(([q,correct,answers])=>[
     {q,correct,visual:"",answers},
-    {q:`${q} מה הבחירה המתאימה?`,correct,visual:"",answers},
     {q:`קראו היטב: ${q}`,correct,visual:"",answers}
   ]);
   const weatherLevels = [weatherLevelOne,weatherLevelTwo,weatherLevelThree,weatherLevelFour,weatherLevelFive];
@@ -348,7 +347,7 @@
       ["באיזו צורה יש זווית ישרה אחת?","משולש ישר־זווית"],["לאיזו צורה יש 3 צלעות שוות?","משולש שווה־צלעות"],
       ["איזו צורה היא חצי מעיגול?","חצי עיגול"],["איזו צורה דומה לירח דק?","סהר"],
       ["איזו צורה מורכבת מקו עומד וקו שוכב שנפגשים?","צלב"],["איזו צורה מציינת כיוון?","חץ"],
-      ["לאיזו צורה יש קודקוד אחד בכל פינה?","מלבן"],["לאיזו צורה אין פינות בכלל?","עיגול"],
+      ["לאיזו צורה יש שתי צלעות ארוכות ושתי צלעות קצרות?","מלבן"],["לאיזו צורה אין פינות בכלל?","עיגול"],
       ["איזו צורה בעלת 5 חודים?","כוכב"],["איזו צורה בעלת שני חלקים עגולים וקודקוד למטה?","לב"],
       ["איזו צורה דומה ליהלום?","מעוין"],["איזו צורה יכולה להיות גם בצורת יהלום וגם בצורת עפיפון?","דלתון"]
     ].map(([q, correct]) => ({ q, correct, answers: /^\d+$/.test(correct) ? ["0","3","4","5","6","8"] : null, count: 4 })),
@@ -389,15 +388,35 @@
     ["🐼","פנדה","במבוק","דוב שחור־לבן שחי ביערות אסיה"],["🐨","קואלה","עלי אקליפטוס","חיה אפורה שחיה על עצים באוסטרליה"],["🦭","כלב ים","דגים","יונק ששוחה בים ויש לו סנפירים"],["🦫","בונה","קליפות עצים וצמחים","בעל חיים שבונה סכרים"],["🦩","פלמינגו","יצורים קטנים במים","עוף ורוד שעומד במים רדודים"],["🐜","דוב נמלים","נמלים וטרמיטים","בעל חיים בעל לשון ארוכה במיוחד"]
   ];
   const animalFoodChoices = [...new Set(animalFoodRows.map(([, , food]) => food))];
+  const animalFoodDistractors = {
+    "עצם": ["בשר", "דגים", "ירקות"],
+    "דג": ["בשר", "חרקים", "זרעים"],
+    "עשב": ["חציר", "עלים", "ירקות"],
+    "גזר": ["חסה", "עלים", "ירקות"],
+    "זרעים": ["גרעינים", "תירס", "פירורים"],
+    "אצות": ["צמחי מים", "חרקים", "דגים קטנים"],
+    "חציר": ["עשב", "עלים", "ירקות"],
+    "צמחי מים": ["אצות", "חרקים", "דגים קטנים"],
+    "חרקים": ["תולעים", "זחלים", "דגים קטנים"],
+    "צוף מפרחים": ["אבקה מפרחים", "פירות", "זרעים"],
+    "עלים ופירות": ["עשב", "ירקות", "עלים גבוהים"],
+    "בשר": ["דגים", "חרקים", "ביצים"],
+    "צמחי מדבר": ["עשב", "עלים", "פירות"],
+    "דגים": ["דגים קטנים", "חרקים", "דיונונים"],
+    "עכברים": ["חרקים", "לטאות", "דגים קטנים"],
+    "יצורים קטנים במים": ["דגים קטנים", "אצות", "חרקים"],
+    "עלים גבוהים": ["עלים", "עשב", "פירות"],
+    "פירות וחיות קטנות": ["פירות", "חרקים", "עכברים"],
+    "עלים וירקות": ["עשב", "פירות", "גזר"],
+    "קליפות עצים וצמחים": ["עלים", "חציר", "פירות"],
+    "נמלים וטרמיטים": ["חרקים", "זחלים", "תולעים"]
+  };
   const animalFoodLevels = [
-    animalFoodRows.map(([icon, animal, food]) => ["מה אוכל בעל החיים שבתמונה?", food, icon]),
+    animalFoodRows.map(([icon, animal, food]) => ["מה מתאים לבעל החיים שבתמונה לאכול?", food, icon]),
     animalFoodRows.map(([, animal, food]) => [`מה ${["פרה","כבשה","תרנגולת","דבורה","ג'ירפה","זברה","קואלה","פנדה","צפרדע"].includes(animal) ? "אוכלת" : "אוכל"} ${animal}?`, food, ""]),
     animalFoodRows.map(([, animal, food]) => [`איזה מזון מתאים ל${animal}?`, food, ""]),
     animalFoodRows.map(([, animal, food]) => [`באיזה מזון ${["פרה","כבשה","תרנגולת","דבורה","ג'ירפה","זברה","קואלה","פנדה","צפרדע"].includes(animal) ? "עשויה" : "עשוי"} ${animal} לחפש?`, food, ""]),
-    animalFoodRows.map(([, , food, clue]) => {
-      const feminineClue=/^(חיית|חיה|ציפור)/.test(clue);
-      return [`${clue}. מה מתאים ל${feminineClue?"ה":"ו"} לאכול?`, food, ""];
-    })
+    animalFoodRows.map(([, , food, clue]) => [`${clue}. איזה מזון מתאים לבעל החיים המתואר לאכול?`, food, ""])
   ];
   const livingGroupLevels = [
     [["🐶","חי"],["🐱","חי"],["🐟","חי"],["🐦","חי"],["🐝","חי"],["🐸","חי"],["🦁","חי"],["🐘","חי"],["🐰","חי"],["🦋","חי"],["🌳","צומח"],["🌷","צומח"],["🌵","צומח"],["🌻","צומח"],["🌿","צומח"],["🌾","צומח"],["🍎","צומח"],["🍅","צומח"],["🥕","צומח"],["🌲","צומח"],["⚽","דומם"],["🚗","דומם"],["📚","דומם"],["🧸","דומם"],["🏠","דומם"],["🚲","דומם"],["⌚","דומם"],["✏️","דומם"],["🪑","דומם"],["🧢","דומם"]],
@@ -514,7 +533,8 @@
     if (gameId === "seasons") pool = seasonLevels[seasonsLevel - 1].map(([q, correct, visual = ""]) => make(q, correct, pick(correct, ["חורף", "אביב", "קיץ", "סתיו"], seasonsLevel === 1 ? 2 : seasonsLevel === 2 ? 3 : 4), visual, { skill: "עונות השנה", type: `עונות השנה — רמה ${seasonsLevel}` }));
     if (gameId === "animal-food") pool = animalFoodLevels[animalFoodLevel - 1].map(([q, correct, visual]) => {
       const answerCount = animalFoodLevel <= 2 ? 2 : animalFoodLevel === 3 ? 3 : 4;
-      return make(q, correct, pick(correct, animalFoodChoices, answerCount), visual, { skill: "תזונת בעלי חיים", type: `מה בעלי חיים אוכלים? — רמה ${animalFoodLevel}` });
+      const distractors = animalFoodDistractors[correct] || animalFoodChoices.filter(item => item !== correct);
+      return make(q, correct, shuffle([correct, ...shuffle(distractors).slice(0, answerCount - 1)]), visual, { skill: "תזונת בעלי חיים", type: `מה בעלי חיים אוכלים? — רמה ${animalFoodLevel}` });
     });
     if (gameId === "baby-adult") pool = babyAdultLevels[clamp(Number(level) || 1, 1, babyAdultLevels.length) - 1].map(({q, correct, visual, answers}) => make(q, correct, shuffle(answers), visual, { skill: "משפחות בעלי חיים", type: `גור ובוגר — רמה ${clamp(Number(level) || 1, 1, babyAdultLevels.length)}` }));
     // Event Order is maintained in games.js, where every level has 20

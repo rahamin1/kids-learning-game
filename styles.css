@@ -26,9 +26,11 @@ body{font-family:Heebo,system-ui,sans-serif}
 .pattern-visual.pattern-long{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));white-space:normal;gap:8px 4px;padding:10px 8px}
 .pattern-visual.pattern-long .pattern-tile,.pattern-visual.pattern-long .pattern-missing{width:100%;height:auto;aspect-ratio:1;min-width:0;font-size:clamp(18px,5.8vw,36px)}
 .pattern-missing{border:3px solid #dbe7f0;border-radius:16px;background:#f8fbfd;color:var(--blue-dark);font-family:Rubik,Heebo,sans-serif;font-size:46px;font-weight:900}
-.picture-math-visual{display:flex;align-items:center;justify-content:center;gap:20px;direction:ltr;flex-wrap:nowrap}
-.picture-math-group{display:grid;grid-template-columns:repeat(5,1fr);gap:6px 7px;align-items:center;justify-items:center;max-width:230px}
-.picture-math-group span{font-size:38px;line-height:1}
+.picture-math-visual{display:flex;align-items:center;justify-content:center;gap:clamp(8px,2vw,20px);direction:ltr;flex-wrap:nowrap;width:100%}
+/* Each icon is rendered exactly once. Four narrow columns keep larger groups
+   visible instead of letting the bottom row disappear on a phone. */
+.picture-math-group{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;align-items:center;justify-items:center;width:min(42vw,230px);max-width:calc((100% - 52px)/2)}
+.picture-math-group span{font-size:clamp(22px,7.5vw,38px);line-height:1}
 .picture-math-operator{font-family:Rubik,Heebo,sans-serif;font-size:62px;font-weight:900;color:var(--blue-dark);line-height:1}
 .pip-corner{right:auto;left:28px}
 .pip-corner{display:flex;align-items:center;gap:4px}
@@ -459,9 +461,9 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .pip-corner .pip-buddy{font-size:38px}
 @media(max-width:520px){
   .answer-grid{gap:10px}
-  .picture-math-visual{gap:12px;padding-left:2px;padding-right:2px}
-  .picture-math-group{grid-template-columns:repeat(5,1fr);gap:4px 5px;max-width:205px}
-  .picture-math-group span{font-size:30px}
+  .picture-math-visual{gap:8px;padding-left:2px;padding-right:2px}
+  .picture-math-group{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;width:calc((100% - 48px)/2);max-width:none}
+  .picture-math-group span{font-size:clamp(20px,7.2vw,30px)}
   .picture-math-operator{font-size:48px}
   .question-visual.no-visual{min-height:72px;padding:8px}
   .question-visual.picture-choice-visual.no-visual{min-height:0;padding:0}

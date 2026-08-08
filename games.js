@@ -6,10 +6,10 @@
     {id:"more-groups",subject:"math",minAge:3,maxAge:7,name:"איפה יש יותר?",icon:"⚖️",desc:"משווים בין שתי כמויות",kind:"moreGroups"},
     {id:"visual-pattern",subject:"thinking",minAge:4,name:"דפוסים",icon:"🔴",desc:"מגלים מה מגיע בהמשך",kind:"pattern",maxLevel:5},
     {id:"number-sequence",subject:"math",minAge:4,name:"רצף מספרים",icon:"➡️",desc:"משלימים מספר חסר ברצף",kind:"sequence",maxLevel:5},
+    {id:"addition",subject:"math",minAge:4,name:"חיבור",icon:"➕",desc:"מחברים מספרים בהדרגה",kind:"addition",maxLevel:6},
     {id:"picture-subtraction",subject:"math",minAge:5,name:"חיסור",icon:"➖",desc:"מורידים ומחשבים",kind:"subtraction",maxLevel:5},
     {id:"number-line",subject:"math",minAge:4,name:"ציר המספרים",icon:"📏",desc:"מוצאים את המקום הנכון",kind:"numberLine",maxLevel:4},
     {id:"shapes",subject:"math",minAge:5,name:"מגלים צורות",icon:"🔷",desc:"שמות, תכונות והתאמות",kind:"shapes",maxLevel:4},
-    {id:"addition",subject:"math",minAge:4,name:"חיבור",icon:"➕",desc:"מחברים מספרים בהדרגה",kind:"addition",maxLevel:6},
     {id:"clock",subject:"thinking",minAge:5,name:"שעון",icon:"🕒",desc:"קוראים שעות ודקות",kind:"clock",maxLevel:4},
     {id:"multiplication",subject:"math",minAge:5,name:"כפל בקבוצות",icon:"✖️",desc:"סופרים קבוצות שוות",kind:"multiplication",maxLevel:5},
     {id:"multiplication-numbers",subject:"math",minAge:6,name:"כפל",icon:"✖️",desc:"פותרים תרגילי כפל במספרים",kind:"multiplicationNumbers",maxLevel:5},
@@ -25,8 +25,8 @@
     {id:"listen-animal",subject:"english",minAge:6,name:"לחצו ושמעו",icon:"🔊",desc:"שומעים שם של בעל חיים ובוחרים תמונה",kind:"listenEnglish",disabled:true},
     {id:"missing-letter-en",subject:"english",minAge:6,name:"אות חסרה",icon:"❓",desc:"משלימים אות חסרה במילה",kind:"missingEnglish"},
     {id:"word-categories",subject:"english",minAge:6,name:"קטגוריות מילים",icon:"🗂️",desc:"ממיינים חיות, אוכל וחפצים",kind:"englishCategories",maxLevel:6},
-    {id:"build-word-en",subject:"english",minAge:7,name:"בונים מילה",icon:"🧱",desc:"מרכיבים מילה מאותיות",kind:"buildEnglish"},
-    {id:"sentence-order-en",subject:"english",minAge:7,name:"בונים משפט",icon:"💬",desc:"מסדרים מילים למשפט קצר",kind:"sentenceEnglish"},
+    {id:"build-word-en",subject:"english",minAge:6,maxAge:7,name:"בונים מילה",icon:"🧱",desc:"מרכיבים מילה מאותיות",kind:"buildEnglish"},
+    {id:"sentence-order-en",subject:"english",minAge:6,name:"בונים משפט",icon:"💬",desc:"מסדרים מילים למשפט קצר",kind:"sentenceEnglish"},
 
     {id:"same-picture",subject:"thinking",minAge:3,maxAge:4,name:"תמונות זהות",icon:"🖼️",desc:"מוצאים את התמונה הזהה",kind:"samePicture"},
     {id:"hebrew-letter",subject:"reading",minAge:4,name:"זיהוי אות",icon:"אבג",desc:"מזהים אות עברית",kind:"hebrewLetter",disabled:true},
@@ -280,7 +280,7 @@
       {max:20,choices:2,less:false,placeValues:false},
       {max:20,choices:4,less:true,placeValues:false},
       {max:50,choices:4,less:true,placeValues:false},
-      {max:200,choices:4,less:true,placeValues:true}
+      {max:100,choices:4,less:true,placeValues:true}
     ];
     const stage=stages[clamp(level,1,stages.length)-1];
     const groupRows=(icon,count)=>{
@@ -437,7 +437,7 @@
   }
   function arithmetic(level,kind){
     if(kind==="subtract"){
-      const limit=[10,20,50,100,1000][clamp(level,1,5)-1];
+      const limit=[10,20,30,50,100][clamp(level,1,5)-1];
       const pairs=[];
       if(limit<=100){
         for(let left=2;left<=limit;left++)for(let right=1;right<left;right++)pairs.push([left,right]);
@@ -450,12 +450,16 @@
           pairs.push([left,right]);
         }
       }
-      return pairs.slice(0,30).map(([left,right])=>make(`${left} − ${right}`,String(left-right),numberOptions(left-right),"",{skill:"חיסור",type:"חיסור",word:true}));
+      return pairs.slice(0,30).map(([left,right])=>{
+        const icon=pictures[(left+right)%pictures.length];
+        const pictureVisual={groups:[Array(left).fill(icon),Array(right).fill(icon)],operator:"−"};
+        return make(`${left} − ${right}`,String(left-right),numberOptions(left-right),"",{skill:"חיסור",type:level<=2?"חיסור עם ציורים":"חיסור",word:true,pictureMath:level<=2?pictureVisual:null});
+      });
     }
     if(kind==="add"){
       const config=[
         {max:10,pictures:true}, {max:20,pictures:true}, {max:30,pictures:true},
-        {max:30,pictures:false}, {max:100,pictures:false}, {max:1000,pictures:false}
+        {max:30,pictures:false}, {max:50,pictures:false}, {max:100,pictures:false}
       ][clamp(level,1,6)-1];
       const candidates=[];
       if(config.max<=30){
@@ -873,7 +877,7 @@
       return sample(pairs,30).map(({category,first,second})=>{
         const correct=`${first} + ${second}`;
         const wrong=categoryNames.filter(other=>other!==category).flatMap(other=>categoryPools[other].map(([,word])=>`${first} + ${word}`));
-        return make("Which pair belongs to the same category?",correct,options(correct,wrong,6),"",{skill:"קטגוריות",type:"זוגות מאותה קטגוריה",word:true});
+        return make("אילו שתי מילים שייכות לאותה קטגוריה?",correct,options(correct,wrong,6),"",{skill:"קטגוריות",type:"זוגות מאותה קטגוריה",word:true});
       });
     }
     if(kind==="legacyEnglishCategories"){
@@ -1409,11 +1413,15 @@
       // מפרקים מחזירים חומרים לאדמה, אבל אינם אוכלים את היצורים
       // בשרשרת שלפניהם. לכן הם אינם מוצגים כחוליה בשרשרת מזון ליניארית.
       const cleanChain = row => row.filter(token => token !== "מפרקים" && token !== "אדמה");
-      const cleanBasic = basic.map(cleanChain);
-      const cleanAdvanced = advanced.map(cleanChain);
+      // Present the chain from the hunter back to its food source. This makes
+      // the direction explicit: ינשוף ← נחש ← צפרדע ← דבורה ← פרחים.
+      const reverseChain = row => cleanChain(row).reverse();
+      const cleanBasic = basic.map(reverseChain);
+      const cleanAdvanced = advanced.map(reverseChain);
+      const reversePairs = simplePairs.map(row => [...row].reverse());
       const realLevel=clamp(level,1,5);
-      const chains=realLevel===1?simplePairs:realLevel===2?cleanBasic.map(row=>row.slice(0,3)):realLevel===3?cleanAdvanced.map(row=>row.slice(0,3)):realLevel===4?cleanAdvanced.map(row=>row.slice(0,4)):cleanAdvanced.map(row=>row.slice(0,5));
-      return repeatPool(chains.map(tokens=>make("סדרו את שרשרת המזון",tokens.join(" → "),[],"",{skill:"שרשרת מזון",type:`מי אוכל את מי? — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" → "})));
+      const chains=realLevel===1?reversePairs:realLevel===2?cleanBasic.map(row=>row.slice(0,3)):realLevel===3?cleanAdvanced.map(row=>row.slice(0,3)):realLevel===4?cleanAdvanced.map(row=>row.slice(0,4)):cleanAdvanced.map(row=>row.slice(0,5));
+      return repeatPool(chains.map(tokens=>make("סדרו את שרשרת המזון",tokens.join(" ← "),[],"",{skill:"שרשרת מזון",type:`מי אוכל את מי? — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));
     }
     if(kind==="adaptations"){
       const facts=[
