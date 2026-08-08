@@ -10,7 +10,7 @@ const vm = require("vm");
 const root = path.resolve(__dirname, "..");
 const extended = new Set(["count","number-quantity","more-groups","number-sequence","number-line","addition","picture-subtraction","multiplication","clock","word-problems","visual-pattern"]);
 const five = new Set(["shapes","life-cycle","plant-parts","animal-food","weather","cause-effect","sentence-order-en","event-order","sentence-order-he","true-false","story-title","living-groups","seasons","food-chain","adaptations"]);
-const custom = { "letter-picture": 8, "build-word-en": 8, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "odd-one-out": 3, "habitat": 3, "baby-adult": 4, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
+const custom = { "more-groups": 6, "letter-picture": 8, "build-word-en": 8, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "odd-one-out": 3, "habitat": 3, "baby-adult": 4, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
 const maxLevel = id => custom[id] || (extended.has(id) ? 15 : five.has(id) ? 5 : 9);
 const stableMath = Object.create(Math); stableMath.random=()=>.42;
 const context=vm.createContext({window:{},console,Math:stableMath,Set,Map,Array,Object,String,Number,Boolean,JSON});

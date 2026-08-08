@@ -1,4 +1,4 @@
-const CACHE_NAME = "brightwood-pwa-local215";
+const CACHE_NAME = "brightwood-pwa-local216";
 const CORE_FILES = [
   "./",
   "./index.html",
