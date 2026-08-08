@@ -6,10 +6,10 @@
     {id:"more-groups",subject:"math",minAge:3,maxAge:7,name:"איפה יש יותר?",icon:"⚖️",desc:"משווים בין שתי כמויות",kind:"moreGroups"},
     {id:"visual-pattern",subject:"thinking",minAge:4,name:"דפוסים",icon:"🔴",desc:"מגלים מה מגיע בהמשך",kind:"pattern",maxLevel:5},
     {id:"number-sequence",subject:"math",minAge:4,name:"רצף מספרים",icon:"➡️",desc:"משלימים מספר חסר ברצף",kind:"sequence",maxLevel:5},
+    {id:"addition",subject:"math",minAge:4,name:"חיבור",icon:"➕",desc:"מחברים מספרים בהדרגה",kind:"addition",maxLevel:6},
     {id:"picture-subtraction",subject:"math",minAge:5,name:"חיסור",icon:"➖",desc:"מורידים ומחשבים",kind:"subtraction",maxLevel:5},
     {id:"number-line",subject:"math",minAge:4,name:"ציר המספרים",icon:"📏",desc:"מוצאים את המקום הנכון",kind:"numberLine",maxLevel:4},
     {id:"shapes",subject:"math",minAge:5,name:"מגלים צורות",icon:"🔷",desc:"שמות, תכונות והתאמות",kind:"shapes",maxLevel:4},
-    {id:"addition",subject:"math",minAge:4,name:"חיבור",icon:"➕",desc:"מחברים מספרים בהדרגה",kind:"addition",maxLevel:6},
     {id:"clock",subject:"thinking",minAge:5,name:"שעון",icon:"🕒",desc:"קוראים שעות ודקות",kind:"clock",maxLevel:4},
     {id:"multiplication",subject:"math",minAge:5,name:"כפל בקבוצות",icon:"✖️",desc:"סופרים קבוצות שוות",kind:"multiplication",maxLevel:5},
     {id:"multiplication-numbers",subject:"math",minAge:6,name:"כפל",icon:"✖️",desc:"פותרים תרגילי כפל במספרים",kind:"multiplicationNumbers",maxLevel:5},
@@ -25,8 +25,8 @@
     {id:"listen-animal",subject:"english",minAge:6,name:"לחצו ושמעו",icon:"🔊",desc:"שומעים שם של בעל חיים ובוחרים תמונה",kind:"listenEnglish",disabled:true},
     {id:"missing-letter-en",subject:"english",minAge:6,name:"אות חסרה",icon:"❓",desc:"משלימים אות חסרה במילה",kind:"missingEnglish"},
     {id:"word-categories",subject:"english",minAge:6,name:"קטגוריות מילים",icon:"🗂️",desc:"ממיינים חיות, אוכל וחפצים",kind:"englishCategories",maxLevel:6},
-    {id:"build-word-en",subject:"english",minAge:7,name:"בונים מילה",icon:"🧱",desc:"מרכיבים מילה מאותיות",kind:"buildEnglish"},
-    {id:"sentence-order-en",subject:"english",minAge:7,name:"בונים משפט",icon:"💬",desc:"מסדרים מילים למשפט קצר",kind:"sentenceEnglish"},
+    {id:"build-word-en",subject:"english",minAge:6,maxAge:7,name:"בונים מילה",icon:"🧱",desc:"מרכיבים מילה מאותיות",kind:"buildEnglish"},
+    {id:"sentence-order-en",subject:"english",minAge:6,name:"בונים משפט",icon:"💬",desc:"מסדרים מילים למשפט קצר",kind:"sentenceEnglish"},
 
     {id:"same-picture",subject:"thinking",minAge:3,maxAge:4,name:"תמונות זהות",icon:"🖼️",desc:"מוצאים את התמונה הזהה",kind:"samePicture"},
     {id:"hebrew-letter",subject:"reading",minAge:4,name:"זיהוי אות",icon:"אבג",desc:"מזהים אות עברית",kind:"hebrewLetter",disabled:true},
@@ -56,7 +56,7 @@
     {id:"weather",subject:"nature",minAge:3,name:"מזג אוויר",icon:"🌦️",desc:"מתאימים לבוש ופעילות למזג האוויר",kind:"weather",maxLevel:5},
     {id:"food-chain",subject:"nature",minAge:5,name:"שרשרת מזון",icon:"🔗",desc:"מסדרים מי אוכל את מי",kind:"foodChain",maxLevel:5},
 {id:"adaptations",subject:"nature",minAge:4,name:"התאמה לסביבה",icon:"🦎",desc:"מגלים כיצד בעלי חיים מסתגלים",kind:"adaptations",maxLevel:5},
-    {id:"cause-effect",subject:"nature",minAge:7,name:"סיבה ותוצאה",icon:"🧪",desc:"חושבים כמו מדענים",kind:"causeEffect"}
+{id:"cause-effect",subject:"thinking",minAge:7,name:"סיבה ותוצאה",icon:"🧪",desc:"חושבים כמו מדענים",kind:"causeEffect"}
   ];
 
   const animals = [
@@ -280,8 +280,7 @@
       {max:20,choices:2,less:false,placeValues:false},
       {max:20,choices:4,less:true,placeValues:false},
       {max:50,choices:4,less:true,placeValues:false},
-      {max:200,choices:4,less:true,placeValues:true},
-      {max:1000,choices:4,less:true,placeValues:true}
+      {max:100,choices:4,less:true,placeValues:true}
     ];
     const stage=stages[clamp(level,1,stages.length)-1];
     const groupRows=(icon,count)=>{
@@ -294,14 +293,15 @@
     };
     // Thirty different comparisons leave a comfortable 25-question minimum.
     return Array.from({length:30},(_,i)=>{
-      const start=1+(i*3)%stage.max;
-      const steps=stage.choices===2?[0,Math.max(1,Math.ceil(stage.max*.55))]:[0,Math.ceil(stage.max*.24),Math.ceil(stage.max*.49),Math.ceil(stage.max*.74)];
-      const values=[];
-      steps.forEach(step=>{
-        let value=1+((start-1+step)%stage.max);
-        while(values.includes(value))value=value%stage.max+1;
-        values.push(value);
-      });
+      // Adjacent quantities differ by at most 20% of this level's maximum.
+      // For example, the 20-item levels can show 8, 12, 16, 20.
+      const maxGap=Math.max(1,Math.floor(stage.max*.2));
+      // Vary the gap from one item up to the allowed maximum, rather than
+      // always using the maximum gap.
+      const gap=1+(i%maxGap);
+      const span=gap*(stage.choices-1);
+      const start=1+((i*7)%(stage.max-span));
+      const values=Array.from({length:stage.choices},(_,choice)=>start+(choice*gap));
       const icon=pictures[i%pictures.length],groups=values.map(value=>groupRows(icon,value));
       const askLess=stage.less&&i%2===1;
       const target=askLess?Math.min(...values):Math.max(...values);
@@ -437,7 +437,7 @@
   }
   function arithmetic(level,kind){
     if(kind==="subtract"){
-      const limit=[10,20,50,100,1000][clamp(level,1,5)-1];
+      const limit=[10,20,30,50,100][clamp(level,1,5)-1];
       const pairs=[];
       if(limit<=100){
         for(let left=2;left<=limit;left++)for(let right=1;right<left;right++)pairs.push([left,right]);
@@ -450,12 +450,16 @@
           pairs.push([left,right]);
         }
       }
-      return pairs.slice(0,30).map(([left,right])=>make(`${left} − ${right}`,String(left-right),numberOptions(left-right),"",{skill:"חיסור",type:"חיסור",word:true}));
+      return pairs.slice(0,30).map(([left,right])=>{
+        const icon=pictures[(left+right)%pictures.length];
+        const pictureVisual={groups:[Array(left).fill(icon),Array(right).fill(icon)],operator:"−"};
+        return make(`${left} − ${right}`,String(left-right),numberOptions(left-right),"",{skill:"חיסור",type:level<=2?"חיסור עם ציורים":"חיסור",word:true,pictureMath:level<=2?pictureVisual:null});
+      });
     }
     if(kind==="add"){
       const config=[
         {max:10,pictures:true}, {max:20,pictures:true}, {max:30,pictures:true},
-        {max:30,pictures:false}, {max:100,pictures:false}, {max:1000,pictures:false}
+        {max:30,pictures:false}, {max:50,pictures:false}, {max:100,pictures:false}
       ][clamp(level,1,6)-1];
       const candidates=[];
       if(config.max<=30){
@@ -477,7 +481,7 @@
       return selected.map(([left,right])=>{
         const answer=left+right;
         const icon=pictures[(left+right)%pictures.length];
-        const pictureVisual={groups:[Array(Math.min(left,12)).fill(icon),Array(Math.min(right,12)).fill(icon)],operator:"+"};
+        const pictureVisual={groups:[Array(left).fill(icon),Array(right).fill(icon)],operator:"+"};
         const prompt=config.pictures?`${left} + ${right}`:level===4?`חשבו: ${left} + ${right}`:`פתרו: ${left} + ${right}`;
         return make(prompt,String(answer),numberOptions(answer),"",{skill:"חיבור",type:config.pictures?"חיבור עם ציורים":"חיבור מספרים",word:true,pictureMath:config.pictures?pictureVisual:null});
       });
@@ -485,7 +489,7 @@
     const max=clamp(5+level*3,8,50),out=[];
     const minA=level>=7?4:level>=5?2:1;
     const minB=level>=7?2:1,maxSecond=level>=12?15:level>=9?12:8;
-    for(let a=minA;a<=max;a++){for(let b=minB;b<=Math.min(a,maxSecond);b++){const answer=kind==="add"?a+b:a-b;if(answer<0)continue;if(kind!=="add"&&level>=4&&answer===0)continue;const icon=pictures[(a+b)%pictures.length],pictureVisual={groups:[Array(Math.min(a,12)).fill(icon),Array(Math.min(b,12)).fill(icon)],operator:"+"},left=Math.max(a,b),right=Math.min(a,b),expression=kind==="add"?`${left} + ${right}`:`${left} − ${right}`;out.push(make(expression,String(answer),numberOptions(answer),"",{skill:kind==="add"?"חיבור":"חיסור",type:kind==="add"?"חיבור":"חיסור",word:true,pictureMath:kind==="add"&&level<6?pictureVisual:null}));}}
+    for(let a=minA;a<=max;a++){for(let b=minB;b<=Math.min(a,maxSecond);b++){const answer=kind==="add"?a+b:a-b;if(answer<0)continue;if(kind!=="add"&&level>=4&&answer===0)continue;const icon=pictures[(a+b)%pictures.length],pictureVisual={groups:[Array(a).fill(icon),Array(b).fill(icon)],operator:"+"},left=Math.max(a,b),right=Math.min(a,b),expression=kind==="add"?`${left} + ${right}`:`${left} − ${right}`;out.push(make(expression,String(answer),numberOptions(answer),"",{skill:kind==="add"?"חיבור":"חיסור",type:kind==="add"?"חיבור":"חיסור",word:true,pictureMath:kind==="add"&&level<6?pictureVisual:null}));}}
     return out;
   }
   function numberLine(level){
@@ -572,7 +576,7 @@
       const [icon,noun]=item;
       const answer=groups*each;
       const visual=Array.from({length:groups},()=>`(${Array(each).fill(icon).join(" ")})`).join("  ");
-      return make(`כמה ${noun} יש ב־${groups} קבוצות של ${each}?`,String(answer),numberOptions(answer),visual,{skill:"כפל",type:`קבוצות שוות — רמה ${level}`,word:true});
+      return make(`כמה ${noun} יש ב־${groups} קבוצות של ${each}?`,String(answer),numberOptions(answer),visual,{skill:"כפל",type:`קבוצות שוות — רמה ${level}`,word:true,compactGroupVisual:true});
     });
   }
   function multiplicationNumbers(level){
@@ -633,9 +637,48 @@
     return repeatPool(questions,24);
   }
   function wordProblems(level){
-    const names=["נועה","דן","מיה","אורי","רוני","יואב","תמר","אדם","יעל","גיל","שירה","איתי","אלה","נועם","מאיה","עומר","ליה","רון","עמית","נויה","אריאל","יובל","ניב","שחר","איילה"];
-    const things=["מדבקות","עפרונות","תפוחים","ספרים","בלונים","גולות","צדפים","קוביות","פרחים","כדורים"];
+    // Each name has an explicit grammatical gender, so stories can read
+    // naturally without forms such as "קיבל/ה".
+    const people=[
+      {name:"נועה",received:"קיבלה",gave:"נתנה",added:"הוסיפה",needs:"צריכה",sibling:"אחותה"},
+      {name:"דן",received:"קיבל",gave:"נתן",added:"הוסיף",needs:"צריך",sibling:"אחיו"},
+      {name:"מיה",received:"קיבלה",gave:"נתנה",added:"הוסיפה",needs:"צריכה",sibling:"אחותה"},
+      {name:"אורי",received:"קיבל",gave:"נתן",added:"הוסיף",needs:"צריך",sibling:"אחיו"},
+      {name:"תמר",received:"קיבלה",gave:"נתנה",added:"הוסיפה",needs:"צריכה",sibling:"אחותה"},
+      {name:"יואב",received:"קיבל",gave:"נתן",added:"הוסיף",needs:"צריך",sibling:"אחיו"},
+      {name:"יעל",received:"קיבלה",gave:"נתנה",added:"הוסיפה",needs:"צריכה",sibling:"אחותה"},
+      {name:"אדם",received:"קיבל",gave:"נתן",added:"הוסיף",needs:"צריך",sibling:"אחיו"},
+      {name:"שירה",received:"קיבלה",gave:"נתנה",added:"הוסיפה",needs:"צריכה",sibling:"אחותה"},
+      {name:"גיל",received:"קיבל",gave:"נתן",added:"הוסיף",needs:"צריך",sibling:"אחיו"},
+      {name:"אלה",received:"קיבלה",gave:"נתנה",added:"הוסיפה",needs:"צריכה",sibling:"אחותה"},
+      {name:"איתי",received:"קיבל",gave:"נתן",added:"הוסיף",needs:"צריך",sibling:"אחיו"},
+      {name:"מאיה",received:"קיבלה",gave:"נתנה",added:"הוסיפה",needs:"צריכה",sibling:"אחותה"},
+      {name:"עומר",received:"קיבל",gave:"נתן",added:"הוסיף",needs:"צריך",sibling:"אחיו"},
+      {name:"ליה",received:"קיבלה",gave:"נתנה",added:"הוסיפה",needs:"צריכה",sibling:"אחותה"},
+      {name:"רון",received:"קיבל",gave:"נתן",added:"הוסיף",needs:"צריך",sibling:"אחיו"},
+      {name:"נויה",received:"קיבלה",gave:"נתנה",added:"הוסיפה",needs:"צריכה",sibling:"אחותה"},
+      {name:"עידו",received:"קיבל",gave:"נתן",added:"הוסיף",needs:"צריך",sibling:"אחיו"},
+      {name:"איילה",received:"קיבלה",gave:"נתנה",added:"הוסיפה",needs:"צריכה",sibling:"אחותה"},
+      {name:"רועי",received:"קיבל",gave:"נתן",added:"הוסיף",needs:"צריך",sibling:"אחיו"}
+    ];
+    const things=[
+      {plural:"מדבקות",one:"מדבקה אחת",gender:"f"},
+      {plural:"עפרונות",one:"עיפרון אחד",gender:"m"},
+      {plural:"תפוחים",one:"תפוח אחד",gender:"m"},
+      {plural:"ספרים",one:"ספר אחד",gender:"m"},
+      {plural:"בלונים",one:"בלון אחד",gender:"m"},
+      {plural:"גולות",one:"גולה אחת",gender:"f"},
+      {plural:"צדפים",one:"צדף אחד",gender:"m"},
+      {plural:"קוביות",one:"קובייה אחת",gender:"f"},
+      {plural:"פרחים",one:"פרח אחד",gender:"m"},
+      {plural:"כדורים",one:"כדור אחד",gender:"m"}
+    ];
     const at=(items,index)=>items[index%items.length];
+    const personAt=index=>at(people,index);
+    const quantity=(thing,count)=>count===1?thing.one:`${count} ${thing.plural}`;
+    const had=(place,count,thing)=>count===1?`${place} ${thing.gender==="f"?"הייתה":"היה"} ${quantity(thing,count)}`:`${place} היו ${quantity(thing,count)}`;
+    const taken=(thing,count)=>`${quantity(thing,count)} ${count===1?(thing.gender==="f"?"נלקחה":"נלקח"):"נלקחו"}`;
+    const toys=count=>count===1?"צעצוע אחד":`${count} צעצועים`;
     const pairWithSumAtMost=(max,index)=>{
       const pairs=[];
       for(let first=1;first<max;first++)for(let second=1;second<=max-first;second++)pairs.push([first,second]);
@@ -651,46 +694,46 @@
     if(level<=3){
       const max=[10,20,30][level-1];
       for(let index=0;index<25;index++){
-        const [first,second]=pairWithSumAtMost(max,index),name=at(names,index),thing=at(things,index);
-        questions.push(story(`ל${name} היו ${first} ${thing}. ${name} קיבל/ה עוד ${second} ${thing}. כמה ${thing} יש ל${name} עכשיו?`,first+second,"חיבור"));
+        const [first,second]=pairWithSumAtMost(max,index),person=personAt(index),thing=at(things,index);
+        questions.push(story(`${had(`ל${person.name}`,first,thing)}. ${person.name} ${person.received} עוד ${quantity(thing,second)}. כמה ${thing.plural} יש ל${person.name} עכשיו?`,first+second,"חיבור"));
       }
     }else if(level===4){
       for(let index=0;index<25;index++){
-        const name=at(names,index),thing=at(things,index);
+        const person=personAt(index),thing=at(things,index);
         if(index%2===0){
           const [first,second]=pairWithSumAtMost(30,index);
-          questions.push(story(`ל${name} היו ${first} ${thing}. ${name} קיבל/ה עוד ${second} ${thing}. כמה ${thing} יש ל${name} עכשיו?`,first+second,"חיבור"));
+          questions.push(story(`${had(`ל${person.name}`,first,thing)}. ${person.name} ${person.received} עוד ${quantity(thing,second)}. כמה ${thing.plural} יש ל${person.name} עכשיו?`,first+second,"חיבור"));
         }else{
           const [first,second]=subtractionPair(30,index);
-          questions.push(story(`ל${name} היו ${first} ${thing}. ${name} נתן/ה ${second} ${thing}. כמה ${thing} נשארו ל${name}?`,first-second,"חיסור"));
+          questions.push(story(`${had(`ל${person.name}`,first,thing)}. ${person.name} ${person.gave} ${quantity(thing,second)}. כמה ${thing.plural} נשארו ל${person.name}?`,first-second,"חיסור"));
         }
       }
     }else if(level===5){
       for(let index=0;index<25;index++){
-        const thing=at(things,index),first=2+(index*3)%20,second=first+1+(index*5)%10;
-        if(index%2===0)questions.push(story(`ל${at(names,index)} יש ${first} ${thing}, ול${at(names,index+1)} יש ${second} ${thing}. בכמה ${thing} יש ל${at(names,index+1)} יותר?`,second-first,"השוואה"));
-        else questions.push(story(`ל${at(names,index)} יש ${first} ${thing}. כמה ${thing} צריך/ה ${at(names,index)} לקבל כדי שיהיו לו/לה ${second}?`,second-first,"השלמה"));
+        const thing=at(things,index),first=2+(index*3)%20,second=first+1+(index*5)%10,person=personAt(index),otherPerson=personAt(index+1);
+        if(index%2===0)questions.push(story(`ל${person.name} יש ${quantity(thing,first)}, ול${otherPerson.name} יש ${quantity(thing,second)}. בכמה ${thing.plural} יש ל${otherPerson.name} יותר?`,second-first,"השוואה"));
+        else questions.push(story(`ל${person.name} יש ${quantity(thing,first)}. כמה ${thing.plural} ${person.needs} ${person.name} לקבל כדי שיהיו ל${person.name} ${quantity(thing,second)}?`,second-first,"השלמה"));
       }
     }else if(level===6){
       for(let index=0;index<25;index++){
-        const name=at(names,index),thing=at(things,index);
+        const person=personAt(index),thing=at(things,index);
         if(index%2===0){
           const [first,second]=pairWithSumAtMost(50,index);
-          questions.push(story(`במגירה של ${name} היו ${first} ${thing}. ${name} הוסיף/ה עוד ${second} ${thing}. כמה ${thing} יש במגירה?`,first+second,"חיבור"));
+          questions.push(story(`${had(`במגירה של ${person.name}`,first,thing)}. ${person.name} ${person.added} עוד ${quantity(thing,second)}. כמה ${thing.plural} יש במגירה?`,first+second,"חיבור"));
         }else{
           const [first,second]=subtractionPair(50,index);
-          questions.push(story(`בכיתה היו ${first} ${thing}. העבירו ${second} ${thing} לכיתה אחרת. כמה ${thing} נשארו?`,first-second,"חיסור"));
+          questions.push(story(`${had("בכיתה",first,thing)}. העבירו ${quantity(thing,second)} לכיתה אחרת. כמה ${thing.plural} נשארו?`,first-second,"חיסור"));
         }
       }
     }else if(level===7){
       for(let index=0;index<25;index++){
         const first=20+(index*7)%50,second=5+(index*3)%20,third=1+(index*5)%Math.min(15,first+second-1),thing=at(things,index);
-        questions.push(story(`בחצר היו ${first} ${thing}. הגיעו עוד ${second} ${thing}, ואז ${third} ${thing} נלקחו. כמה ${thing} נשארו בחצר?`,first+second-third,"שתי פעולות"));
+        questions.push(story(`${had("בחצר",first,thing)}. הגיעו עוד ${quantity(thing,second)}, ואז ${taken(thing,third)}. כמה ${thing.plural} נשארו בחצר?`,first+second-third,"שתי פעולות"));
       }
     }else{
       for(let index=0;index<25;index++){
-        const first=25+(index*7)%55,second=5+(index*3)%20,third=1+(index*5)%Math.min(18,first+second-1),thing=at(things,index),extra=1+(index*4)%12,name=at(names,index);
-        questions.push(story(`ל${name} היו ${first} ${thing}. ${name} קיבל/ה עוד ${second} ${thing} ונתן/ה ${third} לחבר. לאחותו/ה יש ${extra} צעצועים. כמה ${thing} נשארו ל${name}?`,first+second-third,"שתי פעולות ומידע נוסף"));
+        const first=25+(index*7)%55,second=5+(index*3)%20,third=1+(index*5)%Math.min(18,first+second-1),thing=at(things,index),extra=1+(index*4)%12,person=personAt(index);
+        questions.push(story(`${had(`ל${person.name}`,first,thing)}. ${person.name} ${person.received} עוד ${quantity(thing,second)} ו${person.gave} ${quantity(thing,third)} לחבר. ל${person.sibling} יש ${toys(extra)}. כמה ${thing.plural} נשארו ל${person.name}?`,first+second-third,"שתי פעולות ומידע נוסף"));
       }
     }
     return questions;
@@ -834,7 +877,7 @@
       return sample(pairs,30).map(({category,first,second})=>{
         const correct=`${first} + ${second}`;
         const wrong=categoryNames.filter(other=>other!==category).flatMap(other=>categoryPools[other].map(([,word])=>`${first} + ${word}`));
-        return make("Which pair belongs to the same category?",correct,options(correct,wrong,6),"",{skill:"קטגוריות",type:"זוגות מאותה קטגוריה",word:true});
+        return make("אילו שתי מילים שייכות לאותה קטגוריה?",correct,options(correct,wrong,6),"",{skill:"קטגוריות",type:"זוגות מאותה קטגוריה",word:true});
       });
     }
     if(kind==="legacyEnglishCategories"){
@@ -1117,7 +1160,7 @@
       ["ביקור אצל הרופאה","דן השתעל והרגיש לא טוב.|אמא לקחה אותו לרופאה.|הרופאה בדקה אותו והמליצה לנוח.|דן נשאר בבית עד שהרגיש טוב.","יום בבית|מחלה בחורף|מנוחה במיטה|בדיקה אצל רופאה|אמא ודון"],
       ["הגינה של סבתא","סבתא ביקשה מיואב לעזור בגינה.|הם עקרו עשבים והשקו את הפרחים.|יואב קטף עגבניות בשלות.|בסוף הכינו יחד סלט.","סלט לארוחה|פרחים בגינה|עוזרים לסבתא|עגבניות אדומות|עבודה בחוץ"],
       ["משחק הכדורגל","הקבוצה של גיל התאמנה לקראת משחק.|הילדים מסרו את הכדור זה לזה.|במשחק גיל הבקיע שער.|הקבוצה חגגה יחד.","אימון במגרש|שער יפה|חברים בקבוצה|כדורגל בחצר|ניצחון במשחק"],
-      ["גלידה ביום חם","ביום חם מאוד ליה קנתה גלידה.|היא ישבה בצל ואכלה לאט.|הגלידה התחילה להימס.|ליה מיהרה לסיים אותה.","יום קיץ|יושבים בצל|גלידה נמסה|קנייה בקיוסק|חם בחוץ"],
+      ["הגלידה התחילה להינמס","ביום חם מאוד ליה קנתה גלידה.|היא ישבה בצל ואכלה לאט.|הגלידה התחילה להינמס.|ליה מיהרה לסיים אותה.","יום קיץ|יושבים בצל|ליה ממהרת לאכול|קנייה בקיוסק|חם בחוץ"],
       ["העפיפון החדש","עמית קיבל עפיפון צבעוני.|הוא יצא עם אבא לשדה פתוח.|הרוח הרימה את העפיפון גבוה.|עמית רץ וצחק בהתרגשות.","רוח חזקה|שדה פתוח|מתנה צבעונית|ריצה בחוץ|אבא ועמית"],
       ["עוזרים באוטובוס","באוטובוס עלתה אישה עם שקיות כבדות.|אריאל קם ופינה לה מקום.|הוא גם עזר לה להחזיק שקית.|האישה חייכה ואמרה תודה.","נסיעה באוטובוס|שקיות כבדות|מקום פנוי|אישה מחייכת|מעשה טוב"],
       ["צדפים בחוף","נועם טיילה על שפת הים.|היא מצאה צדפים בצורות שונות.|היא בחרה כמה צדפים יפים לקחת הביתה.|בערב הכינה מהם קישוט.","טיול בים|קישוט בבית|צדפים יפים|חול על החוף|איסוף אוצרות"],
@@ -1132,7 +1175,7 @@
       ["הגור לומד לשבת","למשפחה הגיע גור חדש.|הם לימדו אותו לשבת כשאומרים לו מילה מיוחדת.|כשהוא הצליח, נתנו לו חטיף קטן.|הגור למד מהר מאוד.","חטיף לכלב|חבר חדש|לומדים בבית|כלב קטן|משחק עם גור"],
       ["הצגה בכיתה","הכיתה הכינה הצגה להורים.|הילדים למדו את התפקידים שלהם.|ביום ההצגה כולם דיברו בקול ברור.|ההורים מחאו כפיים בסוף.","הורים בבית הספר|לומדים תפקידים|מחיאות כפיים|יום מיוחד בכיתה|במה קטנה"],
       ["מנקים את הפארק","בטיול בפארק הילדים ראו אשפה על הדשא.|הם ביקשו שקיות ואספו אותה יחד.|אחר כך זרקו הכול לפח המתאים.|הפארק נראה נעים ונקי.","טיול בפארק|דשא ירוק|שקיות אשפה|ילדים יחד|פח גדול"],
-      ["נוטעים עצים","ביום מיוחד הגיעו ילדים לשתול עצים.|כל ילד חפר בור קטן באדמה.|אחר כך הם הניחו שתיל והשקו אותו.|כולם קיוו שהעצים יגדלו גבוהים.","מים לשתילים|יום בחוץ|בור באדמה|עצים גבוהים|עבודה בגינה"]
+      ["נוטעים עצים","ביום מיוחד הגיעו ילדים לשתול עצים.|כל ילד חפר בור קטן באדמה.|אחר כך הם הניחו שתיל והשקו אותו.|כולם קיוו שהעצים יגדלו ויהיו גבוהים.","מים לשתילים|יום בחוץ|בור באדמה|עצים גבוהים|עבודה בגינה"]
     ];
     const stage=clamp(level,1,4),choiceCount=[2,4,4,6][stage-1],sentenceCount=[1,2,3,4][stage-1];
     return stories.map(([title,text,alternatives])=>{
@@ -1230,20 +1273,38 @@
     return sentences.map(tokens=>make("סדרו את המילים למשפט",tokens.join(" "),[],"",{skill:"משפטים",type:`בונים משפט — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ",word:true}));
   }
   function wordSearch(level){
-    const realLevel=clamp(level,1,3),groups=wordSearchGroupsByLevel[realLevel-1],size=[5,7,9][realLevel-1];
+    const realLevel=clamp(level,1,3),groups=wordSearchGroupsByLevel[realLevel-1],size=[5,9,9][realLevel-1];
     return groups.map((targets,puzzleIndex)=>{
       const letters=Array.from({length:size*size},()=>heAlphabet[Math.floor(Math.random()*heAlphabet.length)]);
       const paths=[];
+      const placedLetters=Array(size*size).fill(null);
       targets.forEach((word,targetIndex)=>{
-        const row=(puzzleIndex*2+targetIndex*3)%size;
-        const start=(puzzleIndex+targetIndex*2)%(size-word.length+1);
-        const path=[];
-        [...word].forEach((letter,i)=>{
-          const index=row*size+start+i;
-          letters[index]=letter;
-          path.push(index);
-        });
-        paths.push(path);
+        const wordLetters=[...word];
+        // Levels 2 and 3 also contain vertical words. Level 1 stays horizontal.
+        const directions=realLevel===1?[[0,1]]:(targetIndex%2===1?[[1,0],[0,1]]:[[0,1],[1,0]]);
+        let placedPath=null;
+        for(const [rowStep,columnStep] of directions){
+          const maxRow=size-(rowStep?(wordLetters.length-1):0);
+          const maxColumn=size-(columnStep?(wordLetters.length-1):0);
+          const starts=[];
+          for(let row=0;row<maxRow;row++) for(let column=0;column<maxColumn;column++) starts.push([row,column]);
+          const offset=(puzzleIndex*7+targetIndex*5)%starts.length;
+          for(let attempt=0;attempt<starts.length;attempt++){
+            const [row,column]=starts[(offset+attempt)%starts.length];
+            const path=wordLetters.map((_,index)=>(row+rowStep*index)*size+column+columnStep*index);
+            if(path.every((cell,index)=>placedLetters[cell]===null||placedLetters[cell]===wordLetters[index])){
+              path.forEach((cell,index)=>{
+                placedLetters[cell]=wordLetters[index];
+                letters[cell]=wordLetters[index];
+              });
+              placedPath=path;
+              break;
+            }
+          }
+          if(placedPath) break;
+        }
+        if(!placedPath) throw new Error(`Could not place word-search word: ${word}`);
+        paths.push(placedPath);
       });
       const label=targets.length===1?`מצאו את המילה ${targets[0]}`:"מצאו את כל המילים בתפזורת";
       return make(label,targets.join(" | "),[],"🔍",{skill:"תפזורת",type:`חיפוש מילים — רמה ${realLevel}`,mode:"wordsearch",grid:letters,size,paths,wordTargets:targets,word:true});
@@ -1276,17 +1337,42 @@
       };
       return repeatPool(familiarAnimals.map(a=>make(babyQuestionText(a),a.baby,options(a.baby,familiarAnimals.map(x=>x.baby)),a.icon,{skill:"משפחות בעלי חיים",type:"גור ובוגר"})));
     }
-    if(kind==="livingGroups"){const items=[["🐶","חי"],["🌳","צומח"],["⚽","דומם"],["🐝","חי"],["🌻","צומח"],["🚗","דומם"],["🐋","חי"],["🌵","צומח"],["💎","דומם"]],realLevel=clamp(level,1,5),active=items.slice(0,realLevel===5?items.length:2+realLevel*2),answerCount=realLevel===1?2:realLevel===2?3:4;return repeatPool(active.map(([icon,group])=>make("לאיזו קבוצה זה שייך?",group,options(group,["חי","צומח","דומם","לא בטוח"],answerCount),realLevel===5?"":icon,{skill:"מיון בטבע",type:realLevel===5?"מיון לפי תיאור":"חי, צומח או דומם"})));}
+    if(kind==="livingGroups"){
+      const items=[
+        ["🐶","חי","לאיזו קבוצה שייך מי שיכול לזוז בעצמו?"],
+        ["🌳","צומח","לאיזו קבוצה שייך מי שיכול לייצר זרעים?"],
+        ["⚽","דומם","לאיזו קבוצה שייך מי שאינו אוכל או נושם?"],
+        ["🐝","חי","לאיזו קבוצה שייך מי שיכול לזוז בעצמו?"],
+        ["🌻","צומח","לאיזו קבוצה שייך מי שגדל בעזרת אור, מים ואדמה?"],
+        ["🚗","דומם","לאיזו קבוצה שייך מי שאינו גדל או נושם?"],
+        ["🐋","חי","לאיזו קבוצה שייך מי שנושם ויכול לזוז בעצמו?"],
+        ["🌵","צומח","לאיזו קבוצה שייך מי שגדל אך אינו יכול ללכת?"],
+        ["💎","דומם","לאיזו קבוצה שייך מי שאינו אוכל, נושם או גדל?"]
+      ],realLevel=clamp(level,1,4),active=items.slice(0,Math.min(items.length,2+realLevel*2)),answerCount=realLevel===1?2:realLevel===2?3:4;
+      return repeatPool(active.map(([icon,group,question])=>make(question,group,options(group,["חי","צומח","דומם"],answerCount),"",{skill:"מיון בטבע",type:"חי, צומח או דומם"})));
+    }
     if(kind==="plantFood"){const data=[["🍎","עץ תפוח","גדל"],["🍐","עץ אגס","גדל"],["🥭","עץ מנגו","גדל"],["🥥","דקל קוקוס","גדל"],["🥕","צמח גזר","גדל"],["🌽","צמח תירס","גדל"],["🍅","צמח עגבנייה","גדלה"],["🍇","גפן","גדלים"]];return repeatPool(data.map(([food,plant,verb])=>make(`על איזה צמח ${verb} ${food}?`,plant,options(plant,data.map(x=>x[1])),"",{skill:"צמחים ומזון",type:"מה גדל על הצמח?"})));}
     if(kind==="seasons"){const realLevel=clamp(level,1,5),answerCount=realLevel===1?2:realLevel===2?3:4;const rows=seasons.slice(0,realLevel===5?4:Math.max(2,realLevel));return repeatPool(rows.flatMap(([season,icon,activity,activityIcon])=>realLevel===1?[make("לאיזו עונה מתאים הסמל?",season,options(season,seasons.map(x=>x[0]),answerCount),icon,{skill:"עונות",type:"מזהים עונה"})]:[make(`באיזו עונה מתאים: ${activity}?`,season,options(season,seasons.map(x=>x[0]),answerCount),activityIcon,{skill:"עונות",type:realLevel>=4?"בוחרים פעילות מתאימה":"עונות השנה"}),make(`לאיזו עונה מתאים הסמל?`,season,options(season,seasons.map(x=>x[0]),answerCount),icon,{skill:"עונות",type:"עונות השנה"})]));}
     if(kind==="lifeCycle"){const tiers=[[["זרע","נבט","פרח"]],[["ביצה","זחל","פרפר"],["זרע","נבט","צמח","פרח"]],[["ביצה","זחל","גולם","פרפר"],["ביצה","ראשן","צפרדע צעירה","צפרדע"]],[["זרע","נבט","עץ צעיר","עץ עם תפוחים"],["ביצה","אפרוח","תרנגולת צעירה","תרנגולת"]],[["ביצה","זחל","גולם","דבורה"],["זרע","נבט","עלים","תרמיל"],["זרע","נבט","פרח","עגבנייה"]]],realLevel=clamp(level,1,5);return repeatPool(tiers[realLevel-1].map(tokens=>make("סדרו את מחזור החיים",tokens.join(" ← "),[],"",{skill:"מחזורי חיים",type:`סדר שלבים — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));}
-    if(kind==="plantParts"){const data=[["שורש","סופג מים מהאדמה","⬇️"],["גבעול","מחזיק את הצמח","🌱"],["עלה","קולט אור","🍃"],["פרח","עוזר ליצור זרעים","🌸"],["פרי","שומר על הזרעים","🍎"]],realLevel=clamp(level,1,5),answerCount=realLevel===1?2:realLevel===2?3:4,active=data.slice(0,Math.min(data.length,1+realLevel));return repeatPool(active.flatMap(([part,role,icon])=>realLevel<=2?[make(`איזה חלק בצמח ${role}?`,part,options(part,data.map(x=>x[0]),answerCount),icon,{skill:"חלקי הצמח",type:"חלק ותפקיד"})]:[make(`איזה חלק בצמח ${role}?`,part,options(part,data.map(x=>x[0]),answerCount),icon,{skill:"חלקי הצמח",type:"חלק ותפקיד"}),make(`מה תפקיד ה${part}?`,role,options(role,data.map(x=>x[1]),answerCount),icon,{skill:"חלקי הצמח",type:"חלק ותפקיד"})]));}
+    if(kind==="plantParts"){
+      const data=[
+        ["שורש","סופג מים מהאדמה","איזה חלק בצמח סופג מים מהאדמה?"],
+        ["גבעול","מחזיק את הצמח","איזה חלק בצמח מחזיק את הצמח זקוף?"],
+        ["עלה","קולט אור","איזה חלק בצמח קולט אור?"],
+        ["פרח","עוזר ליצור זרעים","איזה חלק בצמח עוזר ליצור זרעים?"],
+        ["פרי","שומר על הזרעים","ילד מצא גרעינים באבטיח. באיזה חלק של הצמח מצא אותם?"]
+      ],realLevel=clamp(level,1,4),answerCount=realLevel===1?2:realLevel===2?3:4,active=data.slice(0,Math.min(data.length,1+realLevel));
+      const parts=data.map(x=>x[0]),roles=data.map(x=>x[1]);
+      return repeatPool(active.flatMap(([part,role,question])=>realLevel<=2
+        ?[make(question,part,options(part,parts,answerCount),"",{skill:"חלקי הצמח",type:"חלק ותפקיד"})]
+        :[make(question,part,options(part,parts,answerCount),"",{skill:"חלקי הצמח",type:"חלק ותפקיד"}),make(`מה תפקיד ה${part}?`,role,options(role,roles,answerCount),"",{skill:"חלקי הצמח",type:"חלק ותפקיד"})]));
+    }
     if(kind==="animalFood"){
       const realLevel=clamp(level,1,5),answerCount=realLevel===1?2:realLevel===2?3:4;
       const active=animals.slice(0,realLevel===5?animals.length:3+realLevel*2);
       const femaleAnimals=new Set(["קואלה","פנדה","פרה","כבשה","תרנגולת","דבורה","צפרדע"]);
       const questionFor=a=>`מה ${femaleAnimals.has(a.he)?"אוכלת":"אוכל"} ${a.he}?`;
-      return repeatPool(active.map(a=>make(questionFor(a),a.food,options(a.food,animals.map(x=>x.food),answerCount),a.icon,{skill:"תזונת בעלי חיים",type:realLevel>=4?"מזון לבעל חיים פחות מוכר":"מה אוכלים?"})));
+      return repeatPool(active.map(a=>make(questionFor(a),a.food,options(a.food,animals.map(x=>x.food),answerCount),"",{skill:"תזונת בעלי חיים",type:realLevel>=4?"מזון לבעל חיים פחות מוכר":"מה אוכלים?"})));
     }
     if(kind==="weather"){
       const data=[
@@ -1297,8 +1383,8 @@
         {weather:"חם",choice:"לשתות מים",icon:"🌡️",clue:"חם מאוד בחוץ. מה מזג האוויר?"}
       ],realLevel=clamp(level,1,5),answerCount=realLevel===1?2:realLevel===2?3:4,active=data.slice(0,realLevel);
       return repeatPool(active.flatMap(item=>realLevel===1
-        ?[make(item.clue,item.weather,options(item.weather,data.map(x=>x.weather),answerCount),item.icon,{skill:"מזג אוויר",type:"מזהים מזג אוויר"})]
-        :[make(`מה מתאים ליום ${item.weather}?`,item.choice,options(item.choice,data.map(x=>x.choice),answerCount),item.icon,{skill:"מזג אוויר",type:realLevel>=4?"בוחרים פעולה בטוחה":"מתלבשים נכון"}),make(item.clue,item.weather,options(item.weather,data.map(x=>x.weather),answerCount),item.icon,{skill:"מזג אוויר",type:"מזהים מזג אוויר"})]));
+        ?[make(item.clue,item.weather,options(item.weather,data.map(x=>x.weather),answerCount),"",{skill:"מזג אוויר",type:"מזהים מזג אוויר"})]
+        :[make(`מה מתאים ליום ${item.weather}?`,item.choice,options(item.choice,data.map(x=>x.choice),answerCount),"",{skill:"מזג אוויר",type:realLevel>=4?"בוחרים פעולה בטוחה":"מתלבשים נכון"}),make(item.clue,item.weather,options(item.weather,data.map(x=>x.weather),answerCount),"",{skill:"מזג אוויר",type:"מזהים מזג אוויר"})]));
     }
     if(kind==="foodChain"){
       const basic=[
@@ -1324,11 +1410,19 @@
         ["אצות","דגיגים","דג גדול","כלב ים","לווייתן קטלן"],["אצות","חלזון מים","ברווז","שועל","מפרקים"],["עשב","חגב","עכביש","ציפור","נץ"],["פירות","חרק","לטאה","נחש","מפרקים"],["עשב","חגב","ציפור","בז","מפרקים"],
         ["זרעים","עכבר","שועל","נשר","מפרקים"],["עלים","זחל","דרור","בז","מפרקים"],["פרחים","דבורה","צפרדע","נחש","ינשוף"],["אצות","זואופלנקטון","מדוזה","צב ים","כריש"],["עשב ים","דג קטן","דג גדול","דולפין","כריש"]
       ];
+      // מפרקים מחזירים חומרים לאדמה, אבל אינם אוכלים את היצורים
+      // בשרשרת שלפניהם. לכן הם אינם מוצגים כחוליה בשרשרת מזון ליניארית.
+      const cleanChain = row => row.filter(token => token !== "מפרקים" && token !== "אדמה");
+      // Present the chain from the hunter back to its food source. This makes
+      // the direction explicit: ינשוף ← נחש ← צפרדע ← דבורה ← פרחים.
+      const reverseChain = row => cleanChain(row).reverse();
+      const cleanBasic = basic.map(reverseChain);
+      const cleanAdvanced = advanced.map(reverseChain);
+      const reversePairs = simplePairs.map(row => [...row].reverse());
       const realLevel=clamp(level,1,5);
-      const chains=realLevel===1?simplePairs:realLevel===2?basic.map(row=>row.slice(0,3)):realLevel===3?advanced.map(row=>row.slice(0,3)):realLevel===4?advanced.map(row=>row.slice(0,4)):advanced.map(row=>[...row.slice(0,4),"מפרקים"]);
+      const chains=realLevel===1?reversePairs:realLevel===2?cleanBasic.map(row=>row.slice(0,3)):realLevel===3?cleanAdvanced.map(row=>row.slice(0,3)):realLevel===4?cleanAdvanced.map(row=>row.slice(0,4)):cleanAdvanced.map(row=>row.slice(0,5));
       return repeatPool(chains.map(tokens=>make("סדרו את שרשרת המזון",tokens.join(" ← "),[],"",{skill:"שרשרת מזון",type:`מי אוכל את מי? — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));
     }
-    if(kind==="foodChain"){const tiers=[[["🌿","🐛"]],[["🌿","🐛","🐦"],["🌾","🐭","🦉"]],[["🌱","🐰","🦊"],["🌿","🦌","🦁"]],[["🌻","🐝","🦎","🦉"],["אצה","🐟","🐬","כריש"]],[["🌿","🐛","🐦","🦅","מפרקים"],["🌾","🐭","נחש","ינשוף","מפרקים"]]],realLevel=clamp(level,1,5);return repeatPool(tiers[realLevel-1].map(tokens=>make("סדרו את שרשרת המזון",tokens.join(" ← "),[],"",{skill:"שרשרת מזון",type:`מי אוכל את מי? — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));}
     if(kind==="adaptations"){
       const facts=[
         ["🐫","גמל","דבשת","לשרוד במדבר","ללכת על חול|להגן על העיניים מחול|לאכול צמחים קוצניים","ריסים ארוכים|רגליים ארוכות|שפתיים עבות","לשמור אנרגיה במדבר החם"],
@@ -1364,11 +1458,15 @@
         ["🐬","דולפין","סנפירים","לשחות ולשנות כיוון","לנשום מעל המים|למצוא דגים|להגן על העור","פתח נשימה|הד קולי|עור חלק","לפנות במהירות במים"]
       ];
       const realLevel=clamp(level,1,5);
+      const feminineSubjects=new Set(["דבורה","לטאה","ג'ירפה","זברה","זיקית","פרת משה רבנו","חיפושית","שושנת המים"]);
       return facts.slice(0,30).map(([icon,animal,trait,correct,wrong,traits,goal])=>{
         const functions=wrong.split("|");
         const featureChoices=traits.split("|");
         if(realLevel===4) return make(`איזו התאמה עוזרת ל${animal} ${goal}?`,trait,shuffle([trait,...featureChoices]),icon,{skill:"התאמה לסביבה",type:"בוחרים התאמה מתאימה"});
-        if(realLevel===5) return make(`${animal} צריך ${goal}. איזו התאמה תעזור לו במיוחד?`,trait,shuffle([trait,...featureChoices]),icon,{skill:"התאמה לסביבה",type:"מסיקים התאמה ממצב"});
+        if(realLevel===5){
+          const feminine=feminineSubjects.has(animal);
+          return make(`${animal} ${feminine?"צריכה":"צריך"} ${goal}. איזו התאמה תעזור ל${feminine?"ה":"ו"} במיוחד?`,trait,shuffle([trait,...featureChoices]),icon,{skill:"התאמה לסביבה",type:"מסיקים התאמה ממצב"});
+        }
         return make(`מה התפקיד של ${trait} אצל ${animal}?`,correct,shuffle([correct,...functions.slice(0,realLevel===1?1:realLevel===2?2:3)]),icon,{skill:"התאמה לסביבה",type:`תכונה ותפקיד — רמה ${realLevel}`});
       });
     }
@@ -1389,7 +1487,7 @@
         ["פתחו חלון ביום סוער","נכנסה רוח לחדר",["החדר התחמם מאוד","החלון נעלם","נכנס שלג לחדר"],["סגרו את החלון","סגרו את התריסים","כיבו את המאוורר"],"הווילון זז והניירות על השולחן התעופפו"],
         ["בלון נגע בקוץ","הבלון התפוצץ",["הבלון התמלא באוויר","הבלון התכווץ","הבלון הפך לכדור"],["ניפחו את הבלון","קשרו את הבלון","החזיקו את הבלון ביד"],"נשמע קול חזק ונשארו חתיכות בלון"],
         ["שחררו כדור מגובה","הכדור נפל למטה",["הכדור נשאר באוויר","הכדור עלה למעלה","הכדור נעלם"],["החזיקו את הכדור ביד","הניחו את הכדור על שולחן","תפסו את הכדור"],"הכדור הגיע לרצפה אחרי שהיה גבוה"],
-        ["כוס מיץ נפלה על הרצפה","המיץ נשפך",["המיץ קפא","המיץ הפך לעוגה","המיץ נעלם"],["שתו את המיץ","סגרו את הכוס היטב","הניחו את הכוס על מגש"],"הרצפה הייתה רטובה ולידה כוס ריקה"],
+        ["כוס מיץ נפלה על הרצפה","המיץ נשפך",["המיץ קפא","המיץ הפך לעוגה","המיץ נעלם"],["מישהו שתה את המיץ מהכוס","מישהו שטף את הרצפה והשאיר את הכוס ליד","מישהו הניח כוס ריקה על הרצפה"],"הרצפה הייתה רטובה ולידה כוס ריקה"],
         ["יצאו בגשם בלי מטרייה","הבגדים נרטבו",["הבגדים התייבשו","הבגדים התחממו","הבגדים הפכו לקטנים"],["לקחו מטרייה","לבשו מעיל גשם","נשארו במקום מקורה"],"המעיל מטפטף מים והנעליים רטובות"],
         ["הלכו בבוץ","הנעליים התלכלכו",["הנעליים התייבשו","הנעליים נצבעו","הנעליים נעלמו"],["הלכו על מדרכה יבשה","נעלו מגפיים נקיים בבית","ניקו את הנעליים"],"על הסוליות יש בוץ"],
         ["חיכו לפני שאכלו מרק חם","המרק התקרר",["המרק קפא","המרק נעלם","המרק הפך למים קרים"],["המשיכו לחמם את המרק","הכניסו את המרק למיקרוגל","כסו את המרק היטב"],"אפשר היה לאכול את המרק בלי להיכוות"],
@@ -1397,7 +1495,7 @@
         ["הלכה לישון מאוחר מאוד","הייתה עייפה בבוקר",["הייתה מלאת מרץ","הייתה רעבה מאוד","הייתה רטובה"],["הלכה לישון מוקדם","נחה בצהריים","ישנה מספיק שעות"],"בבוקר היא פיהקה והתקשתה להתעורר"],
         ["חיברו טלפון למטען","הסוללה התמלאה",["הסוללה התרוקנה","הטלפון התקרר","הטלפון נרטב"],["הוציאו את הטלפון מהמטען","השתמשו בטלפון שעות","כיבו את הטלפון"],"אחרי זמן מה הופיע בטלפון אחוז סוללה גבוה"],
         ["הכניסו סוללות חדשות לצעצוע","הצעצוע פעל",["הצעצוע נרטב","הצעצוע נשבר","הצעצוע התכווץ"],["הוציאו את הסוללות","השאירו את הצעצוע בלי סוללות","הניחו את הצעצוע בארון"],"כשלחצו על הכפתור הצעצוע התחיל להשמיע קול"],
-        ["תלו כביסה בשמש","הכביסה התייבשה",["הכביסה נרטבה יותר","הכביסה קפאה","הכביסה התלכלכה"],["הניחו את הכביסה בגשם","הרטיבו את הכביסה","השאירו את הכביסה במים"],"הבגדים כבר לא היו רטובים"],
+        ["השאירו את הכביסה בחוץ בזמן הגשם","הכביסה נרטבה",["הכביסה התייבשה לגמרי","הכביסה התחממה מאוד","הכביסה התקפלה מעצמה"],["הכביסה עדיין לא הספיקה להתייבש","נשפכו מים על הכביסה בזמן השקיית העציצים","מישהו כיבס את הבגדים והניח אותם לייבוש"],"בבוקר הכביסה הייתה יבשה. אחר כך ירד גשם, וכשחזרו הביתה היא הייתה רטובה"],
         ["זרעו זרע באדמה והשקו אותו","נבט צמח",["הזרע הפך לאבן","הזרע קפא","הזרע נעלם"],["השאירו את הזרע בשקית","הכניסו את הזרע למקפיא","לא השקו את הזרע"],"מהאדמה יצא עלה קטן"],
         ["כוס זכוכית נפלה לרצפה","הכוס נשברה",["הכוס גדלה","הכוס נמסה","הכוס נהייתה רכה"],["הניחו את הכוס על שולחן","החזיקו את הכוס ביד","שמו את הכוס בארון"],"על הרצפה היו שברי זכוכית"],
         ["ניפחו בלון","הבלון גדל",["הבלון התפוצץ","הבלון התכווץ","הבלון נמס"],["הוציאו אוויר מהבלון","דקרו את הבלון בקוץ","קשרו בלון שכבר מלא"],"הבלון היה גדול ועגול יותר"],
