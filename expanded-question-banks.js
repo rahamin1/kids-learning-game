@@ -415,7 +415,7 @@
     animalFoodRows.map(([icon, animal, food]) => ["מה מתאים לבעל החיים שבתמונה לאכול?", food, icon]),
     animalFoodRows.map(([, animal, food]) => [`מה ${["פרה","כבשה","תרנגולת","דבורה","ג'ירפה","זברה","קואלה","פנדה","צפרדע"].includes(animal) ? "אוכלת" : "אוכל"} ${animal}?`, food, ""]),
     animalFoodRows.map(([, animal, food]) => [`איזה מזון מתאים ל${animal}?`, food, ""]),
-    animalFoodRows.map(([, animal, food]) => [`באיזה מזון ${["פרה","כבשה","תרנגולת","דבורה","ג'ירפה","זברה","קואלה","פנדה","צפרדע"].includes(animal) ? "עשויה" : "עשוי"} ${animal} לחפש?`, food, ""]),
+    animalFoodRows.map(([, animal, food]) => [`איזה מזון עשוי ${animal} לאכול?`, food, ""]),
     animalFoodRows.map(([, , food, clue]) => [`${clue}. איזה מזון מתאים לבעל החיים המתואר לאכול?`, food, ""])
   ];
   const livingGroupLevels = [
