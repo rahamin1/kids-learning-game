@@ -1,4 +1,4 @@
-const CACHE_NAME = "brightwood-pwa-local214";
+const CACHE_NAME = "brightwood-pwa-local215";
 const CORE_FILES = [
   "./",
   "./index.html",
@@ -11,7 +11,7 @@ const CORE_FILES = [
   "./difficulty-levels.js?build=local212",
   "./expanded-question-banks.js?build=local212",
   "./app.js?build=local212",
-  "./manifest.webmanifest?v=0.1.42",
+  "./manifest.webmanifest?v=0.1.43",
   "./assets/app-icon-192.png",
   "./assets/app-icon-512.png",
   "./assets/app-icon-star-forest.png",

@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.42";
+const APP_VERSION = "0.1.43";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -23,11 +23,12 @@ const INTRO_STEPS = [
 
 const SUBJECTS = {
   math: { name: "חשבון", icon: "🔢", class: "math", desc: "סופרים, משווים ופותרים", trail: "אחו המספרים" },
-  english: { name: "אנגלית", icon: "🔤", class: "english", desc: "אותיות, צלילים ומילים", trail: "יער המילים" },
   reading: { name: "עברית", icon: "📖", class: "reading", desc: "אותיות, מילים והבנת הנקרא", trail: "מפרץ הסיפורים" },
   nature: { name: "טבע", icon: "🌿", class: "nature", desc: "חיות, מזג אוויר והעולם", trail: "גן התגליות" },
-  thinking: { name: "חשיבה", icon: "🦉", class: "thinking", desc: "זיכרון, התאמה והבחנה חזותית", trail: "שביל החשיבה" }
+  thinking: { name: "חשיבה", icon: "🦉", class: "thinking", desc: "זיכרון, התאמה והבחנה חזותית", trail: "שביל החשיבה" },
+  english: { name: "אנגלית", icon: "🔤", class: "english", desc: "אותיות, צלילים ומילים", trail: "יער המילים" }
 };
+const SUBJECT_ORDER = ["math", "reading", "nature", "thinking", "english"];
 
 const BUDDIES = ["🦊", "🐼", "🐰", "🦁", "🐶", "🐱", "🦉", "🐧", "🐿️", "🦔", "🧸", "🦝"];
 const BUDDY_TITLES = {
@@ -642,6 +643,7 @@ function renderGameBuddyPanel(){
 function prepareProfile(p){
   p.photo ||= "";
   p.subjects ||= ["math","english"];
+  p.subjects = SUBJECT_ORDER.filter(subject => p.subjects.includes(subject));
   p.progress ||= {};
   p.log ||= [];
   p.stars ||= 0; p.streak ||= 0; p.correct ||= 0; p.answered ||= 0; p.minutes ||= 0; p.daily ||= 0;
@@ -1131,7 +1133,7 @@ function questionSignature(q){
   return [
     q.skill,
     q.type,
-    q.q,
+    q.repeatKey || q.q,
     q.visual,
     q.correct,
     Array.isArray(q.patternTiles)?q.patternTiles.join("|"):"",

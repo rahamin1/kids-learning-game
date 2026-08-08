@@ -1416,7 +1416,9 @@
       ];
       // מפרקים מחזירים חומרים לאדמה, אבל אינם אוכלים את היצורים
       // בשרשרת שלפניהם. לכן הם אינם מוצגים כחוליה בשרשרת מזון ליניארית.
-      const cleanChain = row => row.filter(token => token !== "מפרקים" && token !== "אדמה");
+      // Keep chains child-friendly: decomposers and technical sea-life terms are
+      // not presented as a link in this activity.
+      const cleanChain = row => row.filter(token => !["מפרקים", "אדמה", "קריל"].includes(token));
       // Present the chain from the hunter back to its food source. This makes
       // the direction explicit: ינשוף ← נחש ← צפרדע ← דבורה ← פרחים.
       const reverseChain = row => cleanChain(row).reverse();
