@@ -19,6 +19,11 @@ const errors=[];
 for(const game of context.window.KIDS_GAMES.catalog.filter(g=>!g.disabled)) for(let level=1;level<=maxLevel(game.id);level++) {
   const pool=context.window.KIDS_GAMES.build(game.id,level,{age:8})||[];
   pool.forEach((q,index)=>{
+    if(game.id==="word-problems") {
+      const text=String(q.q||"").trim();
+      if(q.word!==true || !text.includes("?")) errors.push(`${game.id} L${level} #${index+1}: must be a written story`);
+      if(level<=3 && q.type!=="חיבור") errors.push(`${game.id} L${level} #${index+1}: early level must be addition only`);
+    }
     if(q.mode || !Array.isArray(q.a) || !q.a.length) return;
     const choices=q.a.map(value=>String(value).trim());
     const distinct=new Set(choices);

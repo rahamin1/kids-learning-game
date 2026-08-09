@@ -1,19 +1,19 @@
 (() => {
   const catalog = [
-    {id:"count",subject:"math",minAge:3,name:"כמה עצמים יש?",icon:"🔢",desc:"סופרים עצמים ובוחרים מספר",kind:"count"},
-    {id:"number-quantity",subject:"math",minAge:3,name:"מספר וכמות",icon:"🍎",desc:"מתאימים מספר לקבוצת עצמים",kind:"numberQuantity"},
-    {id:"big-small",subject:"thinking",minAge:3,name:"גדול וקטן",icon:"↕️",desc:"משווים גדלים",kind:"bigSmall"},
-    {id:"more-groups",subject:"math",minAge:3,maxAge:7,name:"איפה יש יותר?",icon:"⚖️",desc:"משווים בין שתי כמויות",kind:"moreGroups",maxLevel:6},
+    {id:"count",subject:"math",minAge:4,name:"כמה עצמים יש?",icon:"🔢",desc:"סופרים עצמים ובוחרים מספר",kind:"count"},
+    {id:"number-quantity",subject:"math",minAge:4,name:"מספר וכמות",icon:"🍎",desc:"מתאימים מספר לקבוצת עצמים",kind:"numberQuantity"},
+    {id:"big-small",subject:"thinking",minAge:4,name:"גדול וקטן",icon:"↕️",desc:"משווים גדלים",kind:"bigSmall"},
+    {id:"more-groups",subject:"math",minAge:4,maxAge:7,name:"איפה יש יותר?",icon:"⚖️",desc:"משווים בין שתי כמויות",kind:"moreGroups",maxLevel:6},
     {id:"visual-pattern",subject:"thinking",minAge:4,name:"דפוסים",icon:"🔴",desc:"מגלים מה מגיע בהמשך",kind:"pattern",maxLevel:5},
     {id:"number-sequence",subject:"math",minAge:4,name:"רצף מספרים",icon:"➡️",desc:"משלימים מספר חסר ברצף",kind:"sequence",maxLevel:5},
     {id:"addition",subject:"math",minAge:4,name:"חיבור",icon:"➕",desc:"מחברים מספרים בהדרגה",kind:"addition",maxLevel:6},
     {id:"picture-subtraction",subject:"math",minAge:5,name:"חיסור",icon:"➖",desc:"מורידים ומחשבים",kind:"subtraction",maxLevel:5},
-    {id:"number-line",subject:"math",minAge:4,name:"ציר המספרים",icon:"📏",desc:"מוצאים את המקום הנכון",kind:"numberLine",maxLevel:4},
+    {id:"number-line",subject:"math",minAge:6,name:"ציר המספרים",icon:"📏",desc:"מוצאים את המקום הנכון",kind:"numberLine",maxLevel:4},
     {id:"shapes",subject:"math",minAge:5,name:"מגלים צורות",icon:"🔷",desc:"שמות, תכונות והתאמות",kind:"shapes",maxLevel:4},
     {id:"clock",subject:"thinking",minAge:5,name:"שעון",icon:"🕒",desc:"קוראים שעות ודקות",kind:"clock",maxLevel:4},
     {id:"multiplication",subject:"math",minAge:5,name:"כפל בקבוצות",icon:"✖️",desc:"סופרים קבוצות שוות",kind:"multiplication",maxLevel:5},
     {id:"multiplication-numbers",subject:"math",minAge:6,name:"כפל",icon:"✖️",desc:"פותרים תרגילי כפל במספרים",kind:"multiplicationNumbers",maxLevel:5},
-    {id:"word-problems",subject:"math",minAge:4,name:"בעיות מילוליות",icon:"🧠",desc:"פותרים בעיה מתוך סיפור",kind:"wordProblems",maxLevel:8},
+    {id:"word-problems",subject:"math",minAge:4,maxAge:7,name:"בעיות מילוליות",icon:"🧠",desc:"פותרים בעיה מתוך סיפור",kind:"wordProblems",maxLevel:8},
     {id:"fractions",subject:"math",minAge:6,name:"איזה חלק זה?",icon:"🍕",desc:"מזהים חלקים צבועים",kind:"fractions"},
 
     {id:"uppercase-letter",subject:"english",minAge:6,name:"אות גדולה",icon:"🔠",desc:"מזהים CAPITAL LETTERS",kind:"uppercase",disabled:true},
@@ -28,7 +28,7 @@
     {id:"build-word-en",subject:"english",minAge:6,maxAge:7,name:"בונים מילה",icon:"🧱",desc:"מרכיבים מילה מאותיות",kind:"buildEnglish"},
     {id:"sentence-order-en",subject:"english",minAge:6,name:"בונים משפט",icon:"💬",desc:"מסדרים מילים למשפט קצר",kind:"sentenceEnglish"},
 
-    {id:"same-picture",subject:"thinking",minAge:3,maxAge:4,name:"תמונות זהות",icon:"🖼️",desc:"מוצאים את התמונה הזהה",kind:"samePicture"},
+    {id:"same-picture",subject:"thinking",minAge:4,maxAge:4,name:"תמונות זהות",icon:"🖼️",desc:"מוצאים את התמונה הזהה",kind:"samePicture"},
     {id:"hebrew-letter",subject:"reading",minAge:4,name:"זיהוי אות",icon:"אבג",desc:"מזהים אות עברית",kind:"hebrewLetter",disabled:true},
     {id:"starts-hebrew",subject:"reading",minAge:5,name:"מתחיל באות",icon:"אבג",desc:"מוצאים מילה שמתחילה באות",kind:"startsHebrew"},
     {id:"hebrew-word-picture",subject:"reading",minAge:5,name:"מילה ותמונה",icon:"📖",desc:"מתאימים מילה קצרה לתמונה",kind:"hebrewWordPicture"},
@@ -43,8 +43,8 @@
     {id:"story-title",subject:"reading",minAge:7,name:"כותרת לסיפור",icon:"📰",desc:"בוחרים כותרת מתאימה",kind:"storyTitle",maxLevel:4},
     {id:"word-search",subject:"reading",minAge:7,name:"תפזורת",icon:"🔍",desc:"מחפשים מילים בתוך רשת אותיות",kind:"wordSearch"},
 
-    {id:"animal-sound",subject:"nature",minAge:3,name:"מי משמיע את הקול?",icon:"🐮",desc:"שומעים קול ובוחרים בעל חיים",kind:"animalSound",disabled:true},
-    {id:"odd-one-out",subject:"thinking",minAge:3,name:"מה לא שייך?",icon:"🧩",desc:"מוצאים תמונה יוצאת דופן",kind:"oddOneOut",maxLevel:3},
+    {id:"animal-sound",subject:"nature",minAge:4,name:"מי משמיע את הקול?",icon:"🐮",desc:"שומעים קול ובוחרים בעל חיים",kind:"animalSound",disabled:true},
+    {id:"odd-one-out",subject:"thinking",minAge:4,name:"מה לא שייך?",icon:"🧩",desc:"מוצאים תמונה יוצאת דופן",kind:"oddOneOut",maxLevel:3},
     {id:"habitat",subject:"nature",minAge:4,name:"בית גידול",icon:"🏞️",desc:"מתאימים בעל חיים לסביבה",kind:"habitat",maxLevel:3},
     {id:"baby-adult",subject:"nature",minAge:4,name:"גור ובוגר",icon:"🐣",desc:"מתאימים גור לבעל החיים הבוגר",kind:"babyAdult",maxLevel:4},
     {id:"living-groups",subject:"nature",minAge:4,name:"חי, צומח או דומם",icon:"🌱",desc:"ממיינים דברים מהעולם",kind:"livingGroups",maxLevel:4},
@@ -52,7 +52,7 @@
     {id:"seasons",subject:"nature",minAge:5,name:"עונות השנה",icon:"🍂",desc:"מתאימים מזג אוויר ופעילות לעונה",kind:"seasons",maxLevel:4},
     {id:"life-cycle",subject:"nature",minAge:4,name:"מחזור חיים",icon:"🦋",desc:"מסדרים שלבי התפתחות",kind:"lifeCycle",maxLevel:4},
     {id:"plant-parts",subject:"nature",minAge:4,name:"איזה חלק בצמח?",icon:"🌻",desc:"מכירים שורש, גבעול, עלה, פרח ופרי",kind:"plantParts",maxLevel:4},
-    {id:"animal-food",subject:"nature",minAge:3,name:"מה בעלי חיים אוכלים?",icon:"🥕",desc:"מתאימים מזון לבעל חיים",kind:"animalFood",maxLevel:5},
+    {id:"animal-food",subject:"nature",minAge:4,name:"מה בעלי חיים אוכלים?",icon:"🥕",desc:"מתאימים מזון לבעל חיים",kind:"animalFood",maxLevel:5},
     {id:"food-chain",subject:"nature",minAge:5,name:"שרשרת מזון",icon:"🔗",desc:"מסדרים מי אוכל את מי",kind:"foodChain",maxLevel:5},
 {id:"adaptations",subject:"nature",minAge:4,name:"התאמה לסביבה",icon:"🦎",desc:"מגלים כיצד בעלי חיים מסתגלים",kind:"adaptations",maxLevel:5},
 {id:"cause-effect",subject:"thinking",minAge:7,name:"סיבה ותוצאה",icon:"🧪",desc:"חושבים כמו מדענים",kind:"causeEffect"}
@@ -1019,7 +1019,7 @@
       const stage=clamp(level,1,3);
       const optionCount=stage===1?2:stage===2?4:6;
       const similarPool=icon=>pictureGroups.find(group=>group.includes(icon))||pictureItems;
-      return pictureItems.map(icon=>make("איזו תמונה זהה לתמונה הגדולה?",icon,options(icon,stage===3?similarPool(icon):pictureItems,optionCount),icon,{skill:"הבחנה חזותית",type:`תמונות זהות — רמה ${stage}`}));
+      return pictureItems.map(icon=>make("איזו תמונה זהה לתמונה שלמעלה?",icon,options(icon,stage===3?similarPool(icon):pictureItems,optionCount),icon,{skill:"הבחנה חזותית",type:`תמונות זהות — רמה ${stage}`}));
     }
     if(kind==="hebrewLetter")return repeatPool(heAlphabet.slice(0,clamp(8+level*2,10,heAlphabet.length)).map(letter=>make(`מצאו את האות ${letter}`,letter,options(letter,heAlphabet),"",{skill:"אותיות",type:"זיהוי אות",word:true})));
     if(kind==="startsHebrew"){
@@ -1345,7 +1345,7 @@
     ],groups=level<=4?simpleGroups:simpleGroups.concat(advancedGroups);return groups.map(items=>make("מה לא שייך?",items[3],shuffle(items),"",{skill:"מיון",type:"יוצא דופן"}));}
     if(kind==="habitat"){
       const habitats=[...new Set(familiarAnimals.map(x=>x.habitat))];
-      return familiarAnimals.map(a=>make(`איפה ${femaleAnimals.has(a.he)?"גרה":"גר"} ${a.he}?`,a.habitat,options(a.habitat,habitats),a.icon,{skill:"בתי גידול",type:"בעל חיים וסביבה",explain:`התשובה הנכונה היא ${a.habitat}.`}));
+      return familiarAnimals.map(a=>make(`היכן ${femaleAnimals.has(a.he)?"חיה":"חי"} ה${a.he}?`,a.habitat,options(a.habitat,habitats),a.icon,{skill:"בתי גידול",type:"בעל חיים וסביבה",explain:`התשובה הנכונה היא ${a.habitat}.`}));
     }
     if(kind==="babyAdult"){
       const babyQuestionText=a=>{
@@ -1370,7 +1370,7 @@
       return repeatPool(active.map(([icon,group,question])=>make(question,group,options(group,["חי","צומח","דומם"],answerCount),"",{skill:"מיון בטבע",type:"חי, צומח או דומם"})));
     }
     if(kind==="plantFood"){const data=[["🍎","עץ תפוח","גדל"],["🍐","עץ אגס","גדל"],["🥭","עץ מנגו","גדל"],["🥥","דקל קוקוס","גדל"],["🥕","צמח גזר","גדל"],["🌽","צמח תירס","גדל"],["🍅","צמח עגבנייה","גדלה"],["🍇","גפן","גדלים"]];return repeatPool(data.map(([food,plant,verb])=>make(`על איזה צמח ${verb} ${food}?`,plant,options(plant,data.map(x=>x[1])),"",{skill:"צמחים ומזון",type:"מה גדל על הצמח?"})));}
-    if(kind==="seasons"){const realLevel=clamp(level,1,5),answerCount=realLevel===1?2:realLevel===2?3:4;const rows=seasons.slice(0,realLevel===5?4:Math.max(2,realLevel));return repeatPool(rows.flatMap(([season,icon,activity,activityIcon])=>realLevel===1?[make("לאיזו עונה מתאים הסמל?",season,options(season,seasons.map(x=>x[0]),answerCount),icon,{skill:"עונות",type:"מזהים עונה"})]:[make(`באיזו עונה מתאים: ${activity}?`,season,options(season,seasons.map(x=>x[0]),answerCount),activityIcon,{skill:"עונות",type:realLevel>=4?"בוחרים פעילות מתאימה":"עונות השנה"}),make(`לאיזו עונה מתאים הסמל?`,season,options(season,seasons.map(x=>x[0]),answerCount),icon,{skill:"עונות",type:"עונות השנה"})]));}
+    if(kind==="seasons"){const realLevel=clamp(level,1,5),answerCount=realLevel===1?2:realLevel===2?3:4;const rows=seasons.slice(0,realLevel===5?4:Math.max(2,realLevel));const symbolQuestion=(season,icon)=>make(`לאיזו עונה מתאים הסמל ${icon}?`,season,options(season,seasons.map(x=>x[0]),answerCount),"",{skill:"עונות",type:"מזהים עונה"});return repeatPool(rows.flatMap(([season,icon,activity,activityIcon])=>realLevel===1?[symbolQuestion(season,icon)]:[make(`באיזו עונה מתאים: ${activity}?`,season,options(season,seasons.map(x=>x[0]),answerCount),activityIcon,{skill:"עונות",type:realLevel>=4?"בוחרים פעילות מתאימה":"עונות השנה"}),symbolQuestion(season,icon)]));}
     if(kind==="lifeCycle"){const tiers=[[["זרע","נבט","פרח"]],[["ביצה","זחל","פרפר"],["זרע","נבט","צמח","פרח"]],[["ביצה","זחל","גולם","פרפר"],["ביצה","ראשן","צפרדע צעירה","צפרדע"]],[["זרע","נבט","עץ צעיר","עץ עם תפוחים"],["ביצה","אפרוח","תרנגולת צעירה","תרנגולת"]],[["ביצה","זחל","גולם","דבורה"],["זרע","נבט","עלים","תרמיל"],["זרע","נבט","פרח","עגבנייה"]]],realLevel=clamp(level,1,5);return repeatPool(tiers[realLevel-1].map(tokens=>make("סדרו את מחזור החיים",tokens.join(" ← "),[],"",{skill:"מחזורי חיים",type:`סדר שלבים — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));}
     if(kind==="plantParts"){
       const data=[
@@ -1388,8 +1388,7 @@
     if(kind==="animalFood"){
       const realLevel=clamp(level,1,5),answerCount=realLevel===1?2:realLevel===2?3:4;
       const active=animals.slice(0,realLevel===5?animals.length:3+realLevel*2);
-      const femaleAnimals=new Set(["קואלה","פנדה","פרה","כבשה","תרנגולת","דבורה","צפרדע"]);
-      const questionFor=a=>`מה ${femaleAnimals.has(a.he)?"אוכלת":"אוכל"} ${a.he}?`;
+      const questionFor=a=>`איזה מזון עשוי ${a.he} לאכול?`;
       return repeatPool(active.map(a=>make(questionFor(a),a.food,options(a.food,animals.map(x=>x.food),answerCount),"",{skill:"תזונת בעלי חיים",type:realLevel>=4?"מזון לבעל חיים פחות מוכר":"מה אוכלים?"})));
     }
     if(kind==="weather"){
