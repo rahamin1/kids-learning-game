@@ -1,4 +1,4 @@
-const APP_VERSION = "test-0.1.44";
+const APP_VERSION = "test-0.1.45";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -517,8 +517,16 @@ const FIVE_LEVEL_GAME_IDS = new Set([
 const CUSTOM_MAX_LEVELS = { "count": 4, "number-quantity": 6, "big-small": 7, "more-groups": 6, "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 5, "number-line": 4, "shapes": 4, "clock": 4, "addition": 6, "multiplication": 5, "multiplication-numbers": 5, "letter-picture": 4, "first-letter": 4, "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4, "build-word-en": 4, "sentence-order-en": 5, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "word-problems": 8, "word-categories": 6, "story-title": 4, "word-search": 3, "odd-one-out": 3, "habitat": 3, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
 const DIFFICULTY_PROMPT_COOLDOWN_GAMES = 5;
 function gameMaxLevel(gameId){ return CUSTOM_MAX_LEVELS[gameId] || (EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9); }
-function ageLevel(age){ return clamp(Number(age)||3,1,9); }
+function ageLevel(age){ return clamp(Number(age)||4,1,9); }
 function defaultGameLevel(gameId,age){
+  const game=KIDS_GAMES.catalog.find(item=>item.id===gameId);
+  const playerAge=Number(age)||4;
+  // All games available to a four-year-old begin at the first level.
+  // Existing player choices are preserved; this is only the default.
+  if(playerAge===4)return 1;
+  // At age five, games that were already available at age four begin at
+  // level 2.  A game introduced at age five starts at its first level.
+  if(playerAge===5)return game?.minAge>=5?1:2;
   if(gameId==="count")return ({3:1,4:1,5:2,6:3,7:3})[Number(age)]||1;
   if(gameId==="number-quantity")return ({3:1,4:2,5:3,6:4,7:5,8:6,9:6})[Number(age)]||1;
   if(gameId==="big-small")return ({3:1,4:2,5:4,6:5,7:6,8:7,9:7})[Number(age)]||1;
@@ -532,8 +540,6 @@ function defaultGameLevel(gameId,age){
   if(gameId==="shapes")return ({5:1,6:2,7:3,8:4,9:4})[Number(age)]||1;
   if(gameId==="build-word-en")return ({6:1,7:2})[Number(age)]||1;
   if(gameId==="sentence-order-en")return ({6:1,7:2,8:3,9:4})[Number(age)]||1;
-  const game=KIDS_GAMES.catalog.find(item=>item.id===gameId);
-  const playerAge=Number(age)||3;
   if(game?.minAge===4){
     if(playerAge===4)return 1;
     if(playerAge===5)return 2;
@@ -545,7 +551,7 @@ function applyDefaultHiddenGames(p){
   p.autoHiddenGames ||= [];
   const targetVersion = 3;
   const ageChanged = p.defaultHiddenGamesAge!==p.age;
-  const playerAge=Number(p.age)||3;
+  const playerAge=Number(p.age)||4;
   const futureHidden=KIDS_GAMES.catalog
     .filter(game=>!game.disabled&&game.minAge>playerAge&&game.minAge<=Math.min(7,playerAge+2))
     .map(game=>game.id);
@@ -641,6 +647,9 @@ function renderGameBuddyPanel(){
   ].join("");
 }
 function prepareProfile(p){
+  // The game now starts at age four.  Upgrade any legacy age-three profile
+  // when it is loaded, so no player can remain configured as age three.
+  p.age=Math.max(4,Number(p.age)||4);
   p.photo ||= "";
   p.subjects ||= ["math","english"];
   p.subjects = SUBJECT_ORDER.filter(subject => p.subjects.includes(subject));
@@ -889,7 +898,7 @@ function resizeProfilePhoto(file){
 }
 
 function renderChoiceButtons(){
-  $("#ageOptions").innerHTML=[3,4,5,6,7].map(n=>`<button type="button" class="choice-btn ${n===selectedAge?"selected":""}" data-age="${n}">${n}</button>`).join("");
+  $("#ageOptions").innerHTML=[4,5,6,7].map(n=>`<button type="button" class="choice-btn ${n===selectedAge?"selected":""}" data-age="${n}">${n}</button>`).join("");
   const p=editingId?state.profiles.find(x=>x.id===editingId):activeProfile();
   const isCreatingNewProfile=!editingId;
   const unlocked=isCreatingNewProfile?BUDDY_UNLOCK_BASE:buddyUnlockCount(p);
@@ -990,7 +999,7 @@ function gameMatchesAge(game,age){
   return game.minAge<=age && (!game.maxAge || game.maxAge>=age);
 }
 function gameVisibleInSettings(game,age){
-  const maxSettingsAge=Math.min(7,(Number(age)||3)+2);
+  const maxSettingsAge=Math.min(7,(Number(age)||4)+2);
   return game.minAge<=maxSettingsAge && (!game.maxAge || game.maxAge>=Number(age));
 }
 
@@ -1160,7 +1169,21 @@ function startGame(gameId){
   const game=KIDS_GAMES.catalog.find(item=>item.id===gameId); if(!game||game.disabled||!gameVisibleInSettings(game,p.age)||p.hiddenGames.includes(game.id))return;
   const subject=game.subject,level=p.gameLevels[gameId]||ageLevel(p.age);
   trackEvent("game_started",{subject,game_id:gameId,game_level:level});
-  const pool=uniqueQuestions(KIDS_GAMES.build(gameId,level,p));
+  const generatedQuestions=KIDS_GAMES.build(gameId,level,p);
+  // Word problems must always be a short story.  This also protects players
+  // from a partially updated cached game bank that may still contain a plain
+  // arithmetic exercise from an older build.
+  const pool=uniqueQuestions(generatedQuestions.filter(question=>{
+    if(gameId!=="word-problems")return true;
+    const text=String(question.q||"").trim();
+    // A word problem is always a written story.  Levels 1–3 are deliberately
+    // addition only; subtraction starts from level 4.  This guard prevents a
+    // stale or malformed question bank from turning this game into a plain
+    // arithmetic exercise.
+    if(question.word!==true || !text.includes("?"))return false;
+    if(level<=3 && question.type!=="חיבור")return false;
+    return !/^\d+\s*[+−-]\s*\d+$/.test(text);
+  }));
   const history=p.recentGames[gameId]||[];
   const immediatelyPreviousGame=new Set(p.lastGameQuestionSignatures||[]);
   const recent=new Set(history);
