@@ -1,4 +1,4 @@
-const APP_VERSION = "test-0.1.45";
+const APP_VERSION = "test-0.1.46";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -539,7 +539,7 @@ function defaultGameLevel(gameId,age){
   if(gameId==="multiplication")return ({5:1,6:2,7:3,8:4,9:5})[Number(age)]||1;
   if(gameId==="shapes")return ({5:1,6:2,7:3,8:4,9:4})[Number(age)]||1;
   if(gameId==="build-word-en")return ({6:1,7:2})[Number(age)]||1;
-  if(gameId==="sentence-order-en")return ({6:1,7:2,8:3,9:4})[Number(age)]||1;
+  if(gameId==="sentence-order-en")return ({6:1,7:2})[Number(age)]||1;
   if(game?.minAge===4){
     if(playerAge===4)return 1;
     if(playerAge===5)return 2;
@@ -978,13 +978,13 @@ function renderHero(){
   // A new forest begins clearly dark, then brightens steadily as stars are
   // collected. Keep a small shade even after the first goal is complete.
   const darkness=.72*Math.pow(1-firstGoalProgress,2)+.08;
-  const age=p?.age||3;
+  const age=p?.age||4;
   const set=age>=6?BUDDY_IMAGES_OLDER:BUDDY_IMAGES;
   const image=set[p?.buddy]||set["🦊"];
-  const ageTint=age===3?"rgba(255,218,120,.10)":age<=5?"rgba(25,67,86,.05)":"rgba(12,42,60,.02)";
+  const ageTint=age<=5?"rgba(25,67,86,.05)":"rgba(12,42,60,.02)";
   $(".hero").style.backgroundImage=`linear-gradient(90deg,rgba(224,249,255,.94) 0%,rgba(224,249,255,.76) 35%,rgba(224,249,255,0) 63%),linear-gradient(${ageTint},${ageTint}),url("${image}")`;
   $(".hero").style.setProperty("--forest-darkness",darkness.toFixed(2));
-  $(".hero").dataset.ageWorld=age===3?"preschool":age<=5?"middle":"older";
+  $(".hero").dataset.ageWorld=age<=5?"middle":"older";
   $(".speech-bubble").innerHTML=stars
     ? `${buddyLine(p?.buddy||"🦊","return",stars)}<br><b>אספנו ${stars} ${stars===1?"כוכב":"כוכבים"}</b>`
     : `${buddyLine(p?.buddy||"🦊","home",age)}<br><b>בואו נאיר את היער!</b>`;
@@ -1351,7 +1351,9 @@ function renderQuestion(){
       questionText.replaceChildren(fragment);
     }
   }
-  const isMathExpression=/^(חיסור|חיבור)/.test(String(q.type||""));
+  // Word problems are also marked as addition/subtraction, but only a bare
+  // numerical expression should be rendered as a mathematical exercise.
+  const isMathExpression=/^\s*\d+\s*[+−-]\s*\d+\s*$/.test(String(q.q||""));
   if(isMathExpression){
     const values=(String(q.q||"").match(/\d+/g)||[]).map(Number);
     if(values.length===2){
@@ -1600,7 +1602,7 @@ function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
     $("#feedback").className="feedback good";
   } else {
     button.classList.add("wrong"); chime(false);
-    $("#feedback").textContent="לא בדיוק"; $("#feedback").className="feedback bad";
+    $("#feedback").textContent=feedbackText||"לא בדיוק"; $("#feedback").className="feedback bad";
     $$(".answer-btn").find(b=>String(b.dataset.answer)===String(q.correct))?.classList.add("correct");
     revealCorrectAnswer(q);
   }
@@ -1661,7 +1663,7 @@ function revealCorrectBuildAnswer(q){
 }
 
 function finishGame(){
-  const p=activeProfile(), key=session.subject, now=new Date().toDateString(), earned=Math.max(1,session.correct);
+  const p=activeProfile(), key=session.subject, now=new Date().toDateString(), earned=session.correct;
   trackEvent("game_finished",{subject:key,game_id:session.gameId,game_level:session.level,questions_total:session.questions.length,correct_total:session.correct,stars_earned:earned});
   const previousStars=p.stars||0;
   const previousTrophies=trophyCount(p);
@@ -1704,7 +1706,7 @@ function finishGame(){
   p.log.unshift({subject:key,gameId:session.gameId,gameName:session.game.name,correct:session.correct,total:session.questions.length,earned,date:new Date().toLocaleDateString("he-IL",{month:"short",day:"numeric"})});
   p.log=p.log.slice(0,8); save();
   $("#celebrateBuddy").textContent=p.buddy;
-  $("#earnedStarsTitle").textContent=earned===1?"אספתם כוכב אחד":`אספתם ${earned} כוכבים`;
+  $("#earnedStarsTitle").textContent=earned===0?"השלמתם את המשחק":earned===1?"אספתם כוכב אחד":`אספתם ${earned} כוכבים`;
   $("#finishEncouragement").textContent="";
   const tierChanged=previousTier.min!==newTier.min;
   if(newMedals>previousMedals || newTrophies>previousTrophies || tierChanged){
@@ -1997,7 +1999,8 @@ function chooseMemoryCard(button){
   }else{
     session.memoryMistakes=(session.memoryMistakes||0)+1;
     const pairCount=session.questions[session.index].pairs.length;
-    if(session.memoryMistakes>=pairCount){
+    // A round with X pairs permits up to X mistakes. The next mistake fails it.
+    if(session.memoryMistakes>pairCount){
       setTimeout(()=>failMemoryRound(a.button),700);
     }else{
       setTimeout(()=>{a.button.classList.remove("open");b.button.classList.remove("open");session.memoryOpen=[]},700);
@@ -2011,7 +2014,7 @@ function failMemoryRound(button){
   session.memoryOpen=[];
   $$(".memory-card").forEach(card=>card.classList.add("open"));
   session.memoryRoundOutcomes.push({pairCount,mistakes:session.memoryMistakes||0,success:false,failed:true});
-  answer("לא הושלם",button,{scoreCorrect:false});
+  answer("לא הושלם",button,{scoreCorrect:false,feedbackText:"לא הצלחתם הפעם. נעבור למשחק הבא."});
 }
 
 function chooseGridLetter(button){
@@ -2160,7 +2163,7 @@ function bindEvents(){
     const updates=$("#contactUpdates").checked;
     if(!message&&!updates)return;
     if(!FORMSPREE_ENDPOINT){
-      status.textContent="הטופס כמעט מוכן. צריך להגדיר בקוד את כתובת ה-Formspree לפני שאפשר לשלוח.";
+      status.textContent="צריך להגדיר בקוד את כתובת ה-Formspree לפני שאפשר לשלוח.";
       status.className="contact-status error";
       return;
     }
