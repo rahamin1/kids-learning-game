@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.46";
+const APP_VERSION = "0.1.47";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -190,7 +190,7 @@ const BANK = {
   ],
   reading: [
     { skill:"הסקת מסקנות", type:"רמז מהסיפור", q:"פיפ ארז מטרייה. איזה מזג אוויר צפוי?", visual:"🦊 🎒 ☂️", a:["גשום","שמשי","מושלג","סוער"], correct:"גשום", explain:"מטרייה היא רמז לכך שצפוי גשם."},
-    { skill:"רצף אירועים", type:"סדר בסיפור", q:"קודם זורעים זרע. מה קורה אחר כך?", visual:"🌰 → ?", a:["הוא נובט","הוא עף","הוא נמס","הוא שואג"], correct:"הוא נובט", explain:"כשמשקים זרע, הוא מתחיל לנבוט."},
+    { skill:"רצף אירועים", type:"סדר בסיפור", q:"קודם זורעים זרע. מה קורה אחר כך?", visual:"? ← 🌰", a:["הוא נובט","הוא עף","הוא נמס","הוא שואג"], correct:"הוא נובט", explain:"כשמשקים זרע, הוא מתחיל לנבוט."},
     { skill:"איתור מידע", type:"מי עשה זאת?", q:"מיה האכילה חתול קטן. מי האכיל את החתול?", visual:"👧 🥣 🐱", a:["מיה","פיפ","החתול","ציפור"], correct:"מיה", explain:"במשפט כתוב שמיה האכילה את החתול."},
     { skill:"הבנת רגשות", type:"רגשות", q:"סם מצא את הצעצוע שאבד לו. איך הוא מרגיש?", visual:"🧸 ✨", a:["שמח","כועס","עייף","מפוחד"], correct:"שמח", explain:"כשמוצאים משהו שאבד, בדרך כלל מרגישים שמחה."},
     { skill:"איתור מידע", type:"פרט מהסיפור", q:"הציפור הכחולה ישבה על עץ גבוה. מה היה צבעה?", visual:"🐦 🌳", a:["כחול","אדום","ירוק","צהוב"], correct:"כחול", explain:"הסיפור מספר שהציפור הייתה כחולה."}
@@ -520,17 +520,17 @@ function gameMaxLevel(gameId){ return CUSTOM_MAX_LEVELS[gameId] || (EXTENDED_LEV
 function ageLevel(age){ return clamp(Number(age)||4,1,9); }
 function defaultGameLevel(gameId,age){
   const game=KIDS_GAMES.catalog.find(item=>item.id===gameId);
-  const playerAge=Number(age)||4;
+  const playerAge=Math.max(4,Number(age)||4);
   // All games available to a four-year-old begin at the first level.
   // Existing player choices are preserved; this is only the default.
   if(playerAge===4)return 1;
   // At age five, games that were already available at age four begin at
   // level 2.  A game introduced at age five starts at its first level.
   if(playerAge===5)return game?.minAge>=5?1:2;
-  if(gameId==="count")return ({3:1,4:1,5:2,6:3,7:3})[Number(age)]||1;
-  if(gameId==="number-quantity")return ({3:1,4:2,5:3,6:4,7:5,8:6,9:6})[Number(age)]||1;
-  if(gameId==="big-small")return ({3:1,4:2,5:4,6:5,7:6,8:7,9:7})[Number(age)]||1;
-  if(gameId==="more-groups")return ({3:1,4:2,5:3,6:5,7:6,8:6,9:6})[Number(age)]||1;
+  if(gameId==="count")return ({4:1,5:2,6:3,7:3})[playerAge]||1;
+  if(gameId==="number-quantity")return ({4:1,5:2,6:4,7:5,8:6,9:6})[playerAge]||1;
+  if(gameId==="big-small")return ({4:1,5:2,6:5,7:6,8:7,9:7})[playerAge]||1;
+  if(gameId==="more-groups")return ({4:1,5:2,6:5,7:6,8:6,9:6})[playerAge]||1;
   if(gameId==="number-sequence")return ({4:1,5:2,6:3,7:4,8:5,9:5})[Number(age)]||1;
   if(gameId==="picture-subtraction")return ({5:1,6:2,7:3,8:4,9:5})[Number(age)]||1;
   if(gameId==="number-line")return ({4:1,5:2,6:3,7:4,8:4,9:4})[Number(age)]||1;
@@ -551,7 +551,7 @@ function applyDefaultHiddenGames(p){
   p.autoHiddenGames ||= [];
   const targetVersion = 3;
   const ageChanged = p.defaultHiddenGamesAge!==p.age;
-  const playerAge=Number(p.age)||4;
+  const playerAge=Math.max(4,Number(p.age)||4);
   const futureHidden=KIDS_GAMES.catalog
     .filter(game=>!game.disabled&&game.minAge>playerAge&&game.minAge<=Math.min(7,playerAge+2))
     .map(game=>game.id);
@@ -1021,10 +1021,15 @@ function canChooseAdventureSubject(){
   return (p.subjects||[]).filter(key=>availableGames(p,key).length).length>1;
 }
 
+function gamePickerReturnScreen(backToAdventure=false){
+  return backToAdventure&&canChooseAdventureSubject()?"adventureScreen":"homeScreen";
+}
+
 function openGamePicker(subject,{backToAdventure=false}={}){
   const p=activeProfile(); if(!p)return openCreate();
-  gamePickerBackTarget=backToAdventure&&canChooseAdventureSubject()?"adventure":"home";
-  renderGameChoices(subject); showScreen("gamePickerScreen",{historyData:{subject,gamePickerBackTarget}});
+  const returnScreen=gamePickerReturnScreen(backToAdventure);
+  gamePickerBackTarget=returnScreen==="adventureScreen"?"adventure":"home";
+  renderGameChoices(subject); showScreen("gamePickerScreen",{historyData:{subject,gamePickerBackTarget,gamePickerReturnScreen:returnScreen}});
 }
 
 function backFromAdventure(){
@@ -1032,15 +1037,20 @@ function backFromAdventure(){
 }
 
 function backFromGamePicker(){
-  if(window.history.state?.brightwoodScreen==="gamePickerScreen"){
-    window.history.back();
-    return;
-  }
-  if(gamePickerBackTarget==="adventure"&&canChooseAdventureSubject()){
+  // Do not rely on the browser's previous history entry here: it can be a
+  // stale screen after a refresh or an unrelated page after entering the app.
+  // The picker records its source when it opens, so this arrow always returns
+  // to that source instead of occasionally landing on an unrelated screen.
+  const storedTarget=window.history.state?.gamePickerReturnScreen;
+  const returnScreen=storedTarget==="adventureScreen"&&canChooseAdventureSubject()
+    ? "adventureScreen"
+    : "homeScreen";
+  window.history.replaceState({brightwoodScreen:returnScreen},"",window.location.href);
+  if(returnScreen==="adventureScreen"){
     renderAdventureChoices();
-    showScreen("adventureScreen");
+    showScreen("adventureScreen",{history:false});
   } else {
-    showScreen("homeScreen");
+    showScreen("homeScreen",{history:false});
   }
 }
 
@@ -1204,7 +1214,7 @@ function startGame(gameId){
   p.recentGames[gameId]=[...(p.recentGames[gameId]||[]),...questions.map(questionSignature)].slice(-Math.min(40,Math.max(12,pool.length-5)));
   p.lastGameQuestionSignatures=questions.map(questionSignature);
   save();
-  session={subject,gameId,game,level,questions,index:0,correct:0,start:Date.now(),locked:false,results:{},memoryRoundOutcomes:[]};
+  session={subject,gameId,game,level,questions,index:0,correct:0,starsBeforeGame:p.stars||0,start:Date.now(),locked:false,results:{},memoryRoundOutcomes:[]};
   showScreen("gameScreen",{historyData:{subject,gameId}}); renderQuestion();
 }
 
@@ -1352,20 +1362,22 @@ function renderQuestion(){
     }
   }
   // Word problems are also marked as addition/subtraction, but only a bare
-  // numerical expression should be rendered as a mathematical exercise.
-  const isMathExpression=/^\s*\d+\s*[+−-]\s*\d+\s*$/.test(String(q.q||""));
+  // numerical expression (optionally after a short Hebrew prompt such as
+  // "חשבו:") should be rendered as a mathematical exercise.
+  const mathExpressionMatch=String(q.q||"").trim().match(/^(?:(.*?:\s*))?(\d+)\s*([+−-])\s*(\d+)$/);
+  const isMathExpression=Boolean(mathExpressionMatch);
   if(isMathExpression){
-    const values=(String(q.q||"").match(/\d+/g)||[]).map(Number);
+    const [,prefix="",firstValue,operator,secondValue]=mathExpressionMatch;
+    const values=[Number(firstValue),Number(secondValue)];
     if(values.length===2){
       const equation=document.createElement("span");
       equation.className="math-question-text"; equation.dir="ltr";
-      const operator=String(q.q).includes("+")?"+":"−";
-      [Math.max(...values),operator,Math.min(...values)].forEach(part=>{
+      [Math.max(...values),operator==="+"?"+":"−",Math.min(...values)].forEach(part=>{
         const token=document.createElement("span");
         token.dir="ltr"; token.textContent=String(part); equation.appendChild(token);
       });
-      questionText.dir="ltr";
-      questionText.replaceChildren(equation);
+      questionText.dir=prefix&&/[\u0590-\u05FF]/.test(prefix)?"rtl":"ltr";
+      questionText.replaceChildren(...(prefix?[document.createTextNode(prefix)]:[]),equation);
     }
   }
   const isPictureChoice=session.game?.id==="drag-word-picture";
@@ -1374,8 +1386,17 @@ function renderQuestion(){
   const hideCategoryVisual=q.type==="מיון מילים";
   $("#questionVisual").textContent=hideCategoryVisual || q.audio || q.patternTiles || q.clock || q.pictureMath || q.numberLine ? "" : (q.visual||"");
   const isHebrewMissingWord=typeof q.visual==="string"&&q.visual.includes("_")&&/[\u0590-\u05FF]/.test(q.visual);
-  $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"")+(isMathExpression?" math-expression":"")+(q.type==="צלעות וקודקודים"?" shape-visual":"")+(q.shapeAnswers?" shape-question-visual":"")+(q.compactGroupVisual?" compact-group-visual":"")+(isPictureChoice?" picture-choice-visual":"")+(isHebrewMissingWord?" hebrew-missing-word":"");
+  $("#questionVisual").className="question-visual"+(q.word?" word":"")+(q.objectGrid?" object-grid":"")+(isMathExpression?" math-expression":"")+(q.type==="צלעות וקודקודים"?" shape-visual":"")+(q.shapeAnswers?" shape-question-visual":"")+(q.compactGroupVisual?" compact-group-visual":"")+(session.gameId==="adaptations"?" adaptation-visual":"")+(isPictureChoice?" picture-choice-visual":"")+(isHebrewMissingWord?" hebrew-missing-word":"");
   $("#questionVisual").dir=isMathExpression?"ltr":isHebrewMissingWord?"rtl":"auto";
+  // Unicode shape glyphs are rendered filled on some Android fonts. Draw every
+  // shape ourselves so the activity always uses the same unfilled outline.
+  if(session.gameId==="shapes"){
+    const outline=renderOutlineShape(q.correct,q.visual);
+    if(outline){
+      $("#questionVisual").innerHTML=outline;
+      $("#questionVisual").classList.add("outline-shape-visual");
+    }
+  }
   // Keep arithmetic as one isolated LTR unit. Separate number/operator spans
   // were still reordered by some Android browsers inside the Hebrew UI.
   if(isMathExpression){
@@ -1411,7 +1432,10 @@ function renderQuestion(){
   }
   if(q.fractionColor){
     $("#questionVisual").classList.add("fraction-visual",`fraction-${q.fractionColor}`);
-    $("#questionVisual").innerHTML=Array.from(String(q.visual||"")).map(piece=>`<span class="fraction-piece ${piece==="◼"||piece==="●"?"filled":""}"></span>`).join("");
+    // Fraction visuals sometimes contain separators. They are not parts of the
+    // fraction, so do not turn them into empty tiles.
+    const pieces=Array.from(String(q.visual||"")).filter(piece=>!(/\s/.test(piece)));
+    $("#questionVisual").innerHTML=pieces.map(piece=>`<span class="fraction-piece ${piece==="◼"||piece==="●"||piece==="■"?"filled":""}"></span>`).join("");
   }
   if(q.pictureMath){
     const largestPictureGroup=Math.max(...q.pictureMath.groups.map(group=>group.length));
@@ -1470,7 +1494,7 @@ function renderQuestionInteraction(q){
   grid.innerHTML=q.a.map(a=>{
     const scale=q.answerScales?.[a];
     const answerClass=answerIsIconOnly(a)?"icon-answer":"text-answer";
-    const content=scale?`<span class="scaled-answer-icon" style="font-size:${Math.round(64*scale)}px">${escapeHtml(a)}</span>`:escapeHtml(a);
+    const content=scale?`<span class="scaled-answer-icon" style="font-size:${Math.round(76*scale)}px">${escapeHtml(a)}</span>`:escapeHtml(a);
     return `<button class="answer-btn ${answerClass}" data-answer="${escapeHtml(a)}">${content}</button>`;
   }).join("");
   const answersAreIconOnly=q.a.every(answerIsIconOnly);
@@ -1528,10 +1552,11 @@ function updateBuildResult(){
   const q=session.questions[session.index],joinWith=q.joinWith??"";
   const result=$("#buildResult");
   const value=session.composed.map(x=>x.token).join(joinWith);
-  // Keep the order in which the player pressed the buttons. Hebrew sequences
-  // must be rendered RTL; English sequences must stay LTR.
+  // Emoji-only sequences have no Hebrew characters for the browser to detect.
+  // A left-pointing joiner explicitly means that their first item belongs on
+  // the right, so enforce RTL for those sequences as well.
   result.textContent=value||"בחרו לפי הסדר";
-  result.dir=/[\u0590-\u05FF]/.test(value)?"rtl":"ltr";
+  result.dir=joinWith.includes("←")||/[\u0590-\u05FF]/.test(value)?"rtl":"ltr";
 }
 
 function playQuestionAudio(){
@@ -1561,6 +1586,45 @@ function revealMissingLetters(visual,q,correctAnswer=q.correct){
   }
 }
 
+function renderOutlineShape(name,visual=""){
+  const normalizedName=String(name||"").trim().replace(/[\-–—]/g,"־").replace(/\s+/g," ");
+  const visualNames={
+    "○":"עיגול","◯":"עיגול","◌":"עיגול","△":"משולש","▽":"משולש","◁":"משולש",
+    "□":"ריבוע","▢":"ריבוע","▣":"ריבוע","▤":"ריבוע","▭":"מלבן","▯":"מלבן","▬":"מלבן","▰":"מלבן",
+    "⬠":"מחומש","⬟":"מחומש","⬢":"משושה","⬡":"משושה","⎔":"משושה",
+    "☆":"כוכב","✧":"כוכב","✩":"כוכב","✫":"כוכב","♡":"לב","♥":"לב","❤":"לב",
+    "♢":"מעוין","◊":"דלתון","⬯":"אליפסה","⏢":"טרפז","▱":"מקבילית",
+    "◿":"משולש ישר־זווית","◃":"משולש ישר־זווית"
+  };
+  const paths={
+    "עיגול":"<circle cx=\"50\" cy=\"50\" r=\"34\"/>",
+    "משולש":"<polygon points=\"50,13 88,82 12,82\"/>",
+    "ריבוע":"<rect x=\"18\" y=\"18\" width=\"64\" height=\"64\"/>",
+    "מלבן":"<rect x=\"10\" y=\"31\" width=\"80\" height=\"38\"/>",
+    "מחומש":"<polygon points=\"50,10 88,38 74,84 26,84 12,38\"/>",
+    "משושה":"<polygon points=\"50,10 85,30 85,70 50,90 15,70 15,30\"/>",
+    "מתומן":"<polygon points=\"31,10 69,10 90,31 90,69 69,90 31,90 10,69 10,31\"/>",
+    "מעוין":"<polygon points=\"50,8 91,50 50,92 9,50\"/>",
+    "כוכב":"<polygon points=\"50,8 60,37 91,37 66,55 76,87 50,68 24,87 34,55 9,37 40,37\"/>",
+    "לב":"<path d=\"M50 85 16 53C2 39 12 14 31 14c10 0 16 6 19 12 3-6 9-12 19-12 19 0 29 25 15 39Z\"/>",
+    "אליפסה":"<ellipse cx=\"50\" cy=\"50\" rx=\"40\" ry=\"25\"/>",
+    "טרפז":"<polygon points=\"28,18 72,18 91,82 9,82\"/>",
+    "מקבילית":"<polygon points=\"27,18 85,18 73,82 15,82\"/>",
+    "דלתון":"<polygon points=\"50,8 80,48 50,92 20,48\"/>",
+    "משולש ישר־זווית":"<polygon points=\"18,18 18,82 82,82\"/>",
+    "משולש שווה־צלעות":"<polygon points=\"50,10 89,82 11,82\"/>",
+    "חצי עיגול":"<path d=\"M12 76a38 38 0 0 1 76 0Z\"/>",
+    "סהר":"<path d=\"M67 12C38 16 23 43 34 68c8 18 28 26 47 19-27 2-42-25-28-47 4-7 9-12 14-16Z\"/>",
+    "צלב":"<path d=\"M38 12h24v26h26v24H62v26H38V62H12V38h26Z\"/>",
+    "חץ":"<path d=\"M12 42h45V23l31 27-31 27V58H12Z\"/>"
+  };
+  const shapeName=paths[normalizedName]
+    ? normalizedName
+    : (visualNames[normalizedName]||visualNames[String(visual||"")]);
+  const path=paths[shapeName];
+  return path?`<svg class=\"outline-shape\" viewBox=\"0 0 100 100\" aria-label=\"${escapeHtml(name)}\" role=\"img\">${path}</svg>`:"";
+}
+
 function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
   if(session.locked)return; session.locked=true;
   const q=session.questions[session.index], right=value===q.correct, p=activeProfile();
@@ -1569,6 +1633,10 @@ function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
   p.answered++;
   if(countsAsCorrect){
     p.correct++; session.correct++; session.results[q.skill].correct++;
+    // A star belongs to each correct answer, not to completing a full game.
+    // This makes the reward visible and durable even if the player leaves early.
+    p.stars++;
+    renderAll();
   }
   if(right){
     button.classList.add("correct"); chime(true);
@@ -1659,17 +1727,18 @@ function revealCorrectBuildAnswer(q){
   const value=q.mode==="wordsearch"?(q.wordTargets||[q.correct]).join(" • "):String(q.correct);
   correct.hidden=false;
   correct.innerHTML=`<span class="correct-build-label">התשובה הנכונה:</span><b>${escapeHtml(value)}</b>`;
-  correct.dir=/[\u0590-\u05FF]/.test(value)?"rtl":"ltr";
+  correct.dir=String(q.joinWith||"").includes("←")||/[\u0590-\u05FF]/.test(value)?"rtl":"ltr";
 }
 
 function finishGame(){
   const p=activeProfile(), key=session.subject, now=new Date().toDateString(), earned=session.correct;
   trackEvent("game_finished",{subject:key,game_id:session.gameId,game_level:session.level,questions_total:session.questions.length,correct_total:session.correct,stars_earned:earned});
-  const previousStars=p.stars||0;
+  // Stars were already awarded question by question while this game was played.
+  const previousStars=session.starsBeforeGame??Math.max(0,(p.stars||0)-earned);
   const previousTrophies=trophyCount(p);
   const previousMedals=medalCount(p);
   const previousTier=rewardTierForStars(previousStars);
-  p.stars+=earned; p.progress[key] ||= {completed:0,level:1,correct:0,total:0};
+  p.progress[key] ||= {completed:0,level:1,correct:0,total:0};
   const newTrophies=trophyCount(p);
   const newMedals=medalCount(p);
   const newTier=rewardTierForStars(p.stars);

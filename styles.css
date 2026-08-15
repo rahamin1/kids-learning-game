@@ -56,13 +56,18 @@ body{font-family:Heebo,system-ui,sans-serif}
 .game-card #questionText[dir="rtl"] .question-latin-run{white-space:nowrap;unicode-bidi:isolate}
 .question-visual.shape-question-visual.no-visual{min-height:24px;padding:0;margin:0 auto 10px}
 .answer-grid.shape-answers .answer-btn{min-height:122px;font-size:clamp(72px,16vw,110px);line-height:1}
-.fraction-visual{min-height:140px;gap:10px;direction:ltr}
-.fraction-piece{width:42px;height:42px;border:3px solid var(--ink);background:#fff;border-radius:3px}
+.fraction-visual{min-height:140px;gap:10px;direction:ltr;flex-wrap:wrap;max-width:min(100%,458px);margin-inline:auto}
+.fraction-piece{width:42px;height:42px;flex:0 0 42px;border:3px solid var(--ink);background:#fff;border-radius:3px}
 .fraction-piece.filled{background:var(--fraction-color)}
 .fraction-blue{--fraction-color:#2376d1}.fraction-red{--fraction-color:#e64b46}.fraction-purple{--fraction-color:#854bc8}.fraction-green{--fraction-color:#35a75d}.fraction-orange{--fraction-color:#ef922f}
 .question-visual.letter-revealed{color:var(--blue);transform:scale(1.04);transition:transform .18s ease}
 .question-visual.object-grid{white-space:pre-line;font-size:30px;line-height:1.18}
 .question-visual.shape-visual{font-size:clamp(6.5rem,20vw,10rem);line-height:1;min-height:1.25em;display:grid;place-items:center}
+.question-visual.adaptation-visual{font-size:clamp(96px,24vw,150px);line-height:1;min-height:190px;padding:16px}
+.question-visual.outline-shape-visual{min-height:230px;padding:12px;display:grid;place-items:center;color:var(--ink)}
+.outline-shape{display:block;width:clamp(170px,40vw,230px);height:clamp(170px,40vw,230px);overflow:visible}
+.outline-shape circle,.outline-shape ellipse,.outline-shape rect,.outline-shape polygon,.outline-shape path{fill:none;stroke:currentColor;stroke-width:5;stroke-linejoin:round;stroke-linecap:round}
+@media(max-width:520px){.question-visual.outline-shape-visual{min-height:200px}.outline-shape{width:clamp(150px,46vw,200px);height:clamp(150px,46vw,200px)}}
 .answer-grid.object-grid-answers{max-width:760px}
 .answer-grid.object-grid-answers .answer-btn{white-space:pre-line;direction:ltr;min-height:110px;padding:12px;font-family:system-ui,sans-serif;font-size:16px;line-height:1.12}
 .hero{--forest-darkness:.42;transition:filter 3s ease,background-image 1.2s ease}
