@@ -41,12 +41,12 @@
     {id:"sentence-order-he",subject:"reading",minAge:6,name:"סידור משפט",icon:"💬",desc:"מסדרים מילים למשפט",kind:"sentenceHebrew"},
     {id:"true-false",subject:"reading",minAge:4,name:"נכון או לא נכון",icon:"✅",desc:"קוראים ובודקים טענה",kind:"trueFalse"},
     {id:"story-title",subject:"reading",minAge:7,name:"כותרת לסיפור",icon:"📰",desc:"בוחרים כותרת מתאימה",kind:"storyTitle",maxLevel:4},
-    {id:"word-search",subject:"reading",minAge:4,name:"תפזורת",icon:"🔍",desc:"מחפשים מילים בתוך רשת אותיות",kind:"wordSearch"},
+    {id:"word-search",subject:"reading",minAge:5,name:"תפזורת",icon:"🔍",desc:"מחפשים מילים בתוך רשת אותיות",kind:"wordSearch"},
 
     {id:"animal-sound",subject:"nature",minAge:4,name:"מי משמיע את הקול?",icon:"🐮",desc:"שומעים קול ובוחרים בעל חיים",kind:"animalSound",disabled:true},
     {id:"odd-one-out",subject:"thinking",minAge:4,name:"מה לא שייך?",icon:"🧩",desc:"מוצאים תמונה יוצאת דופן",kind:"oddOneOut",maxLevel:3},
     {id:"habitat",subject:"nature",minAge:4,name:"בית גידול",icon:"🏞️",desc:"מתאימים בעל חיים לסביבה",kind:"habitat",maxLevel:3},
-    {id:"baby-adult",subject:"nature",minAge:4,name:"גור ובוגר",icon:"🐣",desc:"מתאימים גור לבעל החיים הבוגר",kind:"babyAdult",maxLevel:4},
+    {id:"baby-adult",subject:"nature",minAge:4,name:"גור ובוגר",icon:"🐣",desc:"מגלים מי האמא ומי האבא",kind:"babyAdult",maxLevel:4},
     {id:"living-groups",subject:"nature",minAge:4,name:"חי, צומח או דומם",icon:"🌱",desc:"ממיינים דברים מהעולם",kind:"livingGroups",maxLevel:4},
     {id:"plant-food",subject:"nature",minAge:5,name:"מה גדל על הצמח?",icon:"🍎",desc:"מתאימים פרי או ירק לצמח",kind:"plantFood",disabled:true},
     {id:"seasons",subject:"nature",minAge:5,name:"עונות השנה",icon:"🍂",desc:"מתאימים מזג אוויר ופעילות לעונה",kind:"seasons",maxLevel:4},
@@ -118,16 +118,16 @@
     [
       ["בית","מכונית"],["סוס","ארנבת"],["דובי","שוקולד"],["עוגה","ספרייה"],["שמש","מחברת"],
       ["כלב","מגלשה"],["חתול","חלונות"],["פרח","פרפרים"],["תוף","מכוניות"],["כדור","צבעונים"],
-      ["תפוח","סוכריות"],["גזר","משקפיים"],["אריה","ארנבונים"],["ירח","מלפפונים"],["ספר","גלגליות"],
+      ["תפוח","סוכריות"],["גזר","משקפיים"],["אריה","ארנבונים"],["ירח","מלפפונים"],["ספר","גלגיליות"],
       ["בננה","סנדוויץ"],["גבינה","מרפסת"],["פאזל","עוגיות"],["יהלום","חולצות"],["מטריה","משחקים"],
       ["עץ","צעצועים"],["דג","שיעורים"],["כובע","אופניים"],["דלת","תרנגולת"],["נר","משפחה"],
       ["לחם","חופשה"],["מלח","מוזיקה"],["ענן","חברים"],["כוכב","מסיבה"],["ים","טיולים"]
     ],
     (()=>{
       const longWords=[
-        "מכונית","שוקולד","ארנבת","ספרייה","מחברת","מגלשה","חלונות","פרפרים","צבעונים","סוכריות",
-        "משקפיים","ארנבונים","מלפפונים","גלגליות","סנדוויץ","מרפסת","עוגיות","חולצות","משחקים","צעצועים",
-        "שיעורים","אופניים","תרנגולת","משפחה","חופשה","מוזיקה","חברים","מסיבה","טיולים","מחשבים"
+        "מכונית","שוקולד","ארנבת","ספרייה","מחברת","מגלשה","חלונות","פרפרים","צבעונים","סנדוויץ",
+        "מרפסת","עוגיות","חולצות","משחקים","צעצועים","שיעורים","אופניים","משפחה","חופשה","מוזיקה",
+        "חברים","מסיבה","טיולים","מחשבים"
       ];
       return longWords.map((word,index)=>[word,longWords[(index+7)%longWords.length],longWords[(index+14)%longWords.length]]);
     })()
@@ -162,8 +162,12 @@
     if(!useTens)return objectRows(icon,count);
     const hundreds=useHundreds?Math.floor(count/100):0;
     const remainder=count-(hundreds*100),tens=Math.floor(remainder/10),ones=remainder%10,rows=[];
-    for(let i=0;i<hundreds;i+=5)rows.push(Array(Math.min(5,hundreds-i)).fill(`${icon}×100`).join(" "));
-    for(let i=0;i<tens;i+=5)rows.push(Array(Math.min(5,tens-i)).fill(`${icon}×10`).join(" "));
+    // Keep each place-value symbol and its multiplier together on one line.
+    // A word joiner is invisible, but prevents a mobile browser from breaking
+    // between the emoji and ×10/×100.
+    const placeUnit=value=>`${icon}\u2060×${value}`;
+    for(let i=0;i<hundreds;i+=5)rows.push(Array(Math.min(5,hundreds-i)).fill(placeUnit(100)).join(" "));
+    for(let i=0;i<tens;i+=5)rows.push(Array(Math.min(5,tens-i)).fill(placeUnit(10)).join(" "));
     if(ones)rows.push(Array(ones).fill(icon).join(" "));
     return rows.join("\n");
   }
@@ -221,7 +225,10 @@
     };
     const useScaledIcons = level < 6;
     const makeCompare=(question,items,correct,extra={})=>make(question,correct,shuffle(items),extra.visual||"",{skill:"גדול וקטן",type:extra.type||"משווים גדלים",imageAnswers:extra.imageAnswers,answerScales:useScaledIcons?extra.answerScales:null,word:extra.word,explain:extra.explain||`התשובה הנכונה היא ${correct}.`});
-    const makeOrder=(question,tokens,extra={})=>make(question,tokens.join(" → "),[],extra.visual||"",{skill:"גדול וקטן",type:extra.type||"מסדרים לפי גודל",mode:"build",tokens:shuffle(tokens),joinWith:" → ",explain:extra.explain||`הסדר הנכון הוא ${tokens.join(" → ")}.`});
+    const makeOrder=(question,items,extra={})=>{
+      const tokens=items.map(item=>Array.isArray(item)?item[0]:item);
+      return make(question,tokens.join(" ← "),[],extra.visual||"",{skill:"גדול וקטן",type:extra.type||"מסדרים לפי גודל",mode:"build",tokens:shuffle(tokens),joinWith:" ← ",explain:extra.explain||`הסדר הנכון הוא ${tokens.join(" ← ")}.`});
+    };
     const questions=[];
     pairs.forEach(([small,big],i)=>{
       if(level===1){
@@ -288,8 +295,10 @@
     const groupRows=(icon,count)=>{
       if(!stage.placeValues)return Array.from({length:Math.ceil(count/4)},(_,row)=>Array(Math.min(4,count-row*4)).fill(icon).join(" ")).join("\n");
       const hundreds=Math.floor(count/100),remainder=count-(hundreds*100),tens=Math.floor(remainder/10),ones=remainder%10,rows=[];
-      for(let i=0;i<hundreds;i+=5)rows.push(Array(Math.min(5,hundreds-i)).fill(`${icon}×100`).join(" "));
-      for(let i=0;i<tens;i+=5)rows.push(Array(Math.min(5,tens-i)).fill(`${icon}×10`).join(" "));
+      // The multiplier belongs to its symbol, even when the answer wraps.
+      const placeUnit=value=>`${icon}\u2060×${value}`;
+      for(let i=0;i<hundreds;i+=5)rows.push(Array(Math.min(5,hundreds-i)).fill(placeUnit(100)).join(" "));
+      for(let i=0;i<tens;i+=5)rows.push(Array(Math.min(5,tens-i)).fill(placeUnit(10)).join(" "));
       if(ones)rows.push(Array(ones).fill(icon).join(" "));
       return rows.join("\n");
     };
@@ -391,9 +400,11 @@
   }
   function sequences(level){
     const out=[];
-    const add=(numbers,missingIndex,type)=>{
+    const add=(numbers,missingIndex,rule)=>{
       const correct=numbers[missingIndex],display=numbers.map((n,index)=>index===missingIndex?"?":n);
-      out.push(make("איזה מספר חסר?",String(correct),numberOptions(correct),display.join("  ·  "),{skill:"רצפים",type}));
+      // The step rule is the solution strategy, not a heading for the child:
+      // showing “מוסיפים 20” above the sequence gives the answer away.
+      out.push(make("איזה מספר חסר?",String(correct),numberOptions(correct),display.join("  ·  "),{skill:"רצפים",type:"רצף מספרים",rule}));
     };
     if(level===1){
       // Three places, up to 10, rising by one, blank at the end.
@@ -435,6 +446,17 @@
         for(let start=1;start<=200;start++){
           const numbers=Array.from({length:5},(_,i)=>start*(ratio**i));
           if(numbers.every(n=>n<=200))add(numbers,1+((start+ratio)%3),"טור הנדסי");
+        }
+      }
+      // Growing-gap sequences: the jump itself increases by two or by three
+      // each time (for example 2, 5, 10, 17, 26).
+      for(const gapGrowth of [2,3]){
+        for(const firstGap of [1,2,3,4,5,6,8,10]){
+          for(let start=0;start<=60;start+=5){
+            const numbers=[start];
+            for(let index=0;index<4;index++)numbers.push(numbers.at(-1)+firstGap+index*gapGrowth);
+            if(numbers.every(n=>n<=200))add(numbers,1+((start+firstGap+gapGrowth)%3),`הפער גדל ב־${gapGrowth}`);
+          }
         }
       }
     }
@@ -1276,7 +1298,7 @@
       ]
     ];
     const realLevel=clamp(level,1,5),sequences=tiers[realLevel-1];
-    return sequences.map(tokens=>make("סדרו את האירועים",tokens.join(" → "),[],"",{skill:"רצף אירועים",type:`מה קודם? — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" → "}));
+    return sequences.map(tokens=>make("סדרו את האירועים",tokens.join(" ← "),[],"",{skill:"רצף אירועים",type:`מה קודם? — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ← "}));
   }
   function sentenceHebrew(level){
     const tiers=[
@@ -1290,8 +1312,12 @@
     return sentences.map(tokens=>make("סדרו את המילים למשפט",tokens.join(" "),[],"",{skill:"משפטים",type:`בונים משפט — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ",word:true}));
   }
   function wordSearch(level){
-    const realLevel=clamp(level,1,3),groups=wordSearchGroupsByLevel[realLevel-1],size=[5,9,9][realLevel-1];
-    return groups.map((targets,puzzleIndex)=>{
+    const realLevel=clamp(level,1,3),groups=wordSearchGroupsByLevel[realLevel-1],size=[5,6,7][realLevel-1];
+    // Keep every target within the width of its grid.  Level 2 is deliberately
+    // compact (6×6), so its longer source words use familiar short alternatives.
+    const compactTargets={"מכוניות":"מכונית","צבעונים":"פרח","סוכריות":"ממתק","משקפיים":"כובע","ארנבונים":"ארנבת","מלפפונים":"מלפפון","גלגיליות":"גלגל","סנדוויץ":"כריך","צעצועים":"צעצוע","שיעורים":"שיעור","אופניים":"גלגל","תרנגולת":"תרנגול","טיולים":"טיול"};
+    return groups.map((sourceTargets,puzzleIndex)=>{
+      const targets=sourceTargets.map(word=>compactTargets[word]||word);
       const letters=Array.from({length:size*size},()=>heAlphabet[Math.floor(Math.random()*heAlphabet.length)]);
       const paths=[];
       const placedLetters=Array(size*size).fill(null);
@@ -1370,8 +1396,16 @@
       return repeatPool(active.map(([icon,group,question])=>make(question,group,options(group,["חי","צומח","דומם"],answerCount),"",{skill:"מיון בטבע",type:"חי, צומח או דומם"})));
     }
     if(kind==="plantFood"){const data=[["🍎","עץ תפוח","גדל"],["🍐","עץ אגס","גדל"],["🥭","עץ מנגו","גדל"],["🥥","דקל קוקוס","גדל"],["🥕","צמח גזר","גדל"],["🌽","צמח תירס","גדל"],["🍅","צמח עגבנייה","גדלה"],["🍇","גפן","גדלים"]];return repeatPool(data.map(([food,plant,verb])=>make(`על איזה צמח ${verb} ${food}?`,plant,options(plant,data.map(x=>x[1])),"",{skill:"צמחים ומזון",type:"מה גדל על הצמח?"})));}
-    if(kind==="seasons"){const realLevel=clamp(level,1,5),answerCount=realLevel===1?2:realLevel===2?3:4;const rows=seasons.slice(0,realLevel===5?4:Math.max(2,realLevel));const symbolQuestion=(season,icon)=>make(`לאיזו עונה מתאים הסמל ${icon}?`,season,options(season,seasons.map(x=>x[0]),answerCount),"",{skill:"עונות",type:"מזהים עונה"});return repeatPool(rows.flatMap(([season,icon,activity,activityIcon])=>realLevel===1?[symbolQuestion(season,icon)]:[make(`באיזו עונה מתאים: ${activity}?`,season,options(season,seasons.map(x=>x[0]),answerCount),activityIcon,{skill:"עונות",type:realLevel>=4?"בוחרים פעילות מתאימה":"עונות השנה"}),symbolQuestion(season,icon)]));}
-    if(kind==="lifeCycle"){const tiers=[[["זרע","נבט","חמנייה פורחת","זרע"]],[["ביצה","זחל","פרפר"],["זרע","נבט","חמנייה פורחת","זרע"]],[["ביצה","זחל","גולם","פרפר"],["ביצה","ראשן","צפרדע צעירה","צפרדע"]],[["גרעין","נבט","עץ תפוח","תפוח","גרעין"],["ביצה","תרנגולת צעירה","תרנגולת בוגרת","ביצה"]],[["ביצה","זחל","גולם","דבורה"],["זרע","נבט","חמנייה פורחת","זרע"],["גרעין","נבט","עץ תפוח","תפוח","גרעין"]]],realLevel=clamp(level,1,5);return repeatPool(tiers[realLevel-1].map(tokens=>make("סדרו את מחזור החיים",tokens.join(" ← "),[],"",{skill:"מחזורי חיים",type:`סדר שלבים — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));}
+    if(kind==="seasons"){const realLevel=clamp(level,1,5),answerCount=realLevel===1?2:realLevel===2?3:4;const rows=seasons.slice(0,realLevel===5?4:Math.max(2,realLevel));const symbolQuestion=(season,icon)=>make("לאיזו עונה מתאים הסמל?",season,options(season,seasons.map(x=>x[0]),answerCount),icon,{skill:"עונות",type:"מזהים עונה"});return repeatPool(rows.flatMap(([season,icon,activity,activityIcon])=>realLevel===1?[symbolQuestion(season,icon)]:[make(`באיזו עונה מתאים: ${activity}?`,season,options(season,seasons.map(x=>x[0]),answerCount),activityIcon,{skill:"עונות",type:realLevel>=4?"בוחרים פעילות מתאימה":"עונות השנה"}),symbolQuestion(season,icon)]));}
+    if(kind==="lifeCycle"){
+      const tiers=[
+        [["זרע","נבט","חמנייה פורחת","זרע"],["ביצת פרפר","זחל","פרפר"],["ביצת תרנגולת","אפרוח","תרנגולת"]],
+        [["זרע","נבט","חמנייה פורחת","זרע"],["ביצת פרפר","זחל","גולם","פרפר"],["ביצת צפרדע","ראשן","צפרדע צעירה","צפרדע"],["ביצת תרנגולת","אפרוח","תרנגולת צעירה","תרנגולת בוגרת"]],
+        [["גרעין","נבט","עץ תפוח","תפוח","גרעין"],["ביצת פינגווין","אפרוח פינגווין","פינגווין צעיר","פינגווין בוגר"],["ביצת ינשוף","כוזל ינשוף","ינשוף צעיר","ינשוף בוגר"],["ביצת צפרדע","ראשן","צפרדע צעירה","צפרדע בוגרת"]],
+        [["גרעין","נבט","עץ תפוח","תפוח","גרעין"],["זרע","נבט","חמנייה פורחת","זרע"],["ביצת פרפר","זחל","גולם","פרפר"],["ביצת תרנגולת","אפרוח","תרנגולת צעירה","תרנגולת בוגרת"],["ביצת פינגווין","אפרוח פינגווין","פינגווין צעיר","פינגווין בוגר"],["ביצת ינשוף","כוזל ינשוף","ינשוף צעיר","ינשוף בוגר"]]
+      ],realLevel=clamp(level,1,4);
+      return repeatPool(tiers[realLevel-1].map(tokens=>make("סדרו את מחזור החיים",tokens.join(" ← "),[],"",{skill:"מחזורי חיים",type:`סדר שלבים — רמה ${realLevel}`,mode:"build",tokens:shuffle(tokens),joinWith:" ← "})));
+    }
     if(kind==="plantParts"){
       const data=[
         ["שורש","סופג מים מהאדמה","איזה חלק בצמח סופג מים מהאדמה?"],
