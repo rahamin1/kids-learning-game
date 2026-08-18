@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.47";
+const APP_VERSION = "0.2.0";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -514,7 +514,7 @@ const FIVE_LEVEL_GAME_IDS = new Set([
 ]);
 // A few vocabulary games have eight genuinely different stages.  Do not
 // advertise a ninth stage when it would only repeat the eighth.
-const CUSTOM_MAX_LEVELS = { "count": 4, "number-quantity": 6, "big-small": 7, "more-groups": 6, "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 5, "number-line": 4, "shapes": 4, "clock": 4, "addition": 6, "multiplication": 5, "multiplication-numbers": 5, "letter-picture": 4, "first-letter": 4, "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4, "build-word-en": 4, "sentence-order-en": 5, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "word-problems": 8, "word-categories": 6, "story-title": 4, "word-search": 3, "odd-one-out": 3, "habitat": 3, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
+const CUSTOM_MAX_LEVELS = { "count": 4, "number-quantity": 6, "big-small": 7, "more-groups": 6, "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 5, "number-line": 4, "shapes": 4, "clock": 4, "addition": 6, "multiplication": 5, "multiplication-numbers": 5, "fractions": 8, "letter-picture": 4, "first-letter": 4, "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4, "build-word-en": 4, "sentence-order-en": 5, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "word-problems": 8, "word-categories": 6, "story-title": 4, "word-search": 3, "odd-one-out": 3, "habitat": 3, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
 const DIFFICULTY_PROMPT_COOLDOWN_GAMES = 5;
 function gameMaxLevel(gameId){ return CUSTOM_MAX_LEVELS[gameId] || (EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9); }
 function ageLevel(age){ return clamp(Number(age)||4,1,9); }
@@ -1604,13 +1604,18 @@ function renderOutlineShape(name,visual=""){
     "מחומש":"<polygon points=\"50,10 88,38 74,84 26,84 12,38\"/>",
     "משושה":"<polygon points=\"50,10 85,30 85,70 50,90 15,70 15,30\"/>",
     "מתומן":"<polygon points=\"31,10 69,10 90,31 90,69 69,90 31,90 10,69 10,31\"/>",
-    "מעוין":"<polygon points=\"50,8 91,50 50,92 9,50\"/>",
+    // Unequal diagonals make this an actual rhombus rather than a square
+    // simply rotated by 45 degrees.
+    "מעוין":"<polygon points=\"50,12 94,50 50,88 6,50\"/>",
     "כוכב":"<polygon points=\"50,8 60,37 91,37 66,55 76,87 50,68 24,87 34,55 9,37 40,37\"/>",
     "לב":"<path d=\"M50 85 16 53C2 39 12 14 31 14c10 0 16 6 19 12 3-6 9-12 19-12 19 0 29 25 15 39Z\"/>",
     "אליפסה":"<ellipse cx=\"50\" cy=\"50\" rx=\"40\" ry=\"25\"/>",
     "טרפז":"<polygon points=\"28,18 72,18 91,82 9,82\"/>",
     "מקבילית":"<polygon points=\"27,18 85,18 73,82 15,82\"/>",
-    "דלתון":"<polygon points=\"50,8 80,48 50,92 20,48\"/>",
+    // A kite has two pairs of adjacent equal sides of different lengths.
+    // Keeping the wide points above the centre makes it visually distinct
+    // from the rhombus used elsewhere in this game.
+    "דלתון":"<polygon points=\"50,10 78,42 50,92 22,42\"/>",
     "משולש ישר־זווית":"<polygon points=\"18,18 18,82 82,82\"/>",
     "משולש שווה־צלעות":"<polygon points=\"50,10 89,82 11,82\"/>",
     "חצי עיגול":"<path d=\"M12 76a38 38 0 0 1 76 0Z\"/>",
@@ -1625,9 +1630,14 @@ function renderOutlineShape(name,visual=""){
   return path?`<svg class=\"outline-shape\" viewBox=\"0 0 100 100\" aria-label=\"${escapeHtml(name)}\" role=\"img\">${path}</svg>`:"";
 }
 
+function answerMatchesQuestion(value,q){
+  const response=String(value);
+  return response===String(q.correct)||Boolean(q.acceptedAnswers?.includes(response));
+}
+
 function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
   if(session.locked)return; session.locked=true;
-  const q=session.questions[session.index], right=value===q.correct, p=activeProfile();
+  const q=session.questions[session.index], right=answerMatchesQuestion(value,q), p=activeProfile();
   const countsAsCorrect=scoreCorrect===null?right:scoreCorrect;
   session.results[q.skill] ||= {correct:0,total:0}; session.results[q.skill].total++;
   p.answered++;
@@ -1722,9 +1732,14 @@ function revealCorrectAnswer(q){
 function revealCorrectBuildAnswer(q){
   const correct=$("#correctBuildAnswer");
   if(!correct)return;
-  // In word search, the useful correction is the list of words that remained
-  // hidden, rather than the internal completion marker.
-  const value=q.mode==="wordsearch"?(q.wordTargets||[q.correct]).join(" • "):String(q.correct);
+  // The target words are already visible above a word-search grid. Repeating
+  // them in a correction panel adds no help and gives a redundant answer.
+  if(q.mode==="wordsearch"){
+    correct.hidden=true;
+    correct.textContent="";
+    return;
+  }
+  const value=String(q.correct);
   correct.hidden=false;
   correct.innerHTML=`<span class="correct-build-label">התשובה הנכונה:</span><b>${escapeHtml(value)}</b>`;
   correct.dir=String(q.joinWith||"").includes("←")||/[\u0590-\u05FF]/.test(value)?"rtl":"ltr";
@@ -1873,9 +1888,12 @@ function renderDifficulty(p){
 function toggleDifficultySubject(subject){
   const p=activeProfile(); if(!p)return;
   p.collapsedDifficultySubjects ||= [];
-  p.collapsedDifficultySubjects=p.collapsedDifficultySubjects.includes(subject)
-    ? p.collapsedDifficultySubjects.filter(key=>key!==subject)
-    : [...p.collapsedDifficultySubjects,subject];
+  const isCollapsed=p.collapsedDifficultySubjects.includes(subject);
+  // The difficulty editor is an accordion: opening one category keeps the
+  // screen focused by closing every other category for this player.
+  p.collapsedDifficultySubjects=isCollapsed
+    ? p.subjects.filter(key=>key!==subject)
+    : [...p.subjects];
   save();
   renderSettings();
 }
@@ -2126,8 +2144,7 @@ function chooseGridLetter(button){
 
 function failWordSearchRound(button){
   if(session.locked)return;
-  const q=session.questions[session.index], targets=q.wordTargets||[q.correct];
-  $("#wordSelection").textContent=`לא מצאתם את כל המילים. המילים היו: ${targets.join(" • ")}`;
+  $("#wordSelection").textContent="לא מצאתם את כל המילים.";
   $$('[data-grid-index],[data-grid-clear]').forEach(item=>item.disabled=true);
   answer("לא הושלם",button,{scoreCorrect:false});
 }
