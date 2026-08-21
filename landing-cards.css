@@ -1,0 +1,11 @@
+/* Five subject cards on wide screens; the existing two- and one-column rules
+   continue to take over on tablets and phones. */
+@media (min-width:841px) {
+  .activity-grid { grid-template-columns:repeat(5,1fr); }
+  .activity-image { padding-inline:10px; }
+  .activity-image img { width:100px; }
+  .activity-image span { font-size:38px; }
+}
+
+.english-card .activity-image { background:#dff1ff; }
+.english-card .activity-image span { font-size:30px; letter-spacing:2px; }
