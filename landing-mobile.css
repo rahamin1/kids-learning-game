@@ -1,0 +1,8 @@
+/* Loaded separately so the narrow-screen override cannot be lost to a fallback width. */
+@media (max-width:520px) {
+  .page-shell { width:min(calc(100% - 28px),1120px); }
+  .hero-layout { grid-template-columns:minmax(0,1fr); }
+  .hero-layout > * { min-width:0; }
+  .hero-copy { width:100%; }
+  .hero h1 { max-width:100%; }
+}
