@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>BrightForest | נתוני משחקים</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin-stats.css?build=0.2.3">
+</head>
+<body>
+  <main class="admin-shell">
+    <header><span aria-hidden="true">🌳</span><div><p>BrightForest</p><h1>נתוני משחקים</h1></div></header>
+    <p class="intro">מונים מצרפיים ואנונימיים בלבד. אין כאן נתוני ילדים, שמות או מזהים.</p>
+
+    <section class="login-card" id="loginCard">
+      <h2>כניסת אדמין</h2>
+      <label>דוא״ל<input id="adminEmail" type="email" autocomplete="username" required></label>
+      <label>סיסמה<input id="adminPassword" type="password" autocomplete="current-password" required></label>
+      <button id="adminSignIn" type="button">כניסה</button>
+      <p class="status" id="loginStatus" aria-live="polite"></p>
+    </section>
+
+    <section class="dashboard hidden" id="dashboard" aria-live="polite">
+      <div class="dashboard-top"><p id="adminIdentity"></p><div><button class="secondary" id="refreshStats" type="button">רענון</button><button class="link-button" id="adminSignOut" type="button">יציאה</button></div></div>
+      <div class="metric-grid">
+        <article><span>היום</span><b id="metricToday">—</b></article>
+        <article><span>אתמול</span><b id="metricYesterday">—</b></article>
+        <article><span>7 הימים האחרונים</span><b id="metricWeek">—</b></article>
+        <article><span>סך הכול</span><b id="metricTotal">—</b></article>
+      </div>
+      <section class="weekly-chart-panel" aria-labelledby="weeklyChartTitle">
+        <div><h2 id="weeklyChartTitle">משחקים בכל שבוע</h2><p>30 השבועות האחרונים · כל עמודה היא מספר התחלות משחק</p></div>
+        <div class="weekly-chart" id="weeklyChart" role="img" aria-label="גרף משחקים בכל שבוע ב־30 השבועות האחרונים"></div>
+      </section>
+      <p class="updated" id="statsUpdated">טרם נטענו נתונים.</p>
+    </section>
+  </main>
+  <script type="module" src="admin-stats.js?build=0.2.3"></script>
+</body>
+</html>
