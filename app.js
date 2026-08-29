@@ -1,4 +1,4 @@
-const APP_VERSION = "0.2.4";
+const APP_VERSION = "0.2.5";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -427,6 +427,13 @@ const storeKey = "brightwood-quest-v1";
 let state = JSON.parse(localStorage.getItem(storeKey) || '{"profiles":[],"activeId":null,"sound":true}');
 if(!Object.prototype.hasOwnProperty.call(state,"analyticsConsent"))state.analyticsConsent=null;
 if(!Object.prototype.hasOwnProperty.call(state,"analyticsConsentAsked"))state.analyticsConsentAsked=false;
+// The sharing policy changed from a fixed fourth-medal opt-out to a policy
+// based on an earlier successful share. Reset only the old policy preference.
+if(state.sharePromptPolicyVersion!==2){
+  state.sharePromptDisabled=false;
+  state.shareHasSharedAchievement=false;
+  state.sharePromptPolicyVersion=2;
+}
 let session = null;
 let sharedAudioContext = null;
 let deferredInstallPrompt = null;
@@ -529,6 +536,7 @@ function defaultGameLevel(gameId,age){
   if(playerAge===5)return game?.minAge>=5?1:2;
   if(gameId==="life-cycle"||gameId==="visual-pattern")return ({5:1,6:2,7:3})[playerAge]||3;
   if(gameId==="word-search")return ({5:1,6:2,7:3})[playerAge]||4;
+  if(gameId==="word-problems")return ({4:1,5:2,6:3,7:4})[playerAge]||1;
   if(gameId==="count")return ({4:1,5:2,6:3,7:3})[playerAge]||1;
   if(gameId==="number-quantity")return ({4:1,5:2,6:4,7:5,8:6,9:6})[playerAge]||1;
   if(gameId==="big-small")return ({4:1,5:2,6:5,7:6,8:7,9:7})[playerAge]||1;
@@ -774,6 +782,12 @@ function prepareProfile(p){
     });
     p.ageLevelRulesVersion=1;
   }
+  if(p.wordProblemsAgeMappingVersion!==1){
+    // Correct the old generic age fallback (which could start ages 6–7 at
+    // levels 6–7). Keep any explicit parent difficulty choice intact.
+    if(!p.gameFeedback["word-problems"])p.gameLevels["word-problems"]=defaultGameLevel("word-problems",p.age);
+    p.wordProblemsAgeMappingVersion=1;
+  }
   return p;
 }
 state.profiles.forEach(prepareProfile);
@@ -785,11 +799,20 @@ const SHARE_URL="https://brightforest.co.il";
 
 function finishedGameShareData(){
   const headline="אנחנו משחקים במשחק לימודי כיפי בשם היער הזוהר. כרגע זכינו במדליה! ממליצים לנסות!";
-  return {headline,text:`${headline}\nBrightForest.co.il`,url:SHARE_URL};
+  // navigator.share sends `url` as its own link. Keeping it out of the text
+  // prevents WhatsApp from rendering the same address twice.
+  return {headline,text:headline,url:SHARE_URL};
 }
 
 function shouldShowFinishedGameShare(){
   return Boolean(session?.pendingSharePrompt&&!state.sharePromptDisabled);
+}
+
+function shouldOfferShareOptOut(){
+  const medalNumber=session?.shareMedalNumber||0;
+  // After an actual native share, the next medal may offer a permanent
+  // opt-out. If nobody shared, the fourth medal is the first opt-out chance.
+  return medalNumber>=4||state.shareHasSharedAchievement===true;
 }
 
 function renderFinishedGameShare(){
@@ -800,7 +823,7 @@ function renderFinishedGameShare(){
     card.querySelector("[data-share-status]").textContent="";
     const button=card.querySelector("[data-share-achievement]");
     button.innerHTML=typeof navigator.share==="function"?`שתפו את ההישג <span>↗</span>`:"העתקת ההודעה";
-    card.querySelector("[data-share-never]").classList.toggle("hidden",session?.shareMedalNumber!==4);
+    card.querySelector("[data-share-never]").classList.toggle("hidden",!shouldOfferShareOptOut());
   });
 }
 
@@ -822,24 +845,27 @@ function copyFinishedGameShareText(text){
   return copied?Promise.resolve():Promise.reject(new Error("copy unavailable"));
 }
 
-function createFinishedGameShareImage({headline}){
+function createFinishedGameShareImage(){
   return new Promise(resolve=>{
     const canvas=document.createElement("canvas"); canvas.width=1200; canvas.height=630;
     const ctx=canvas.getContext("2d"); if(!ctx){resolve(null);return}
     const sky=ctx.createLinearGradient(0,0,1200,630); sky.addColorStop(0,"#dff7ff"); sky.addColorStop(1,"#fff3bd");
     ctx.fillStyle=sky; ctx.fillRect(0,0,1200,630);
-    ctx.fillStyle="#d9f4dc"; ctx.beginPath(); ctx.arc(1040,520,260,Math.PI,0); ctx.fill();
-    ctx.fillStyle="#54a85a"; ctx.beginPath(); ctx.arc(1060,190,165,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle="#fff"; ctx.roundRect(74,82,780,430,36); ctx.fill();
-    ctx.direction="rtl"; ctx.textAlign="right";
-    ctx.fillStyle="#1b416b"; ctx.font="900 43px Rubik, Arial"; ctx.fillText("היער הזוהר",770,165);
-    ctx.fillStyle="#ee684a"; ctx.font="700 25px Heebo, Arial"; ctx.fillText("הישג חדש!",770,211);
-    ctx.fillStyle="#1b416b"; ctx.font="800 38px Heebo, Arial";
-    const words=headline.replace(" 🌳","").split(" "); let line="",y=280;
-    words.forEach((word,index)=>{const next=`${line}${line?" ":""}${word}`; if(ctx.measureText(next).width>650&&line){ctx.fillText(line,770,y); y+=58; line=word}else line=next; if(index===words.length-1)ctx.fillText(line,770,y)});
-    ctx.fillStyle="#2d789b"; ctx.font="700 27px Heebo, Arial"; ctx.fillText("משחקים, חושבים ולומדים יחד",770,430);
-    ctx.fillStyle="#1b416b"; ctx.font="800 25px Rubik, Arial"; ctx.fillText("BrightForest.co.il",770,477);
-    ctx.font="120px Arial"; ctx.textAlign="center"; ctx.fillText("🌳",1015,410);
+    const circle=(x,y,r,color)=>{ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();};
+    const star=(x,y,outer,inner,color)=>{ctx.fillStyle=color;ctx.beginPath();for(let point=0;point<10;point++){const angle=-Math.PI/2+point*Math.PI/5,r=point%2?inner:outer;const px=x+Math.cos(angle)*r,py=y+Math.sin(angle)*r;point?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill();};
+    // The share card is deliberately illustration-only. The separate share
+    // text carries the achievement and the link, so no message is duplicated.
+    circle(150,120,32,"rgba(255,255,255,.72)"); circle(196,108,45,"rgba(255,255,255,.72)"); circle(248,126,28,"rgba(255,255,255,.72)");
+    ctx.fillStyle="#c9efcf";ctx.beginPath();ctx.ellipse(230,680,470,210,0,Math.PI,0);ctx.fill();
+    ctx.fillStyle="#9de0aa";ctx.beginPath();ctx.ellipse(940,660,500,235,0,Math.PI,0);ctx.fill();
+    // Tree
+    ctx.fillStyle="#85512f";ctx.fillRect(968,320,48,190);ctx.fillStyle="#5faa5b";circle(990,265,105,"#5faa5b");circle(920,310,74,"#64ba65");circle(1060,310,78,"#4f9f55");
+    // Medal card
+    ctx.fillStyle="rgba(255,255,255,.94)";ctx.roundRect(246,76,560,470,48);ctx.fill();
+    ctx.fillStyle="#ec6b50";ctx.beginPath();ctx.moveTo(455,112);ctx.lineTo(548,112);ctx.lineTo(520,300);ctx.lineTo(465,300);ctx.closePath();ctx.fill();
+    ctx.fillStyle="#2d8bc7";ctx.beginPath();ctx.moveTo(548,112);ctx.lineTo(640,112);ctx.lineTo(625,300);ctx.lineTo(520,300);ctx.closePath();ctx.fill();
+    circle(545,355,128,"#efb942");circle(545,355,99,"#ffd96b");circle(545,355,74,"#f6a82f");star(545,355,52,23,"#fff6ca");
+    star(330,185,30,13,"#f0b948");star(740,210,24,10,"#ef8b4d");star(350,455,22,9,"#48b890");star(735,450,31,13,"#398fca");
     canvas.toBlob(blob=>resolve(blob?new File([blob],"brightforest-achievement.png",{type:"image/png"}):null),"image/png");
   });
 }
@@ -855,6 +881,9 @@ async function shareFinishedGameAchievement(){
     const data={title:"היער הזוהר",text:share.text,url:share.url};
     if(image&&navigator.canShare?.({files:[image]}))data.files=[image];
     await navigator.share(data);
+    // A resolved native-share request is the closest privacy-preserving signal
+    // available. Copying text is intentionally not treated as a share.
+    state.shareHasSharedAchievement=true; save();
     setFinishedGameShareStatus("תודה ששיתפתם את ההישג!");
   }catch(error){
     if(error?.name==="AbortError")return;
