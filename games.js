@@ -4,16 +4,16 @@
     {id:"number-quantity",subject:"math",minAge:4,name:"מספר וכמות",icon:"🍎",desc:"מתאימים מספר לקבוצת עצמים",kind:"numberQuantity"},
     {id:"big-small",subject:"thinking",minAge:4,name:"גדול וקטן",icon:"↕️",desc:"משווים גדלים",kind:"bigSmall"},
     {id:"more-groups",subject:"math",minAge:4,maxAge:7,name:"איפה יש יותר?",icon:"⚖️",desc:"משווים בין שתי כמויות",kind:"moreGroups",maxLevel:6},
-    {id:"visual-pattern",subject:"thinking",minAge:4,name:"דפוסים",icon:"🔴",desc:"מגלים מה מגיע בהמשך",kind:"pattern",maxLevel:5},
+    {id:"visual-pattern",subject:"thinking",minAge:5,name:"דפוסים",icon:"🔴",desc:"מגלים מה מגיע בהמשך",kind:"pattern",maxLevel:5},
     {id:"number-sequence",subject:"math",minAge:4,name:"רצף מספרים",icon:"➡️",desc:"משלימים מספר חסר ברצף",kind:"sequence",maxLevel:5},
     {id:"addition",subject:"math",minAge:4,name:"חיבור",icon:"➕",desc:"מחברים מספרים בהדרגה",kind:"addition",maxLevel:6},
-    {id:"picture-subtraction",subject:"math",minAge:5,name:"חיסור",icon:"➖",desc:"מורידים ומחשבים",kind:"subtraction",maxLevel:5},
+    {id:"picture-subtraction",subject:"math",minAge:5,name:"חיסור",icon:"➖",desc:"מורידים ומחשבים",kind:"subtraction",maxLevel:6},
     {id:"number-line",subject:"math",minAge:6,name:"ציר המספרים",icon:"📏",desc:"מוצאים את המקום הנכון",kind:"numberLine",maxLevel:4},
     {id:"shapes",subject:"math",minAge:5,name:"מגלים צורות",icon:"🔷",desc:"שמות, תכונות והתאמות",kind:"shapes",maxLevel:4},
     {id:"clock",subject:"thinking",minAge:5,name:"שעון",icon:"🕒",desc:"קוראים שעות ודקות",kind:"clock",maxLevel:4},
-    {id:"multiplication",subject:"math",minAge:5,name:"כפל בקבוצות",icon:"✖️",desc:"סופרים קבוצות שוות",kind:"multiplication",maxLevel:5},
+    {id:"multiplication",subject:"math",minAge:5,name:"כפל בקבוצות",icon:"✖️",desc:"סופרים קבוצות שוות",kind:"multiplication",maxLevel:6},
     {id:"multiplication-numbers",subject:"math",minAge:6,name:"כפל",icon:"✖️",desc:"פותרים תרגילי כפל במספרים",kind:"multiplicationNumbers",maxLevel:5},
-    {id:"word-problems",subject:"math",minAge:4,maxAge:7,name:"בעיות מילוליות",icon:"🧠",desc:"פותרים בעיה מתוך סיפור",kind:"wordProblems",maxLevel:8},
+    {id:"word-problems",subject:"math",minAge:4,maxAge:7,name:"בעיות מילוליות",icon:"🧠",desc:"פותרים בעיה מתוך סיפור",kind:"wordProblems",maxLevel:6},
     {id:"fractions",subject:"math",minAge:6,name:"איזה חלק זה?",icon:"🍕",desc:"מזהים חלקים צבועים",kind:"fractions"},
 
     {id:"uppercase-letter",subject:"english",minAge:6,name:"אות גדולה",icon:"🔠",desc:"מזהים CAPITAL LETTERS",kind:"uppercase",disabled:true},
@@ -50,7 +50,7 @@
     {id:"living-groups",subject:"nature",minAge:4,name:"חי, צומח או דומם",icon:"🌱",desc:"ממיינים דברים מהעולם",kind:"livingGroups",maxLevel:4},
     {id:"plant-food",subject:"nature",minAge:5,name:"מה גדל על הצמח?",icon:"🍎",desc:"מתאימים פרי או ירק לצמח",kind:"plantFood",disabled:true},
     {id:"seasons",subject:"nature",minAge:5,name:"עונות השנה",icon:"🍂",desc:"מתאימים מזג אוויר ופעילות לעונה",kind:"seasons",maxLevel:4},
-    {id:"life-cycle",subject:"nature",minAge:4,name:"מחזור חיים",icon:"🦋",desc:"מסדרים שלבי התפתחות",kind:"lifeCycle",maxLevel:4},
+    {id:"life-cycle",subject:"nature",minAge:5,name:"מחזור חיים",icon:"🦋",desc:"מסדרים שלבי התפתחות",kind:"lifeCycle",maxLevel:4},
     {id:"plant-parts",subject:"nature",minAge:4,name:"איזה חלק בצמח?",icon:"🌻",desc:"מכירים שורש, גבעול, עלה, פרח ופרי",kind:"plantParts",maxLevel:4},
     {id:"animal-food",subject:"nature",minAge:4,name:"מה בעלי חיים אוכלים?",icon:"🥕",desc:"מתאימים מזון לבעל חיים",kind:"animalFood",maxLevel:5},
     {id:"food-chain",subject:"nature",minAge:5,name:"שרשרת מזון",icon:"🔗",desc:"מסדרים מי אוכל את מי",kind:"foodChain",maxLevel:5},
@@ -130,6 +130,10 @@
         "חברים","מסיבה","טיולים","מחשבים"
       ];
       return longWords.map((word,index)=>[word,longWords[(index+7)%longWords.length],longWords[(index+14)%longWords.length]]);
+    })(),
+    (()=>{
+      const words=["גלידה","בננה","גבינה","מטרייה","מכונית","שוקולד","ארנבת","ספרייה","מחברת","מגלשה","חלונות","פרפרים","צעצועים","אופניים","משפחה","חופשה","מוזיקה","חברים","מסיבה","טיולים","מחשבים"];
+      return words.map((word,index)=>[word,words[(index+5)%words.length],words[(index+10)%words.length],words[(index+15)%words.length]]);
     })()
   ];
 
@@ -147,12 +151,8 @@
   const make = (q,correct,a,visual="",extra={}) => ({q,correct,a,type:extra.type||"בוחרים תשובה",skill:extra.skill||"תרגול",visual,explain:extra.explain||`התשובה הנכונה היא ${correct}.`,...extra});
   const repeatPool = (items,count=18) => Array.from({length:Math.max(count,items.length)},(_,i)=>({...items[i%items.length]}));
   const pictures = ["🍎","⭐","🐟","🌼","🔵","🧸","🍐","🐞"];
-  // The counting game is organised into four broad, genuinely different
-  // stages: former 1–2, 3–4, 5–9, and 10–15.
-  const countingMaximums = [10,20,100,150];
-  // Number and Quantity has six stages. The last one introduces hundreds,
-  // tens, and ones together, up to 1,000.
-  const quantityMaximums = [5,10,24,50,150,1000];
+  const countingMaximums = [8,12,20,30,100];
+  const quantityMaximums = [5,10,20,30,100,200];
   function objectRows(icon,count){
     const rowSize=count>30?10:5,rows=[];
     for(let i=0;i<count;i+=rowSize)rows.push(Array(Math.min(rowSize,count-i)).fill(icon).join(" "));
@@ -287,7 +287,7 @@
       {max:5,choices:2,less:false,placeValues:false},
       {max:10,choices:2,less:false,placeValues:false},
       {max:20,choices:2,less:false,placeValues:false},
-      {max:20,choices:4,less:true,placeValues:false},
+      {max:30,choices:4,less:true,placeValues:false},
       {max:50,choices:4,less:true,placeValues:false},
       {max:100,choices:4,less:true,placeValues:true}
     ];
@@ -407,17 +407,11 @@
       out.push(make("איזה מספר חסר?",String(correct),numberOptions(correct),display.join("  ·  "),{skill:"רצפים",type:"רצף מספרים",rule}));
     };
     if(level===1){
-      // Three places, up to 10, rising by one, blank at the end.
-      for(let start=0;start<=8;start++)add([start,start+1,start+2],2,"מוסיפים 1");
-      // A second, equally simple set keeps the level varied enough that a
-      // full five-question round never has to repeat in the next round.
-      // The sequence is still rising by one and stays within 0–10; only the
-      // missing position moves to the beginning.
-      for(let start=0;start<=8;start++)add([start,start+1,start+2],0,"מוסיפים 1");
+      // A rising sequence only, with the missing number always at the end.
+      for(let start=0;start<=5;start++)add([start,start+1,start+2],2,"מוסיפים 1");
     }else if(level===2){
-      // The same small range, now also descending by one.
+      // The second stage remains rising only, with the blank at the end.
       for(let start=0;start<=8;start++)add([start,start+1,start+2],2,"מוסיפים 1");
-      for(let start=10;start>=2;start--)add([start,start-1,start-2],2,"מורידים 1");
     }else if(level===3){
       // Four places up to 20, with a constant growing or shrinking difference.
       for(const step of [-5,-4,-3,-2,-1,1,2,3,4,5]){
@@ -464,7 +458,7 @@
   }
   function arithmetic(level,kind){
     if(kind==="subtract"){
-      const limit=[10,20,30,50,100][clamp(level,1,5)-1];
+      const limit=[10,15,20,30,40,100][clamp(level,1,6)-1];
       const pairs=[];
       if(limit<=100){
         for(let left=2;left<=limit;left++)for(let right=1;right<left;right++)pairs.push([left,right]);
@@ -485,8 +479,8 @@
     }
     if(kind==="add"){
       const config=[
-        {max:10,pictures:true}, {max:20,pictures:true}, {max:30,pictures:true},
-        {max:30,pictures:false}, {max:50,pictures:false}, {max:100,pictures:false}
+        {max:8,pictures:true}, {max:10,pictures:true}, {max:15,pictures:true},
+        {max:20,pictures:false}, {max:30,pictures:false}, {max:100,pictures:false}
       ][clamp(level,1,6)-1];
       const candidates=[];
       if(config.max<=30){
@@ -590,12 +584,13 @@
   }
   function multiplication(level){
     const config=[
-      {minGroups:2,maxGroups:2,maxEach:3},
+      {minGroups:2,maxGroups:2,maxEach:5},
       {minGroups:2,maxGroups:3,maxEach:5},
-      {minGroups:2,maxGroups:4,maxEach:6},
-      {minGroups:2,maxGroups:5,maxEach:8},
+      {minGroups:2,maxGroups:4,maxEach:5},
+      {minGroups:2,maxGroups:5,maxEach:5},
+      {minGroups:2,maxGroups:6,maxEach:5},
       {minGroups:2,maxGroups:6,maxEach:10}
-    ][clamp(level,1,5)-1];
+    ][clamp(level,1,6)-1];
     const items=[
       ["🍎","תפוחים"],["⭐","כוכבים"],["⚽","כדורים"],["🌼","פרחים"],["❤️","לבבות"],
       ["🐟","דגים"],["🍪","עוגיות"],["🖍️","צבעים"],["🧸","דובים"],["🍓","תותים"]
@@ -674,6 +669,7 @@
     return repeatPool(questions,24);
   }
   function wordProblems(level){
+    level=clamp(level,1,6);
     // Each name has an explicit grammatical gender, so stories can read
     // naturally without forms such as "קיבל/ה".
     const people=[
@@ -729,7 +725,7 @@
     const story=(question,answer,type)=>make(question,String(answer),numberOptions(answer),"",{skill:"בעיות מילוליות",type,word:true});
     const questions=[];
     if(level<=3){
-      const max=[10,20,30][level-1];
+      const max=[8,10,15][level-1];
       for(let index=0;index<25;index++){
         const [first,second]=pairWithSumAtMost(max,index),person=personAt(index),thing=at(things,index);
         questions.push(story(`${had(`ל${person.name}`,first,thing)}. ${person.name} ${person.received} עוד ${quantity(thing,second)}. כמה ${thing.plural} יש ל${person.name} עכשיו?`,first+second,"חיבור"));
@@ -738,16 +734,16 @@
       for(let index=0;index<25;index++){
         const person=personAt(index),thing=at(things,index);
         if(index%2===0){
-          const [first,second]=pairWithSumAtMost(30,index);
+          const [first,second]=pairWithSumAtMost(20,index);
           questions.push(story(`${had(`ל${person.name}`,first,thing)}. ${person.name} ${person.received} עוד ${quantity(thing,second)}. כמה ${thing.plural} יש ל${person.name} עכשיו?`,first+second,"חיבור"));
         }else{
-          const [first,second]=subtractionPair(30,index);
+          const [first,second]=subtractionPair(20,index);
           questions.push(story(`${had(`ל${person.name}`,first,thing)}. ${person.name} ${person.gave} ${quantity(thing,second)}. כמה ${thing.plural} נשארו ל${person.name}?`,first-second,"חיסור"));
         }
       }
     }else if(level===5){
       for(let index=0;index<25;index++){
-        const thing=at(things,index),first=2+(index*3)%20,second=first+1+(index*5)%10,person=personAt(index),otherPerson=personAt(index+1);
+        const thing=at(things,index),first=2+(index*3)%20,second=Math.min(30,first+1+(index*5)%10),person=personAt(index),otherPerson=personAt(index+1);
         if(index%2===0)questions.push(story(`ל${person.name} יש ${quantity(thing,first)}, ול${otherPerson.name} יש ${quantity(thing,second)}. בכמה ${thing.plural} יש ל${otherPerson.name} יותר?`,second-first,"השוואה"));
         else questions.push(story(`ל${person.name} יש ${quantity(thing,first)}. כמה ${thing.plural} ${person.needs} ${person.name} לקבל כדי שיהיו ל${person.name} ${quantity(thing,second)}?`,second-first,"השלמה"));
       }
@@ -755,10 +751,10 @@
       for(let index=0;index<25;index++){
         const person=personAt(index),thing=at(things,index);
         if(index%2===0){
-          const [first,second]=pairWithSumAtMost(50,index);
+          const [first,second]=pairWithSumAtMost(100,index);
           questions.push(story(`${had(`במגירה של ${person.name}`,first,thing)}. ${person.name} ${person.added} עוד ${quantity(thing,second)}. כמה ${thing.plural} יש במגירה?`,first+second,"חיבור"));
         }else{
-          const [first,second]=subtractionPair(50,index);
+          const [first,second]=subtractionPair(100,index);
           questions.push(story(`${had("בכיתה",first,thing)}. העבירו ${quantity(thing,second)} לכיתה אחרת. כמה ${thing.plural} נשארו?`,first-second,"חיסור"));
         }
       }
@@ -1043,7 +1039,7 @@
       const stage=clamp(level,1,3);
       const optionCount=stage===1?2:stage===2?4:6;
       const similarPool=icon=>pictureGroups.find(group=>group.includes(icon))||pictureItems;
-      return pictureItems.map(icon=>make("איזו תמונה זהה לתמונה שלמעלה?",icon,options(icon,stage===3?similarPool(icon):pictureItems,optionCount),icon,{skill:"הבחנה חזותית",type:`תמונות זהות — רמה ${stage}`}));
+      return pictureItems.map(icon=>make("איזו תמונה זהה לתמונה שמוצגת למעלה?",icon,options(icon,stage===3?similarPool(icon):pictureItems,optionCount),icon,{skill:"הבחנה חזותית",type:`תמונות זהות — רמה ${stage}`}));
     }
     if(kind==="hebrewLetter")return repeatPool(heAlphabet.slice(0,clamp(8+level*2,10,heAlphabet.length)).map(letter=>make(`מצאו את האות ${letter}`,letter,options(letter,heAlphabet),"",{skill:"אותיות",type:"זיהוי אות",word:true})));
     if(kind==="startsHebrew"){
@@ -1322,10 +1318,10 @@
     });
   }
   function wordSearch(level){
-    const realLevel=clamp(level,1,3),groups=wordSearchGroupsByLevel[realLevel-1],size=[5,6,7][realLevel-1];
-    // Keep every target within the width of its grid.  Level 2 is deliberately
-    // compact (6×6), so its longer source words use familiar short alternatives.
-    const compactTargets={"מכוניות":"מכונית","צבעונים":"פרח","סוכריות":"ממתק","משקפיים":"כובע","ארנבונים":"ארנבת","מלפפונים":"מלפפון","גלגיליות":"גלגל","סנדוויץ":"כריך","צעצועים":"צעצוע","שיעורים":"שיעור","אופניים":"גלגל","תרנגולת":"תרנגול","טיולים":"טיול"};
+    const realLevel=clamp(level,1,4),groups=wordSearchGroupsByLevel[realLevel-1],size=[4,5,6,7][realLevel-1];
+    // Smaller grids use familiar short alternatives, keeping every target
+    // within the width of its level's matrix.
+    const compactTargets={"בננה":"פרי","גבינה":"חלב","יהלום":"אבן","מטריה":"גשם","מכונית":"רכב","מכוניות":"רכב","שוקולד":"מתוק","ספרייה":"מדף","מחברת":"דפים","חלונות":"חלון","פרפרים":"פרפר","צבעונים":"פרח","סוכריות":"ממתק","משקפיים":"עדשה","ארנבונים":"ארנבת","מלפפונים":"ירק","גלגיליות":"גלגל","סנדוויץ":"כריך","צעצועים":"בובה","שיעורים":"לימוד","אופניים":"גלגל","תרנגולת":"לול","טיולים":"טיול","מרפסת":"בית","עוגיות":"עוגיה","חולצות":"בגד","משחקים":"כדור","משפחה":"הורים","חופשה":"טיול","מוזיקה":"שיר","חברים":"חבר","מסיבה":"חג"};
     return groups.map((sourceTargets,puzzleIndex)=>{
       const targets=sourceTargets.map(word=>compactTargets[word]||word);
       const letters=Array.from({length:size*size},()=>heAlphabet[Math.floor(Math.random()*heAlphabet.length)]);
@@ -1333,9 +1329,10 @@
       const placedLetters=Array(size*size).fill(null);
       targets.forEach((word,targetIndex)=>{
         const wordLetters=[...word];
-        // The two higher levels always include vertical words. Level 1 stays horizontal.
-        // Place the first target vertically so this remains true even if a puzzle has one target.
-        const directions=realLevel===1?[[0,1]]:(targetIndex%2===0?[[1,0],[0,1]]:[[0,1],[1,0]]);
+        // Levels 3–4 always include vertical words. In the compact 5×5
+        // second level, a vertical fallback lets two five-letter words sit
+        // in parallel when they cannot share a matching crossing letter.
+        const directions=realLevel===1?[[0,1]]:realLevel===2?[[0,1],[1,0]]:(targetIndex%2===0?[[1,0],[0,1]]:[[0,1],[1,0]]);
         let placedPath=null;
         for(const [rowStep,columnStep] of directions){
           const maxRow=size-(rowStep?(wordLetters.length-1):0);
@@ -1357,7 +1354,7 @@
           }
           if(placedPath) break;
         }
-        if(!placedPath) throw new Error(`Could not place word-search word: ${word}`);
+        if(!placedPath) throw new Error(`Could not place word-search word: ${word} (level ${realLevel}, puzzle ${puzzleIndex})`);
         paths.push(placedPath);
       });
       const label=targets.length===1?`מצאו את המילה ${targets[0]}`:"מצאו את כל המילים בתפזורת";

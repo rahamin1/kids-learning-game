@@ -1,0 +1,12 @@
+.weekly-chart-summary{margin:0 0 12px!important;padding:9px 11px;border-radius:10px;background:#e9f5ff;color:#1b416b!important;font-weight:800;font-size:14px!important}
+.weekly-line-chart{height:230px;direction:ltr}
+.weekly-line-chart svg{display:block;width:100%;height:100%;overflow:visible}
+.weekly-line-chart .chart-grid line{stroke:#c9ddea;stroke-width:1}
+.weekly-line-chart .chart-grid text{fill:#52708b;font:700 12px Heebo,Arial,sans-serif;text-anchor:end}
+.weekly-line-chart .chart-line{fill:none;stroke:#2375b4;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.weekly-line-chart .chart-point{cursor:pointer;outline:none}
+.weekly-line-chart .chart-point circle{fill:#fff;stroke:#2375b4;stroke-width:3;transition:r .15s ease,fill .15s ease,stroke .15s ease}
+.weekly-line-chart .chart-point:hover circle,.weekly-line-chart .chart-point:focus circle,.weekly-line-chart .chart-point.selected circle{fill:#f0b948;stroke:#d86e32;r:9}
+.weekly-line-chart .chart-x-label{fill:#52708b;font:700 10px Heebo,Arial,sans-serif;text-anchor:middle}
+.weekly-chart-detail{margin:8px 0 0!important;min-height:23px;color:#1b416b!important;font-size:14px!important;font-weight:800;text-align:center}
+@media(max-width:460px){.weekly-line-chart{height:205px}.weekly-line-chart .chart-grid text{font-size:11px}.weekly-line-chart .chart-x-label{font-size:9px}.weekly-chart-summary,.weekly-chart-detail{font-size:13px!important;line-height:1.35}}

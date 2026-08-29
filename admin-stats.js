@@ -33,13 +33,34 @@ function lastThirtyWeeks(){
 }
 function renderWeeklyChart(weeks,values){
   const max=Math.max(1,...values);
-  $("#weeklyChart").innerHTML=weeks.map((week,index)=>{
-    const total=values[index]||0;
-    const start=week.dates[0],end=week.dates.at(-1);
-    const percent=total?Math.max(7,Math.round(total/max*100)):2;
-    const label=index===0?"השבוע":index%5===0?`${index} ש׳`:"";
-    return `<div class="weekly-bar-column" title="${week.label}: ${number(total)} משחקים (${start}–${end})" aria-label="${week.label}: ${number(total)} משחקים"><b>${number(total)}</b><i style="--bar-height:${percent}%"></i><small>${label}</small></div>`;
+  const total=values.reduce((sum,value)=>sum+value,0);
+  const chart=$("#weeklyChart"),detail=$("#weeklyChartDetail");
+  const width=600,left=48,right=580,top=18,bottom=174,chartHeight=bottom-top;
+  const xFor=index=>right-index*(right-left)/(Math.max(1,weeks.length-1));
+  const yFor=value=>bottom-(value/max)*chartHeight;
+  const pointInfo=index=>{
+    const week=weeks[index],value=values[index]||0;
+    return `${week.label}: ${number(value)} משחקים (${week.dates[0]}–${week.dates.at(-1)})`;
+  };
+  const grid=[max,Math.ceil(max/2),0].filter((value,index,array)=>array.indexOf(value)===index).map(value=>{
+    const y=yFor(value);
+    return `<g class="chart-grid"><line x1="${left}" y1="${y}" x2="${right}" y2="${y}"/><text x="${left-9}" y="${y+4}">${number(value)}</text></g>`;
   }).join("");
+  const path=values.map((value,index)=>`${index?"L":"M"}${xFor(index).toFixed(1)},${yFor(value||0).toFixed(1)}`).join(" ");
+  const points=weeks.map((week,index)=>{
+    const value=values[index]||0,x=xFor(index),y=yFor(value);
+    const label=index===0?"השבוע":index%5===0?`לפני ${index} שבועות`:"";
+    return `<g class="chart-point" data-week-index="${index}" tabindex="0" role="button" aria-label="${pointInfo(index)}"><title>${pointInfo(index)}</title><circle cx="${x}" cy="${y}" r="7"/><text class="chart-x-label" x="${x}" y="${bottom+27}">${label}</text></g>`;
+  }).join("");
+  chart.innerHTML=`<svg viewBox="0 0 ${width} 215" preserveAspectRatio="none" role="group" aria-label="משחקים בכל שבוע"><title>משחקים בכל שבוע</title>${grid}<path class="chart-line" d="${path}"/>${points}</svg>`;
+  setText("#weeklyChartSummary",`השבוע: ${number(values[0])} משחקים · השיא השבועי: ${number(max)} · סך הכול ב־30 השבועות: ${number(total)}`);
+  const selectPoint=index=>{
+    chart.querySelectorAll(".chart-point").forEach(point=>point.classList.toggle("selected",Number(point.dataset.weekIndex)===index));
+    setText("#weeklyChartDetail",pointInfo(index));
+  };
+  chart.onclick=event=>{const point=event.target.closest(".chart-point");if(point)selectPoint(Number(point.dataset.weekIndex))};
+  chart.onkeydown=event=>{if((event.key==="Enter"||event.key===" ")&&event.target.closest(".chart-point")){event.preventDefault();selectPoint(Number(event.target.closest(".chart-point").dataset.weekIndex))}};
+  selectPoint(0);
 }
 
 if(!firebaseIsConfigured()){

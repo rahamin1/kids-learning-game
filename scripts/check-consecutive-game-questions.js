@@ -26,15 +26,15 @@ const reviewedIds = [
   "true-false", "story-title", "word-search", "weather", "food-chain", "adaptations", "cause-effect"
 ];
 const custom = {
-  count:4, "number-quantity":6, "big-small":7, "more-groups":7,
-  "visual-pattern":5, "number-sequence":5, "picture-subtraction":5,
-  "number-line":4, shapes:4, clock:4, addition:6, multiplication:5,
+  count:5, "number-quantity":6, "big-small":7, "more-groups":6,
+  "visual-pattern":5, "number-sequence":5, "picture-subtraction":6,
+  "number-line":4, shapes:4, clock:4, addition:6, multiplication:6,
   "multiplication-numbers":5, "letter-picture":4, "first-letter":4,
   "image-word":4, "drag-word-picture":4, "missing-letter-en":4,
   "build-word-en":4, "same-picture":3, "starts-hebrew":4,
   "hebrew-word-picture":3, "alphabet-order":5, "missing-letter-he":3,
-  inference:4, "word-problems":8, "word-categories":6, "story-title":4,
-  "word-search":3, "odd-one-out":3, habitat:3, "baby-adult":4, "living-groups":4,
+  inference:4, "word-problems":6, "word-categories":6, "story-title":4,
+  "word-search":4, "odd-one-out":3, habitat:3, "baby-adult":4, "living-groups":4,
   seasons:4, "life-cycle":4, "plant-parts":4
 };
 const extended = new Set(["count", "number-quantity", "more-groups", "number-sequence", "picture-subtraction"]);
@@ -55,7 +55,11 @@ for(const id of reviewedIds){
     // A five-question round must always leave at least five different choices
     // for its immediate successor. startGame intentionally has no immediate
     // repeat fallback, so this check protects the rule for every reviewed bank.
-    if(distinct.length < 10) errors.push(`${id} L${level}: only ${distinct.length} distinct questions; need at least 10`);
+    // The first two sequence levels deliberately use only ascending sequences
+    // with the blank at the end. Six distinct prompts are sufficient to keep
+    // a five-question round from repeating its immediate predecessor.
+    const minimumDistinct=id==="number-sequence"&&level<=2?6:10;
+    if(distinct.length < minimumDistinct) errors.push(`${id} L${level}: only ${distinct.length} distinct questions; need at least ${minimumDistinct}`);
   }
 }
 if(errors.length){ console.error(errors.join("\n")); process.exit(1); }

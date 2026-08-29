@@ -1,4 +1,4 @@
-const APP_VERSION = "0.2.3";
+const APP_VERSION = "0.2.4";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -514,7 +514,7 @@ const FIVE_LEVEL_GAME_IDS = new Set([
 ]);
 // A few vocabulary games have eight genuinely different stages.  Do not
 // advertise a ninth stage when it would only repeat the eighth.
-const CUSTOM_MAX_LEVELS = { "count": 4, "number-quantity": 6, "big-small": 7, "more-groups": 6, "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 5, "number-line": 4, "shapes": 4, "clock": 4, "addition": 6, "multiplication": 5, "multiplication-numbers": 5, "fractions": 8, "letter-picture": 4, "first-letter": 4, "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4, "build-word-en": 4, "sentence-order-en": 5, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "word-problems": 8, "word-categories": 6, "story-title": 4, "word-search": 3, "odd-one-out": 3, "habitat": 3, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
+const CUSTOM_MAX_LEVELS = { "count": 5, "number-quantity": 6, "big-small": 7, "more-groups": 6, "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 6, "number-line": 4, "shapes": 4, "clock": 4, "addition": 6, "multiplication": 6, "multiplication-numbers": 5, "fractions": 8, "letter-picture": 4, "first-letter": 4, "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4, "build-word-en": 4, "sentence-order-en": 5, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "word-problems": 6, "word-categories": 6, "story-title": 4, "word-search": 4, "odd-one-out": 3, "habitat": 3, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
 const DIFFICULTY_PROMPT_COOLDOWN_GAMES = 5;
 function gameMaxLevel(gameId){ return CUSTOM_MAX_LEVELS[gameId] || (EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9); }
 function ageLevel(age){ return clamp(Number(age)||4,1,9); }
@@ -527,6 +527,8 @@ function defaultGameLevel(gameId,age){
   // At age five, games that were already available at age four begin at
   // level 2.  A game introduced at age five starts at its first level.
   if(playerAge===5)return game?.minAge>=5?1:2;
+  if(gameId==="life-cycle"||gameId==="visual-pattern")return ({5:1,6:2,7:3})[playerAge]||3;
+  if(gameId==="word-search")return ({5:1,6:2,7:3})[playerAge]||4;
   if(gameId==="count")return ({4:1,5:2,6:3,7:3})[playerAge]||1;
   if(gameId==="number-quantity")return ({4:1,5:2,6:4,7:5,8:6,9:6})[playerAge]||1;
   if(gameId==="big-small")return ({4:1,5:2,6:5,7:6,8:7,9:7})[playerAge]||1;
@@ -616,7 +618,10 @@ function showMidGameMilestone(milestone,onContinue){
   if(milestone.newTrophies>milestone.previousTrophies&&milestone.newTrophies===1&&!activeProfile()?.updatesPromptShown)session.pendingUpdatesPrompt=true;
   // Sharing is offered only after a medal, and only once this game has ended.
   // No player identity or share preference is sent anywhere.
-  if(milestone.newMedals>milestone.previousMedals&&!state.sharePromptDisabled)session.pendingSharePrompt=true;
+  if(milestone.newMedals>milestone.previousMedals&&!state.sharePromptDisabled){
+    session.pendingSharePrompt=true;
+    session.shareMedalNumber=milestone.newMedals;
+  }
   session.pendingMilestoneContinue=onContinue;
   renderMilestone(milestone,{continueGame:true});
   openModal("milestoneModal");
@@ -763,6 +768,12 @@ function prepareProfile(p){
     p.recentQuestions.math=[];
     p.numberLineRedesignVersion=1;
   }
+  if(p.ageLevelRulesVersion!==1){
+    ["life-cycle","visual-pattern","word-search"].forEach(id=>{
+      if(!p.gameFeedback[id])p.gameLevels[id]=defaultGameLevel(id,p.age);
+    });
+    p.ageLevelRulesVersion=1;
+  }
   return p;
 }
 state.profiles.forEach(prepareProfile);
@@ -773,12 +784,8 @@ function closeModal(id){ $("#"+id).classList.remove("open"); }
 const SHARE_URL="https://brightforest.co.il";
 
 function finishedGameShareData(){
-  const p=activeProfile(),name=String(p?.name||"").trim();
-  const subject=SUBJECTS[session?.subject]?.name;
-  const headline=name
-    ? (subject?`${name} סיים/ה משחק ${subject} ביער הזוהר 🌳`:`${name} סיים/ה עוד אתגר ביער הזוהר 🌳`)
-    : (subject?`הושלם משחק ${subject} ביער הזוהר 🌳`:"הושלם עוד אתגר ביער הזוהר 🌳");
-  return {headline,text:`${headline}\nמשחקים, חושבים ולומדים יחד\nBrightForest.co.il`,url:SHARE_URL};
+  const headline="אנחנו משחקים במשחק לימודי כיפי בשם היער הזוהר. כרגע זכינו במדליה! ממליצים לנסות!";
+  return {headline,text:`${headline}\nBrightForest.co.il`,url:SHARE_URL};
 }
 
 function shouldShowFinishedGameShare(){
@@ -793,6 +800,7 @@ function renderFinishedGameShare(){
     card.querySelector("[data-share-status]").textContent="";
     const button=card.querySelector("[data-share-achievement]");
     button.innerHTML=typeof navigator.share==="function"?`שתפו את ההישג <span>↗</span>`:"העתקת ההודעה";
+    card.querySelector("[data-share-never]").classList.toggle("hidden",session?.shareMedalNumber!==4);
   });
 }
 
@@ -855,7 +863,7 @@ async function shareFinishedGameAchievement(){
 }
 
 function deferFinishedGameShare(){
-  // "Not now" applies only to this completion. The next medal will offer
+  // "Maybe at the next medal" applies only to this completion. The next medal will offer
   // sharing again; no preference or identifier needs to be stored for it.
   if(session)session.pendingSharePrompt=false;
   hideFinishedGameShare();

@@ -44,15 +44,15 @@ function key(question) {
 const report = [];
 const errors = [];
 const maxLevels = {
-  count: 4, "number-quantity": 6, "big-small": 7, "more-groups": 6,
-  "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 5,
-  "number-line": 4, shapes: 4, clock: 4, addition: 6, multiplication: 5,
+  count: 5, "number-quantity": 6, "big-small": 7, "more-groups": 6,
+  "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 6,
+  "number-line": 4, shapes: 4, clock: 4, addition: 6, multiplication: 6,
   "multiplication-numbers": 5, "letter-picture": 4, "first-letter": 4,
   "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4,
   "build-word-en": 4, "sentence-order-en": 5, "same-picture": 3,
   "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5,
-  "missing-letter-he": 3, inference: 4, "word-problems": 8,
-  "word-categories": 6, "story-title": 4, "word-search": 3,
+  "missing-letter-he": 3, inference: 4, "word-problems": 6,
+  "word-categories": 6, "story-title": 4, "word-search": 4,
   "odd-one-out": 3, habitat: 3, "living-groups": 4, seasons: 4,
   "life-cycle": 4, "plant-parts": 4, "animal-food": 5, weather: 5,
   "food-chain": 5, adaptations: 5, "cause-effect": 5,
