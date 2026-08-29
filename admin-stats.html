@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin-stats.css?build=line-chart-1">
-  <link rel="stylesheet" href="admin-stats-chart.css?build=line-chart-1">
+  <link rel="stylesheet" href="admin-stats.css?build=reset-1">
+  <link rel="stylesheet" href="admin-stats-chart.css?build=reset-1">
 </head>
 <body>
   <main class="admin-shell">
@@ -25,7 +25,7 @@
     </section>
 
     <section class="dashboard hidden" id="dashboard" aria-live="polite">
-      <div class="dashboard-top"><p id="adminIdentity"></p><div><button class="secondary" id="refreshStats" type="button">רענון</button><button class="link-button" id="adminSignOut" type="button">יציאה</button></div></div>
+      <div class="dashboard-top"><p id="adminIdentity"></p><div><button class="secondary" id="refreshStats" type="button">רענון</button><button class="danger" id="resetStats" type="button">איפוס כל המונים</button><button class="link-button" id="adminSignOut" type="button">יציאה</button></div></div>
       <div class="metric-grid">
         <article><span>היום</span><b id="metricToday">—</b></article>
         <article><span>אתמול</span><b id="metricYesterday">—</b></article>
@@ -38,9 +38,11 @@
         <div class="weekly-line-chart" id="weeklyChart" aria-label="גרף משחקים בכל שבוע ב־30 השבועות האחרונים"></div>
         <p class="weekly-chart-detail" id="weeklyChartDetail" aria-live="polite"></p>
       </section>
+      <p class="reset-status" id="resetStatus" aria-live="polite"></p>
+      <p class="last-reset" id="lastReset">טרם נטענו נתונים.</p>
       <p class="updated" id="statsUpdated">טרם נטענו נתונים.</p>
     </section>
   </main>
-  <script type="module" src="admin-stats.js?build=line-chart-1"></script>
+  <script type="module" src="admin-stats.js?build=reset-1"></script>
 </body>
 </html>

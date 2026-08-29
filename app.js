@@ -1,4 +1,4 @@
-const APP_VERSION = "0.2.5";
+const APP_VERSION = "0.2.6";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -523,39 +523,18 @@ const FIVE_LEVEL_GAME_IDS = new Set([
 // advertise a ninth stage when it would only repeat the eighth.
 const CUSTOM_MAX_LEVELS = { "count": 5, "number-quantity": 6, "big-small": 7, "more-groups": 6, "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 6, "number-line": 4, "shapes": 4, "clock": 4, "addition": 6, "multiplication": 6, "multiplication-numbers": 5, "fractions": 8, "letter-picture": 4, "first-letter": 4, "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4, "build-word-en": 4, "sentence-order-en": 5, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "word-problems": 6, "word-categories": 6, "story-title": 4, "word-search": 4, "odd-one-out": 3, "habitat": 3, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
 const DIFFICULTY_PROMPT_COOLDOWN_GAMES = 5;
-function gameMaxLevel(gameId){ return CUSTOM_MAX_LEVELS[gameId] || (EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9); }
+function gameMaxLevel(gameId){
+  const game=KIDS_GAMES.catalog.find(item=>item.id===gameId);
+  return CUSTOM_MAX_LEVELS[gameId] || game?.maxLevel || (EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9);
+}
 function ageLevel(age){ return clamp(Number(age)||4,1,9); }
 function defaultGameLevel(gameId,age){
   const game=KIDS_GAMES.catalog.find(item=>item.id===gameId);
   const playerAge=Math.max(4,Number(age)||4);
-  // All games available to a four-year-old begin at the first level.
-  // Existing player choices are preserved; this is only the default.
-  if(playerAge===4)return 1;
-  // At age five, games that were already available at age four begin at
-  // level 2.  A game introduced at age five starts at its first level.
-  if(playerAge===5)return game?.minAge>=5?1:2;
-  if(gameId==="life-cycle"||gameId==="visual-pattern")return ({5:1,6:2,7:3})[playerAge]||3;
-  if(gameId==="word-search")return ({5:1,6:2,7:3})[playerAge]||4;
-  if(gameId==="word-problems")return ({4:1,5:2,6:3,7:4})[playerAge]||1;
-  if(gameId==="count")return ({4:1,5:2,6:3,7:3})[playerAge]||1;
-  if(gameId==="number-quantity")return ({4:1,5:2,6:4,7:5,8:6,9:6})[playerAge]||1;
-  if(gameId==="big-small")return ({4:1,5:2,6:5,7:6,8:7,9:7})[playerAge]||1;
-  if(gameId==="more-groups")return ({4:1,5:2,6:5,7:6,8:6,9:6})[playerAge]||1;
-  if(gameId==="number-sequence")return ({4:1,5:2,6:3,7:4,8:5,9:5})[Number(age)]||1;
-  if(gameId==="picture-subtraction")return ({5:1,6:2,7:3,8:4,9:5})[Number(age)]||1;
-  if(gameId==="number-line")return ({4:1,5:2,6:3,7:4,8:4,9:4})[Number(age)]||1;
-  if(gameId==="addition")return ({4:1,5:2,6:3,7:4,8:5,9:6})[Number(age)]||1;
-  if(gameId==="multiplication-numbers")return ({6:1,7:2,8:3,9:4})[Number(age)]||1;
-  if(gameId==="multiplication")return ({5:1,6:2,7:3,8:4,9:5})[Number(age)]||1;
-  if(gameId==="shapes")return ({5:1,6:2,7:3,8:4,9:4})[Number(age)]||1;
-  if(gameId==="build-word-en")return ({6:1,7:2})[Number(age)]||1;
-  if(gameId==="sentence-order-en")return ({6:1,7:2})[Number(age)]||1;
-  if(game?.minAge===4){
-    if(playerAge===4)return 1;
-    if(playerAge===5)return 2;
-  }
-  if(game?.minAge===5 && playerAge===5)return 1;
-  return ageLevel(age);
+  if(!game)return 1;
+  // Every game begins at level 1 at its first available age, then rises
+  // exactly one level per birthday. This prevents age-to-level jumps.
+  return clamp(playerAge-game.minAge+1,1,gameMaxLevel(gameId));
 }
 function applyDefaultHiddenGames(p){
   p.autoHiddenGames ||= [];
@@ -787,6 +766,14 @@ function prepareProfile(p){
     // levels 6–7). Keep any explicit parent difficulty choice intact.
     if(!p.gameFeedback["word-problems"])p.gameLevels["word-problems"]=defaultGameLevel("word-problems",p.age);
     p.wordProblemsAgeMappingVersion=1;
+  }
+  if(p.continuousAgeLevelsVersion!==1){
+    // Preserve an explicit parent difficulty choice, while repairing the
+    // automatic defaults of every other game to follow its starting age.
+    KIDS_GAMES.catalog.forEach(game=>{
+      if(!p.gameFeedback[game.id])p.gameLevels[game.id]=defaultGameLevel(game.id,p.age);
+    });
+    p.continuousAgeLevelsVersion=1;
   }
   return p;
 }

@@ -22,14 +22,20 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow create: if isNewCounter();
       allow update: if isSingleIncrement();
-      allow delete: if false;
+      allow delete: if isAdmin();
     }
 
     match /statsTotals/games {
       allow read: if isAdmin();
       allow create: if isNewCounter();
       allow update: if isSingleIncrement();
-      allow delete: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Only an admin may record when anonymous counters were last reset.
+    // No player, browser, device or game data is stored here.
+    match /statsMeta/reset {
+      allow read, write: if isAdmin();
     }
 
     match /{document=**} {

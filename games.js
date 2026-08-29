@@ -1357,7 +1357,7 @@
         if(!placedPath) throw new Error(`Could not place word-search word: ${word} (level ${realLevel}, puzzle ${puzzleIndex})`);
         paths.push(placedPath);
       });
-      const label=targets.length===1?`מצאו את המילה ${targets[0]}`:"מצאו את כל המילים בתפזורת";
+      const label=targets.length===1?"מצאו את המילה בתפזורת":"מצאו את המילים בתפזורת";
       return make(label,targets.join(" | "),[],"🔍",{skill:"תפזורת",type:`חיפוש מילים — רמה ${realLevel}`,mode:"wordsearch",grid:letters,size,paths,wordTargets:targets,word:true});
     });
   }
@@ -1381,12 +1381,26 @@
       return familiarAnimals.map(a=>make(`היכן ${femaleAnimals.has(a.he)?"חיה":"חי"} ה${a.he}?`,a.habitat,options(a.habitat,habitats),a.icon,{skill:"בתי גידול",type:"בעל חיים וסביבה",explain:`התשובה הנכונה היא ${a.habitat}.`}));
     }
     if(kind==="babyAdult"){
-      const babyQuestionText=a=>{
-        const custom={פרה:"איך נקראת הפרה הצעירה?",כבשה:"איך נקרא הכבש הצעיר?",תרנגולת:"איך נקרא התרנגול הצעיר?",אריה:"איך נקרא האריה הצעיר?"};
-        if(custom[a.he])return custom[a.he];
-        return femaleAnimals.has(a.he)?`איך נקראת ה${a.he} הצעירה?`:`איך נקרא ה${a.he} הצעיר?`;
-      };
-      return repeatPool(familiarAnimals.map(a=>make(babyQuestionText(a),a.baby,options(a.baby,familiarAnimals.map(x=>x.baby)),a.icon,{skill:"משפחות בעלי חיים",type:"גור ובוגר"})));
+      const families=[
+        {icon:"🐶",adult:"כלב",father:"כלב",mother:"כלבה",baby:"כלבלב"},
+        {icon:"🐱",adult:"חתול",father:"חתול",mother:"חתולה",baby:"חתלתול"},
+        {icon:"🐴",adult:"סוס",father:"סוס",mother:"סוסה",baby:"סייח"},
+        {icon:"🐑",adult:"כבש",father:"כבש",mother:"כבשה",baby:"טלה"},
+        {icon:"🐰",adult:"ארנב",father:"ארנב",mother:"ארנבת",baby:"ארנבון"},
+        {icon:"🐔",adult:"תרנגול",father:"תרנגול",mother:"תרנגולת",baby:"אפרוח"}
+      ];
+      const stage=clamp(level,1,4);
+      if(stage===1)return repeatPool(families.map(family=>make(`איך נקרא הצעיר של ה${family.adult}?`,family.baby,options(family.baby,families.map(item=>item.baby),2),family.icon,{skill:"משפחות בעלי חיים",type:"מזהים גור"})));
+      if(stage===2)return repeatPool(families.map(family=>make(`מי הבוגר של ה${family.baby}?`,family.adult,options(family.adult,families.map(item=>item.adult),3),family.icon,{skill:"משפחות בעלי חיים",type:"מזהים בוגר"})));
+      if(stage===3)return repeatPool(families.flatMap(family=>[
+        make(`מיהו אביו של ה${family.baby}?`,family.father,options(family.father,families.map(item=>item.father),4),family.icon,{skill:"משפחות בעלי חיים",type:"אבא ואמא"}),
+        make(`מיהי אמו של ה${family.baby}?`,family.mother,options(family.mother,families.map(item=>item.mother),4),family.icon,{skill:"משפחות בעלי חיים",type:"אבא ואמא"})
+      ]));
+      return repeatPool(families.map(family=>{
+        const pair=`${family.father} ו${family.mother}`;
+        const pairs=families.map(item=>`${item.father} ו${item.mother}`);
+        return make(`למי שייך ה${family.baby}?`,pair,options(pair,pairs,4),family.icon,{skill:"משפחות בעלי חיים",type:"משפחה מלאה"});
+      }));
     }
     if(kind==="livingGroups"){
       const items=[

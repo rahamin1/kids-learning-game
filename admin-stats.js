@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+import { getFirestore, collection, doc, getDoc, getDocs, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 import { firebaseConfig, firebaseIsConfigured } from "./firebase-config.js";
 
 const $=selector=>document.querySelector(selector);
@@ -47,12 +47,18 @@ function renderWeeklyChart(weeks,values){
     return `<g class="chart-grid"><line x1="${left}" y1="${y}" x2="${right}" y2="${y}"/><text x="${left-9}" y="${y+4}">${number(value)}</text></g>`;
   }).join("");
   const path=values.map((value,index)=>`${index?"L":"M"}${xFor(index).toFixed(1)},${yFor(value||0).toFixed(1)}`).join(" ");
-  const points=weeks.map((week,index)=>{
-    const value=values[index]||0,x=xFor(index),y=yFor(value);
+  const labels=weeks.map((week,index)=>{
     const label=index===0?"השבוע":index%5===0?`לפני ${index} שבועות`:"";
-    return `<g class="chart-point" data-week-index="${index}" tabindex="0" role="button" aria-label="${pointInfo(index)}"><title>${pointInfo(index)}</title><circle cx="${x}" cy="${y}" r="7"/><text class="chart-x-label" x="${x}" y="${bottom+27}">${label}</text></g>`;
+    return label?`<text class="chart-x-label" x="${xFor(index)}" y="${bottom+27}">${label}</text>`:"";
   }).join("");
-  chart.innerHTML=`<svg viewBox="0 0 ${width} 215" preserveAspectRatio="none" role="group" aria-label="משחקים בכל שבוע"><title>משחקים בכל שבוע</title>${grid}<path class="chart-line" d="${path}"/>${points}</svg>`;
+  // Zero-value weeks remain in the line but get no dot: a dot for every empty
+  // week looks like an unexplained row of circles at the bottom of the chart.
+  const points=weeks.map((week,index)=>{
+    if(!(values[index]>0))return "";
+    const value=values[index]||0,x=xFor(index),y=yFor(value);
+    return `<g class="chart-point" data-week-index="${index}" tabindex="0" role="button" aria-label="${pointInfo(index)}"><title>${pointInfo(index)}</title><circle cx="${x}" cy="${y}" r="7"/></g>`;
+  }).join("");
+  chart.innerHTML=`<svg viewBox="0 0 ${width} 215" preserveAspectRatio="none" role="group" aria-label="משחקים בכל שבוע"><title>משחקים בכל שבוע</title>${grid}<path class="chart-line" d="${path}"/>${points}${labels}</svg>`;
   setText("#weeklyChartSummary",`השבוע: ${number(values[0])} משחקים · השיא השבועי: ${number(max)} · סך הכול ב־30 השבועות: ${number(total)}`);
   const selectPoint=index=>{
     chart.querySelectorAll(".chart-point").forEach(point=>point.classList.toggle("selected",Number(point.dataset.weekIndex)===index));
@@ -60,7 +66,8 @@ function renderWeeklyChart(weeks,values){
   };
   chart.onclick=event=>{const point=event.target.closest(".chart-point");if(point)selectPoint(Number(point.dataset.weekIndex))};
   chart.onkeydown=event=>{if((event.key==="Enter"||event.key===" ")&&event.target.closest(".chart-point")){event.preventDefault();selectPoint(Number(event.target.closest(".chart-point").dataset.weekIndex))}};
-  selectPoint(0);
+  const firstWeekWithGames=values.findIndex(value=>value>0);
+  selectPoint(firstWeekWithGames>=0?firstWeekWithGames:0);
 }
 
 if(!firebaseIsConfigured()){
@@ -75,8 +82,9 @@ if(!firebaseIsConfigured()){
       const dates=Array.from({length:7},(_,index)=>israelDateKey(index));
       const weeks=lastThirtyWeeks();
       const chartDates=[...new Set(weeks.flatMap(week=>week.dates))];
-      const [totalSnapshot,...dailySnapshots]=await Promise.all([
+      const [totalSnapshot,resetSnapshot,...dailySnapshots]=await Promise.all([
         getDoc(doc(db,"statsTotals","games")),
+        getDoc(doc(db,"statsMeta","reset")),
         ...chartDates.map(date=>getDoc(doc(db,"statsDays",date)))
       ]);
       const dailyByDate=new Map(chartDates.map((date,index)=>[date,dailySnapshots[index].exists()?Number(dailySnapshots[index].data().gamesStarted)||0:0]));
@@ -89,6 +97,8 @@ if(!firebaseIsConfigured()){
       const stamps=[totalSnapshot,...dailySnapshots].filter(snapshot=>snapshot.exists()).map(snapshot=>snapshot.data().updatedAt?.toDate?.()).filter(Boolean);
       const latest=stamps.sort((a,b)=>b-a)[0];
       setText("#statsUpdated",latest?`עדכון אחרון: ${latest.toLocaleString("he-IL")}`:"עדיין לא התקבלו נתונים.");
+      const lastReset=resetSnapshot.exists()?resetSnapshot.data().lastResetAt?.toDate?.():null;
+      setText("#lastReset",lastReset?`איפוס אחרון: ${lastReset.toLocaleString("he-IL")}`:"עדיין לא בוצע איפוס.");
     }catch(error){
       setText("#statsUpdated","לא ניתן לטעון נתונים. ודאו שלחשבון יש הרשאת אדמין.");
       console.warn("Could not load anonymous statistics.",error);
@@ -103,6 +113,31 @@ if(!firebaseIsConfigured()){
   });
   $("#adminSignOut").addEventListener("click",()=>signOut(auth));
   $("#refreshStats").addEventListener("click",loadStats);
+  $("#resetStats").addEventListener("click",async()=>{
+    if(!window.confirm("לאפס את כל מוני המשחקים? הפעולה תמחק את המונים המצרפיים ולא ניתן לשחזר אותם."))return;
+    const resetButton=$("#resetStats");
+    resetButton.disabled=true;
+    setText("#resetStatus","מאפסים את המונים…");
+    try{
+      const daySnapshots=await getDocs(collection(db,"statsDays"));
+      const operations=[...daySnapshots.docs.map(snapshot=>snapshot.ref),doc(db,"statsTotals","games")];
+      // Firestore allows up to 500 operations per batch. Chunks make reset
+      // safe even after counters have been collected for many years.
+      while(operations.length){
+        const batch=writeBatch(db);
+        operations.splice(0,450).forEach(reference=>batch.delete(reference));
+        await batch.commit();
+      }
+      const markerBatch=writeBatch(db);
+      markerBatch.set(doc(db,"statsMeta","reset"),{lastResetAt:serverTimestamp()},{merge:true});
+      await markerBatch.commit();
+      setText("#resetStatus","המונים אופסו.");
+      await loadStats();
+    }catch(error){
+      setText("#resetStatus","לא ניתן לאפס את המונים. ודאו שלחשבון יש הרשאת אדמין.");
+      console.warn("Could not reset anonymous statistics.",error);
+    }finally{resetButton.disabled=false}
+  });
 
   onAuthStateChanged(auth,async user=>{
     if(!user){$("#loginCard").classList.remove("hidden");$("#dashboard").classList.add("hidden");return}
