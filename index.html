@@ -10,11 +10,12 @@
   <title>גרסת בדיקה | ההרפתקה ביער הזוהר</title>
   <link rel="icon" type="image/svg+xml" href="assets/app-icon-test.svg">
   <link rel="apple-touch-icon" href="assets/app-icon-test.svg">
-  <link rel="manifest" href="manifest.test.webmanifest?v=test-0.2.0">
+  <link rel="manifest" href="manifest.test.webmanifest?v=test-0.2.3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?build=test-0.2.0">
+<link rel="stylesheet" href="styles.css?build=test-0.2.3">
+<link rel="stylesheet" href="share.css?build=test-0.2.3">
 </head>
 <body class="test-build">
   <div id="app">
@@ -55,7 +56,7 @@
               <button class="round-btn" id="randomButton" aria-label="הפתיעו אותי">✦</button>
             </div>
             <div class="goal-progress">
-              <div><span id="homeGoalEyebrow">🏅 היעד הבא · 🏆 גביע כל 100 כוכבים</span><b id="homeGoalLabel">מדליה ב־25 כוכבים</b></div>
+              <div><span id="homeGoalEyebrow">🏅 היעד הבא · 🏆 גביע כל 50 כוכבים</span><b id="homeGoalLabel">מדליה ב־25 כוכבים</b></div>
               <strong id="homeGoalCount">0 / 25</strong>
               <div class="bar"><i id="homeGoalBar"></i></div>
             </div>
@@ -134,7 +135,7 @@
           </div>
           <article class="panel trophy-panel">
             <div class="trophy-stack"><b id="trophyCount">0</b><span>🏆</span></div>
-            <div class="trophy-copy"><span class="eyebrow blue">יעדי הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 100 כוכבים והגביע הראשון שלכם!</p><div class="reward-goals"><small class="medal-total" id="dashboardMedalCount">🏅 0 מדליות</small><small class="next-medal-goal" id="dashboardNextMedal">עוד 25 כוכבים למדליה הבאה</small></div><div class="bar"><i id="trophyBar"></i></div></div>
+            <div class="trophy-copy"><span class="eyebrow blue">יעדי הכוכבים</span><h2 id="trophyTitle">בדרך לגביע הראשון</h2><p id="trophyText">עוד 50 כוכבים והגביע הראשון שלכם!</p><div class="reward-goals"><small class="medal-total" id="dashboardMedalCount">🏅 0 מדליות</small><small class="next-medal-goal" id="dashboardNextMedal">עוד 25 כוכבים למדליה הבאה</small></div><div class="bar"><i id="trophyBar"></i></div></div>
           </article>
           <article class="panel buddy-progress-panel">
             <div class="buddy-progress-icon" id="dashboardBuddyIcon">🦊</div>
@@ -226,7 +227,7 @@
 
             <article class="panel help-card"><span class="help-icon">🎮</span><div><h2>משחקים ורמות</h2><p>לכל משחק יש רמות קושי. נקודת ההתחלה נקבעת לפי גיל הילד.</p><p>במסך ההגדרות אפשר לבחור לכל משחק <b>קל יותר</b>, <b>מתאים</b> או <b>קשה יותר</b>. ברמה הראשונה או ברמה הכי גבוהה שקיימת האפשרות שאינה זמינה תופיע מעומעמת. מספר הרמות אינו זהה בכל המשחקים.</p></div></article>
 
-            <article class="panel help-card reward-help-card"><span class="help-icon">⭐</span><div><h2>כוכבים, מדליות וגביעים</h2><p>על כל 25 כוכבים מקבלים מדליה חדשה, ועל כל 100 כוכבים מקבלים גם גביע חדש.</p><p>צבע הכוכבים, המדליות והגביעים משתנה בכל גביע שני. מתחילים בצבע פחם, ובהמשך עוברים לכסף, ברונזה, זהב, אמרלד, ספיר, סגול, אודם ולבסוף טורקיז בדרגת אגדה. שינויי הצבע נמשכים עד הגביע ה־16; אחריו הצבע נשאר טורקיז.</p><p>כאשר מגיעים למדליה או לגביע, מופיעה אנימציית הישג קצרה וחגיגית. בכל שינוי צבע מופיעה אנימציה מיוחדת יותר.</p><div class="help-reward-example"><span>★</span><b>108</b><i></i><span>🏅</span><b>4</b><i></i><span>🏆</span><b>1</b></div></div></article>
+            <article class="panel help-card reward-help-card"><span class="help-icon">⭐</span><div><h2>כוכבים, מדליות וגביעים</h2><p>על כל 25 כוכבים מקבלים מדליה חדשה, ועל כל 50 כוכבים מקבלים גם גביע חדש.</p><p>צבע הכוכבים, המדליות והגביעים משתנה בכל גביע שני — כלומר בכל 100 כוכבים. מתחילים בצבע פחם, ובהמשך עוברים לכסף, ברונזה, זהב, אמרלד, ספיר, סגול, אודם ולבסוף טורקיז בדרגת אגדה. שינויי הצבע נמשכים עד הגביע ה־16; אחריו הצבע נשאר טורקיז.</p><p>כאשר מגיעים למדליה או לגביע, מופיעה אנימציית הישג קצרה וחגיגית. בכל שינוי צבע מופיעה אנימציה מיוחדת יותר.</p><div class="help-reward-example"><span>★</span><b>108</b><i></i><span>🏅</span><b>4</b><i></i><span>🏆</span><b>2</b></div></div></article>
 
             <article class="panel help-card"><span class="help-icon">🔥</span><div><h2>רצף ימי תרגול</h2><p>סמל האש מציג כמה ימים ברצף תרגל הילד באפליקציה. תרגול קצר בכל יום עוזר לשמור על הרצף ולחזק את מה שנלמד.</p></div></article>
 
@@ -371,6 +372,18 @@
         <span class="eyebrow">השביל הושלם!</span>
         <h2 id="earnedStarsTitle">אספתם 3 כוכבים</h2>
         <p id="finishEncouragement" class="hidden"></p>
+        <section class="game-share-card hidden" data-game-share-card aria-labelledby="gameShareTitle">
+          <span class="share-parent-label">להורה</span>
+          <h3 id="gameShareTitle">רוצים לשתף את ההישג?</h3>
+          <p class="share-preview" data-share-preview></p>
+          <button class="primary-btn full share-main-btn" type="button" data-share-achievement>שתפו את ההישג <span>↗</span></button>
+          <div class="share-choice-row">
+            <button class="text-btn" type="button" data-share-next>לא עכשיו</button>
+            <button class="text-btn share-never-btn" type="button" data-share-never>אל תציעו לי שוב</button>
+          </div>
+          <p class="share-status" data-share-status aria-live="polite"></p>
+        </section>
+        <button class="outline-btn full hidden" id="celebrationUpdatesButton" type="button">רוצים לקבל עדכונים?</button>
         <button class="primary-btn full" data-game-finished-return data-close="celebrationModal">בחירת משחק נוסף <span>←</span></button>
       </div>
     </div>
@@ -381,9 +394,21 @@
         <span class="eyebrow">הגעת ליעד!</span>
         <h2 id="milestoneTitle">היער כולו זוהר!</h2>
         <div class="achievement-rewards" id="milestoneRewards"></div>
-        <p id="milestoneText">אספתם 100 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
+        <p id="milestoneText">אספתם 50 כוכבים וזכיתם בגביע חדש. איזו הרפתקה אדירה!</p>
+        <section class="game-share-card hidden" data-game-share-card aria-labelledby="milestoneShareTitle">
+          <span class="share-parent-label">להורה</span>
+          <h3 id="milestoneShareTitle">רוצים לשתף את ההישג?</h3>
+          <p class="share-preview" data-share-preview></p>
+          <button class="primary-btn full share-main-btn" type="button" data-share-achievement>שתפו את ההישג <span>↗</span></button>
+          <div class="share-choice-row">
+            <button class="text-btn" type="button" data-share-next>לא עכשיו</button>
+            <button class="text-btn share-never-btn" type="button" data-share-never>אל תציעו לי שוב</button>
+          </div>
+          <p class="share-status" data-share-status aria-live="polite"></p>
+        </section>
         <button class="outline-btn full hidden" id="milestoneUpdatesButton" type="button">רוצים לקבל עדכונים?</button>
-        <button class="primary-btn full" data-game-finished-return data-close="milestoneModal">ממשיכים למשחק הבא <span>←</span></button>
+        <button class="primary-btn full hidden" data-milestone-continue>ממשיכים במשחק <span>←</span></button>
+        <button class="primary-btn full" id="milestoneFinishedReturn" data-game-finished-return data-close="milestoneModal">ממשיכים למשחק הבא <span>←</span></button>
       </div>
     </div>
 
@@ -444,9 +469,10 @@
       <p>היער הזוהר בנוי למסך עומד (אנכי). כך רואים טוב יותר את השאלות, הכפתורים והחבר למסע.</p>
     </div>
   </div>
-<script src="games.js?build=test-0.2.0"></script>
-<script src="difficulty-levels.js?build=test-0.2.0"></script>
-<script src="expanded-question-banks.js?build=test-0.2.0"></script>
-<script src="app.js?build=test-0.2.0"></script>
+<script type="module" src="stats-client.js?build=test-0.2.3"></script>
+<script src="games.js?build=test-0.2.3"></script>
+<script src="difficulty-levels.js?build=test-0.2.3"></script>
+<script src="expanded-question-banks.js?build=test-0.2.3"></script>
+<script src="app.js?build=test-0.2.3"></script>
 </body>
 </html>

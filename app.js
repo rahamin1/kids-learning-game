@@ -1,4 +1,4 @@
-const APP_VERSION = "test-0.2.0";
+const APP_VERSION = "test-0.2.3";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -15,7 +15,7 @@ const CORRECT_FEEDBACK_LINES = [
 ];
 const INTRO_STEPS = [
   {icon:"🌟",image:"assets/app-icon-star-forest.png",tone:"forest",eyebrow:"ברוכים הבאים",title:"היער הזוהר מחכה לכם",text:"יוצאים להרפתקת למידה צבעונית וכיפית. בכל פעם משחקים קצת, מתקדמים קצת, ומגלים עוד מהיער."},
-  {icon:"🏆",tone:"trophy",eyebrow:"כוכבים, מדליות וגביעים",title:"אוספים כוכבים וזוכים בהישגים",text:"בכל משחק אוספים כוכבים. כל 25 כוכבים מקבלים מדליה, וכל 100 כוכבים זוכים בגביע חדש. צבע הפרסים משתנה בכל גביע שני, עד הגביע ה־16."},
+  {icon:"🏆",tone:"trophy",eyebrow:"כוכבים, מדליות וגביעים",title:"אוספים כוכבים וזוכים בהישגים",text:"בכל משחק אוספים כוכבים. כל 25 כוכבים מקבלים מדליה, וכל 50 כוכבים זוכים בגביע חדש. צבע הפרסים משתנה בכל גביע שני, עד הגביע ה־16."},
   {icon:"🦊",tone:"buddy",eyebrow:"חברי מסע",title:"בוחרים חבר שמלווה את ההרפתקה",text:"בתחילת הדרך בוחרים חבר למסע. בהמשך מתגלים חברים נוספים, וכל ילד יכול לבחור מי יצא איתו למסע ולהחליף חבר בדרך."},
   {icon:"⚙️",tone:"settings",eyebrow:"מתאים לכל ילד",title:"אפשר להתאים נושאים ורמות קושי",text:"אפשר לבחור נושאים, להסתיר משחקים, ולהעלות או להוריד רמת קושי לפי מה שמתאים לילד."},
   {icon:"📲",tone:"install",eyebrow:"פותחים בקלות",title:"אפשר להתקין את המשחק",text:"בהגדרות אפשר להתקין את היער הזוהר על המכשיר, כדי לפתוח אותו בקלות כמו אפליקציה."}
@@ -127,18 +127,18 @@ const TROPHY_UPGRADE_TIERS = ["שדרוג זהב","שדרוג כוכבים","ש�
 const TROPHY_ACCESSORIES = ["🎒 תרמיל מסע","🧢 כובע הרפתקה","🧣 צעיף זוהר","🔭 משקפת כוכבים","👑 כתר היער","🧭 מצפן קסום","☀️ אבקת אור","💎 אבן זוהרת"];
 const MILESTONE_TITLES = ["היער כולו זוהר!","עוד שביל נפתח באור!","הכוכבים הובילו לגביע!","קסם חדש התעורר ביער!","הרפתקה נהדרת הושלמה!","היער חוגג איתכם!"];
 const SAMPLE_NAMES = ["הראל","גבע","גוני","ים"];
-const STAR_GOAL = 100;
+const STAR_GOAL = 50;
 const MEDAL_GOAL = 25;
 const REWARD_TIERS = [
   {min:0, name:"פחם", color:"#303842", glow:"rgba(48,56,66,.28)"},
-  {min:200, name:"כסף", color:"#aeb8c4", glow:"rgba(174,184,196,.42)"},
-  {min:400, name:"ברונזה", color:"#bd7850", glow:"rgba(189,120,80,.38)"},
-  {min:600, name:"זהב", color:"#e5ab1c", glow:"rgba(229,171,28,.42)"},
-  {min:800, name:"אמרלד", color:"#20a66d", glow:"rgba(32,166,109,.38)"},
-  {min:1000, name:"ספיר", color:"#357bd8", glow:"rgba(53,123,216,.38)"},
-  {min:1200, name:"סגול", color:"#8b58c7", glow:"rgba(139,88,199,.4)"},
-  {min:1400, name:"אודם", color:"#d94a4a", glow:"rgba(217,74,74,.38)"},
-  {min:1600, name:"אגדה", color:"#25b9b1", glow:"rgba(56,190,177,.48)"}
+  {min:100, name:"כסף", color:"#aeb8c4", glow:"rgba(174,184,196,.42)"},
+  {min:200, name:"ברונזה", color:"#bd7850", glow:"rgba(189,120,80,.38)"},
+  {min:300, name:"זהב", color:"#e5ab1c", glow:"rgba(229,171,28,.42)"},
+  {min:400, name:"אמרלד", color:"#20a66d", glow:"rgba(32,166,109,.38)"},
+  {min:500, name:"ספיר", color:"#357bd8", glow:"rgba(53,123,216,.38)"},
+  {min:600, name:"סגול", color:"#8b58c7", glow:"rgba(139,88,199,.4)"},
+  {min:700, name:"אודם", color:"#d94a4a", glow:"rgba(217,74,74,.38)"},
+  {min:800, name:"אגדה", color:"#25b9b1", glow:"rgba(56,190,177,.48)"}
 ];
 const BUDDY_IMAGES = {
   "🦊": "assets/brightwood-fox.png",
@@ -584,6 +584,51 @@ function subjectDescription(p,key){ return key==="math"&&p?.age<=4?"סופרים
 function trophyCount(p){ return Math.floor((p?.stars||0)/STAR_GOAL); }
 function medalCount(p){ return Math.floor((p?.stars||0)/MEDAL_GOAL); }
 function rewardTierForStars(stars=0){ return REWARD_TIERS.reduce((tier,candidate)=>stars>=candidate.min?candidate:tier,REWARD_TIERS[0]); }
+function earnedMilestone(previousStars=0,newStars=0){
+  const before={stars:previousStars},after={stars:newStars};
+  const previousTrophies=trophyCount(before),newTrophies=trophyCount(after);
+  const previousMedals=medalCount(before),newMedals=medalCount(after);
+  const previousTier=rewardTierForStars(previousStars),newTier=rewardTierForStars(newStars);
+  const tierChanged=previousTier.min!==newTier.min;
+  if(newMedals===previousMedals&&newTrophies===previousTrophies&&!tierChanged)return null;
+  return {previousTrophies,newTrophies,previousMedals,newMedals,newTier,tierChanged,stars:newStars};
+}
+function renderMilestone(milestone,{continueGame=false}={}){
+  const rewards=[];
+  if(milestone.newMedals>milestone.previousMedals)rewards.push({kind:"medal",icon:"🏅",text:`מדליה חדשה מספר ${milestone.newMedals}`});
+  if(milestone.newTrophies>milestone.previousTrophies)rewards.push({kind:"trophy",icon:"🏆",text:`גביע חדש מספר ${milestone.newTrophies}`});
+  if(milestone.tierChanged)rewards.push({kind:"tier",icon:`<span class="achievement-tier-trophy" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M13 5h22v7h7v4c0 7-4.8 11-11 11.7A12 12 0 0 1 27 33v5h8v6H13v-6h8v-5a12 12 0 0 1-4-5.3C10.8 27 6 23 6 16v-4h7zm0 11c0 3.4 1.9 5.5 4.9 6.5A13.2 13.2 0 0 1 17 16zm22 0c0 2.2-.3 4.4-.9 6.5 3-1 4.9-3.1 4.9-6.5z"/></svg></span>`,text:"צבע חדש לפרסים שלך!"});
+  $("#milestoneRewards").innerHTML=rewards.map(reward=>`<div class="achievement-reward ${reward.kind}"><span class="achievement-icon">${reward.icon}</span><b>${reward.text}</b></div>`).join("");
+  $("#milestoneTitle").textContent=milestone.newTrophies>milestone.previousTrophies
+    ? MILESTONE_TITLES[(milestone.newTrophies-1)%MILESTONE_TITLES.length]
+    : "הישג חדש!";
+  $("#milestoneText").textContent=`הגעתם ל־${milestone.stars} כוכבים בסך הכול.`;
+  const modal=$("#milestoneModal .modal");
+  modal.style.setProperty("--reward-color",milestone.newTier.color);
+  modal.style.setProperty("--reward-glow",milestone.newTier.glow);
+  $("#milestoneUpdatesButton").classList.toggle("hidden",continueGame||!(milestone.newTrophies>milestone.previousTrophies&&milestone.newTrophies===1&&!activeProfile()?.updatesPromptShown));
+  $("#milestoneFinishedReturn").classList.toggle("hidden",continueGame);
+  $("[data-milestone-continue]").classList.toggle("hidden",!continueGame);
+  $$("[data-game-share-card]").forEach(card=>card.classList.toggle("hidden",continueGame));
+}
+function showMidGameMilestone(milestone,onContinue){
+  if(!session)return;
+  if(milestone.newTrophies>milestone.previousTrophies&&milestone.newTrophies===1&&!activeProfile()?.updatesPromptShown)session.pendingUpdatesPrompt=true;
+  // Sharing is offered only after a medal, and only once this game has ended.
+  // No player identity or share preference is sent anywhere.
+  if(milestone.newMedals>milestone.previousMedals&&!state.sharePromptDisabled)session.pendingSharePrompt=true;
+  session.pendingMilestoneContinue=onContinue;
+  renderMilestone(milestone,{continueGame:true});
+  openModal("milestoneModal");
+  playMilestoneMelody();
+}
+function continueAfterMidGameMilestone(){
+  const continueGame=session?.pendingMilestoneContinue;
+  if(!continueGame)return;
+  delete session.pendingMilestoneContinue;
+  closeModal("milestoneModal");
+  continueGame();
+}
 function applyRewardTier(element,p){
   if(!element)return;
   const tier=rewardTierForStars(p?.stars||0);
@@ -724,6 +769,101 @@ state.profiles.forEach(prepareProfile);
 function save(){ localStorage.setItem(storeKey, JSON.stringify(state)); }
 function openModal(id){ $("#"+id).classList.add("open"); }
 function closeModal(id){ $("#"+id).classList.remove("open"); }
+
+const SHARE_URL="https://brightforest.co.il";
+
+function finishedGameShareData(){
+  const p=activeProfile(),name=String(p?.name||"").trim();
+  const subject=SUBJECTS[session?.subject]?.name;
+  const headline=name
+    ? (subject?`${name} סיים/ה משחק ${subject} ביער הזוהר 🌳`:`${name} סיים/ה עוד אתגר ביער הזוהר 🌳`)
+    : (subject?`הושלם משחק ${subject} ביער הזוהר 🌳`:"הושלם עוד אתגר ביער הזוהר 🌳");
+  return {headline,text:`${headline}\nמשחקים, חושבים ולומדים יחד\nBrightForest.co.il`,url:SHARE_URL};
+}
+
+function shouldShowFinishedGameShare(){
+  return Boolean(session?.pendingSharePrompt&&!state.sharePromptDisabled);
+}
+
+function renderFinishedGameShare(){
+  const visible=shouldShowFinishedGameShare(),share=finishedGameShareData();
+  $$("[data-game-share-card]").forEach(card=>{
+    card.classList.toggle("hidden",!visible);
+    card.querySelector("[data-share-preview]").textContent=share.headline;
+    card.querySelector("[data-share-status]").textContent="";
+    const button=card.querySelector("[data-share-achievement]");
+    button.innerHTML=typeof navigator.share==="function"?`שתפו את ההישג <span>↗</span>`:"העתקת ההודעה";
+  });
+}
+
+function setFinishedGameShareStatus(message){
+  $$("[data-share-status]").forEach(item=>item.textContent=message);
+}
+
+function hideFinishedGameShare(){
+  $$("[data-game-share-card]").forEach(card=>card.classList.add("hidden"));
+}
+
+function copyFinishedGameShareText(text){
+  if(navigator.clipboard?.writeText)return navigator.clipboard.writeText(text);
+  const area=document.createElement("textarea");
+  area.value=text; area.setAttribute("readonly","");
+  area.style.cssText="position:fixed;opacity:0;pointer-events:none";
+  document.body.append(area); area.select();
+  const copied=document.execCommand("copy"); area.remove();
+  return copied?Promise.resolve():Promise.reject(new Error("copy unavailable"));
+}
+
+function createFinishedGameShareImage({headline}){
+  return new Promise(resolve=>{
+    const canvas=document.createElement("canvas"); canvas.width=1200; canvas.height=630;
+    const ctx=canvas.getContext("2d"); if(!ctx){resolve(null);return}
+    const sky=ctx.createLinearGradient(0,0,1200,630); sky.addColorStop(0,"#dff7ff"); sky.addColorStop(1,"#fff3bd");
+    ctx.fillStyle=sky; ctx.fillRect(0,0,1200,630);
+    ctx.fillStyle="#d9f4dc"; ctx.beginPath(); ctx.arc(1040,520,260,Math.PI,0); ctx.fill();
+    ctx.fillStyle="#54a85a"; ctx.beginPath(); ctx.arc(1060,190,165,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle="#fff"; ctx.roundRect(74,82,780,430,36); ctx.fill();
+    ctx.direction="rtl"; ctx.textAlign="right";
+    ctx.fillStyle="#1b416b"; ctx.font="900 43px Rubik, Arial"; ctx.fillText("היער הזוהר",770,165);
+    ctx.fillStyle="#ee684a"; ctx.font="700 25px Heebo, Arial"; ctx.fillText("הישג חדש!",770,211);
+    ctx.fillStyle="#1b416b"; ctx.font="800 38px Heebo, Arial";
+    const words=headline.replace(" 🌳","").split(" "); let line="",y=280;
+    words.forEach((word,index)=>{const next=`${line}${line?" ":""}${word}`; if(ctx.measureText(next).width>650&&line){ctx.fillText(line,770,y); y+=58; line=word}else line=next; if(index===words.length-1)ctx.fillText(line,770,y)});
+    ctx.fillStyle="#2d789b"; ctx.font="700 27px Heebo, Arial"; ctx.fillText("משחקים, חושבים ולומדים יחד",770,430);
+    ctx.fillStyle="#1b416b"; ctx.font="800 25px Rubik, Arial"; ctx.fillText("BrightForest.co.il",770,477);
+    ctx.font="120px Arial"; ctx.textAlign="center"; ctx.fillText("🌳",1015,410);
+    canvas.toBlob(blob=>resolve(blob?new File([blob],"brightforest-achievement.png",{type:"image/png"}):null),"image/png");
+  });
+}
+
+async function shareFinishedGameAchievement(){
+  const share=finishedGameShareData();
+  if(typeof navigator.share!=="function"){
+    try{await copyFinishedGameShareText(`${share.text}\n${share.url}`);setFinishedGameShareStatus("ההודעה הועתקה. אפשר להדביק אותה ב־WhatsApp או בכל מקום אחר.")}catch{setFinishedGameShareStatus("לא הצלחנו להעתיק. אפשר לשתף את BrightForest.co.il ידנית.")}
+    return;
+  }
+  try{
+    const image=await createFinishedGameShareImage(share);
+    const data={title:"היער הזוהר",text:share.text,url:share.url};
+    if(image&&navigator.canShare?.({files:[image]}))data.files=[image];
+    await navigator.share(data);
+    setFinishedGameShareStatus("תודה ששיתפתם את ההישג!");
+  }catch(error){
+    if(error?.name==="AbortError")return;
+    try{await copyFinishedGameShareText(`${share.text}\n${share.url}`);setFinishedGameShareStatus("ההודעה הועתקה. אפשר להדביק אותה ב־WhatsApp או בכל מקום אחר.")}catch{setFinishedGameShareStatus("לא הצלחנו לפתוח את השיתוף. אפשר לשתף את BrightForest.co.il ידנית.")}
+  }
+}
+
+function deferFinishedGameShare(){
+  // "Not now" applies only to this completion. The next medal will offer
+  // sharing again; no preference or identifier needs to be stored for it.
+  if(session)session.pendingSharePrompt=false;
+  hideFinishedGameShare();
+}
+
+function disableFinishedGameShare(){
+  state.sharePromptDisabled=true; save(); hideFinishedGameShare();
+}
 function isAppInstalled(){
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
@@ -944,7 +1084,7 @@ function renderAll(){
   $("#dailyDone").textContent=`${Math.min(today,3)} / 3`;
   $("#dailyBar").style.width=`${Math.min(today/3*100,100)}%`;
   const nextMedalGoal=(medals+1)*MEDAL_GOAL,medalCycle=(p?.stars||0)%MEDAL_GOAL;
-  $("#homeGoalEyebrow").textContent="🏅 היעד הבא · 🏆 גביע כל 100 כוכבים";
+  $("#homeGoalEyebrow").textContent="🏅 היעד הבא · 🏆 גביע כל 50 כוכבים";
   $("#homeGoalLabel").textContent=`מדליה ב־${nextMedalGoal} כוכבים`;
   $("#homeGoalCount").textContent=`${medalCycle} / ${MEDAL_GOAL}`;
   $("#homeGoalBar").style.width=`${medalCycle/MEDAL_GOAL*100}%`;
@@ -1215,6 +1355,11 @@ function startGame(gameId){
   p.lastGameQuestionSignatures=questions.map(questionSignature);
   save();
   session={subject,gameId,game,level,questions,index:0,correct:0,starsBeforeGame:p.stars||0,start:Date.now(),locked:false,results:{},memoryRoundOutcomes:[]};
+  // This aggregate-only metric is deliberately independent of the optional
+  // analytics consent flow. It contains no player, device or browser data.
+  // The session object is kept only in page memory to suppress duplicate
+  // reports for this exact game run.
+  window.BrightForestStats?.recordGameStart(session);
   showScreen("gameScreen",{historyData:{subject,gameId}}); renderQuestion();
 }
 
@@ -1639,13 +1784,16 @@ function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
   if(session.locked)return; session.locked=true;
   const q=session.questions[session.index], right=answerMatchesQuestion(value,q), p=activeProfile();
   const countsAsCorrect=scoreCorrect===null?right:scoreCorrect;
+  let milestone=null;
   session.results[q.skill] ||= {correct:0,total:0}; session.results[q.skill].total++;
   p.answered++;
   if(countsAsCorrect){
     p.correct++; session.correct++; session.results[q.skill].correct++;
     // A star belongs to each correct answer, not to completing a full game.
     // This makes the reward visible and durable even if the player leaves early.
+    const previousStars=p.stars||0;
     p.stars++;
+    milestone=earnedMilestone(previousStars,p.stars);
     renderAll();
   }
   if(right){
@@ -1688,7 +1836,8 @@ function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
   // In these ordering games, a wrong answer also reveals the full correct
   // sequence. Leave it on screen one extra second so it can be read.
   const extraReadTime=!right&&["event-order","sentence-order-he"].includes(session.gameId)?1000:0;
-  setTimeout(()=>{session.index++;session.index<session.questions.length?renderQuestion():finishGame()},2600+extraReadTime);
+  const advanceGame=()=>{session.index++;session.index<session.questions.length?renderQuestion():finishGame()};
+  setTimeout(()=>{milestone?showMidGameMilestone(milestone,advanceGame):advanceGame()},2600+extraReadTime);
 }
 
 function revealCorrectAnswer(q){
@@ -1749,14 +1898,7 @@ function finishGame(){
   const p=activeProfile(), key=session.subject, now=new Date().toDateString(), earned=session.correct;
   trackEvent("game_finished",{subject:key,game_id:session.gameId,game_level:session.level,questions_total:session.questions.length,correct_total:session.correct,stars_earned:earned});
   // Stars were already awarded question by question while this game was played.
-  const previousStars=session.starsBeforeGame??Math.max(0,(p.stars||0)-earned);
-  const previousTrophies=trophyCount(p);
-  const previousMedals=medalCount(p);
-  const previousTier=rewardTierForStars(previousStars);
   p.progress[key] ||= {completed:0,level:1,correct:0,total:0};
-  const newTrophies=trophyCount(p);
-  const newMedals=medalCount(p);
-  const newTier=rewardTierForStars(p.stars);
   const prog=p.progress[key]; prog.completed++; prog.correct+=session.correct; prog.total+=session.questions.length;
   const gameProg=p.gameProgress[session.gameId]||={completed:0,correct:0,total:0};
   gameProg.completed++; gameProg.correct+=session.correct; gameProg.total+=session.questions.length;
@@ -1792,24 +1934,9 @@ function finishGame(){
   $("#celebrateBuddy").textContent=p.buddy;
   $("#earnedStarsTitle").textContent=earned===0?"השלמתם את המשחק":earned===1?"אספתם כוכב אחד":`אספתם ${earned} כוכבים`;
   $("#finishEncouragement").textContent="";
-  const tierChanged=previousTier.min!==newTier.min;
-  if(newMedals>previousMedals || newTrophies>previousTrophies || tierChanged){
-    const rewards=[];
-    if(newMedals>previousMedals)rewards.push({kind:"medal",icon:"🏅",text:`מדליה חדשה מספר ${newMedals}`});
-    if(newTrophies>previousTrophies)rewards.push({kind:"trophy",icon:"🏆",text:`גביע חדש מספר ${newTrophies}`});
-    if(tierChanged)rewards.push({kind:"tier",icon:`<span class="achievement-tier-trophy" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M13 5h22v7h7v4c0 7-4.8 11-11 11.7A12 12 0 0 1 27 33v5h8v6H13v-6h8v-5a12 12 0 0 1-4-5.3C10.8 27 6 23 6 16v-4h7zm0 11c0 3.4 1.9 5.5 4.9 6.5A13.2 13.2 0 0 1 17 16zm22 0c0 2.2-.3 4.4-.9 6.5 3-1 4.9-3.1 4.9-6.5z"/></svg></span>`,text:"צבע חדש לפרסים שלך!"});
-    $("#milestoneRewards").innerHTML=rewards.map(reward=>`<div class="achievement-reward ${reward.kind}"><span class="achievement-icon">${reward.icon}</span><b>${reward.text}</b></div>`).join("");
-    $("#milestoneTitle").textContent=newTrophies>previousTrophies ? "איזה הישג אדיר!" : "הישג חדש!";
-    $("#milestoneText").textContent=`הגעתם ל־${p.stars} כוכבים בסך הכול.`;
-    const milestone=$("#milestoneModal .modal");
-    milestone.style.setProperty("--reward-color",newTier.color);
-    milestone.style.setProperty("--reward-glow",newTier.glow);
-    $("#milestoneUpdatesButton").classList.toggle("hidden",!(newTrophies>previousTrophies&&newTrophies===1&&!p.updatesPromptShown));
-    openModal("milestoneModal");
-    playMilestoneMelody();
-  } else {
-    openModal("celebrationModal");
-  }
+  $("#celebrationUpdatesButton").classList.toggle("hidden",!session.pendingUpdatesPrompt);
+  renderFinishedGameShare();
+  openModal("celebrationModal");
   save();
   renderAll();
 }
@@ -2158,7 +2285,11 @@ function clearGridSelection(){
 function bindEvents(){
   document.addEventListener("click",e=>{
     const gameBackButton=e.target.closest("[data-game-back]"); if(gameBackButton)return gameBack();
+    const milestoneContinue=e.target.closest("[data-milestone-continue]"); if(milestoneContinue)return continueAfterMidGameMilestone();
     const finishedReturn=e.target.closest("[data-game-finished-return]"); if(finishedReturn)return returnAfterFinishedGame();
+    const shareAchievement=e.target.closest("[data-share-achievement]"); if(shareAchievement)return shareFinishedGameAchievement();
+    const shareNext=e.target.closest("[data-share-next]"); if(shareNext)return deferFinishedGameShare();
+    const shareNever=e.target.closest("[data-share-never]"); if(shareNever)return disableFinishedGameShare();
     const difficultyAccept=e.target.closest("#difficultyPromptAccept"); if(difficultyAccept)return resolveDifficultyPrompt(true);
     const difficultyDecline=e.target.closest("#difficultyPromptDecline"); if(difficultyDecline)return resolveDifficultyPrompt(false);
     const adventureBack=e.target.closest("[data-adventure-back]"); if(adventureBack)return backFromAdventure();
@@ -2297,9 +2428,11 @@ function bindEvents(){
     ].join("\n");
     throw new Error("Legacy mail fallback disabled");
   };
-  $("#milestoneUpdatesButton").onclick=()=>{const p=activeProfile();if(p){p.updatesPromptShown=true;save();}closeModal("milestoneModal");openModal("updatesModal")};
+  const openUpdatesFromAchievement=()=>{const p=activeProfile();if(p){p.updatesPromptShown=true;save();}closeModal("milestoneModal");closeModal("celebrationModal");openModal("updatesModal")};
+  $("#milestoneUpdatesButton").onclick=openUpdatesFromAchievement;
+  $("#celebrationUpdatesButton").onclick=openUpdatesFromAchievement;
   $("#updatesSignupButton").onclick=()=>{window.location.href=UPDATES_SIGNUP_PAGE};
-  $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&m.id!=="introModal"&&m.id!=="analyticsConsentModal"&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
+  $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&m.id!=="introModal"&&m.id!=="analyticsConsentModal"&&!(m.id==="milestoneModal"&&session?.pendingMilestoneContinue)&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
 }
 
 init();

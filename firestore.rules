@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    function isNewCounter() {
+      return request.resource.data.keys().hasOnly(['gamesStarted', 'updatedAt'])
+        && request.resource.data.gamesStarted == 1
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    function isSingleIncrement() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['gamesStarted', 'updatedAt'])
+        && request.resource.data.gamesStarted == resource.data.gamesStarted + 1
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    match /statsDays/{day} {
+      allow read: if isAdmin();
+      allow create: if isNewCounter();
+      allow update: if isSingleIncrement();
+      allow delete: if false;
+    }
+
+    match /statsTotals/games {
+      allow read: if isAdmin();
+      allow create: if isNewCounter();
+      allow update: if isSingleIncrement();
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
