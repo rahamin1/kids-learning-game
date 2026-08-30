@@ -3,6 +3,7 @@ import { firebaseConfig, firebaseIsConfigured } from "./firebase-config.js";
 // Deliberately page-memory-only. It is never persisted, never sent, and cannot
 // identify a player, browser or device after the page closes.
 const reportedSessions = new WeakSet();
+const reportedTrophyMilestones = new WeakSet();
 let lastReportAttemptAt = -Infinity;
 
 function israelDateKey(now=new Date()){
@@ -56,4 +57,23 @@ async function recordGameStart(gameSession){
   }
 }
 
-window.BrightForestStats=Object.freeze({recordGameStart});
+async function recordTrophyEarned(milestone){
+  // The milestone object exists only for the current answer. This avoids a
+  // duplicate request in the same page run without persisting any identity.
+  if(!milestone || reportedTrophyMilestones.has(milestone))return;
+  reportedTrophyMilestones.add(milestone);
+  const sdk=await database();
+  if(!sdk)return;
+  try{
+    const fields={trophiesEarned:sdk.increment(1),updatedAt:sdk.serverTimestamp()};
+    const batch=sdk.writeBatch(sdk.db);
+    batch.set(sdk.doc(sdk.db,"trophyStatsDays",israelDateKey()),fields,{merge:true});
+    batch.set(sdk.doc(sdk.db,"statsTotals","trophies"),fields,{merge:true});
+    await batch.commit();
+  }catch(error){
+    // A reporting problem never changes the reward shown to the child.
+    console.warn("Anonymous trophy counter was not recorded.",error);
+  }
+}
+
+window.BrightForestStats=Object.freeze({recordGameStart,recordTrophyEarned});

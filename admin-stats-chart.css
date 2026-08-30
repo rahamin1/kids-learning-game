@@ -9,5 +9,10 @@
 .weekly-line-chart .chart-point:hover circle,.weekly-line-chart .chart-point:focus circle,.weekly-line-chart .chart-point.selected circle{fill:#f0b948;stroke:#d86e32;r:9}
 .weekly-line-chart .chart-x-label{fill:#52708b;font:700 10px Heebo,Arial,sans-serif;text-anchor:middle}
 .weekly-chart-detail{margin:8px 0 0!important;min-height:23px;color:#1b416b!important;font-size:14px!important;font-weight:800;text-align:center}
+.trophy-chart-panel .weekly-chart-summary{background:#fff5d9;color:#805716!important}
+.trophy-chart-panel .chart-line{stroke:#d8891c}
+.trophy-chart-panel .chart-point circle{stroke:#d8891c}
+.trophy-chart-panel .chart-point:hover circle,.trophy-chart-panel .chart-point:focus circle,.trophy-chart-panel .chart-point.selected circle{fill:#f0b948;stroke:#b96816}
+.trophy-chart-panel .weekly-chart-detail{color:#805716!important}
 .danger{background:#b24d45}button:disabled{cursor:wait;opacity:.65}.reset-status,.last-reset{min-height:22px;margin:0 0 6px;color:#8b4a4a;font-weight:700}.last-reset{color:#52708b}.reset-status:empty{display:none}
 @media(max-width:460px){.weekly-line-chart{height:205px}.weekly-line-chart .chart-grid text{font-size:11px}.weekly-line-chart .chart-x-label{font-size:9px}.weekly-chart-summary,.weekly-chart-detail{font-size:13px!important;line-height:1.35}}

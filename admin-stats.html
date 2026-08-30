@@ -8,8 +8,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin-stats.css?build=reset-1">
-  <link rel="stylesheet" href="admin-stats-chart.css?build=reset-1">
+  <link rel="stylesheet" href="admin-stats.css?build=trophies-2">
+  <link rel="stylesheet" href="admin-stats-chart.css?build=trophies-1">
+  <style>
+    .metric-title{display:block;color:#52708b;font-weight:700}
+    .metric-values{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 0}
+    .metric-values div{min-width:0}
+    .metric-values dt{color:#52708b;font-size:13px;font-weight:800}
+    .metric-values dd{margin:0;font:900 30px Rubik,Arial,sans-serif}
+    .metric-values .trophy-metric dt,.metric-values .trophy-metric dd{color:#a36b16}
+  </style>
 </head>
 <body>
   <main class="admin-shell">
@@ -25,24 +33,32 @@
     </section>
 
     <section class="dashboard hidden" id="dashboard" aria-live="polite">
-      <div class="dashboard-top"><p id="adminIdentity"></p><div><button class="secondary" id="refreshStats" type="button">רענון</button><button class="danger" id="resetStats" type="button">איפוס כל המונים</button><button class="link-button" id="adminSignOut" type="button">יציאה</button></div></div>
-      <div class="metric-grid">
-        <article><span>היום</span><b id="metricToday">—</b></article>
-        <article><span>אתמול</span><b id="metricYesterday">—</b></article>
-        <article><span>7 הימים האחרונים</span><b id="metricWeek">—</b></article>
-        <article><span>סך הכול</span><b id="metricTotal">—</b></article>
-      </div>
+      <div class="dashboard-top"><p id="adminIdentity"></p><div><button class="secondary" id="refreshStats" type="button">רענון</button><button class="danger" id="resetTrophyStats" type="button">איפוס מוני גביעים</button><button class="danger" id="resetStats" type="button">איפוס מוני משחקים</button><button class="link-button" id="adminSignOut" type="button">יציאה</button></div></div>
+      <section class="weekly-chart-panel trophy-chart-panel" aria-labelledby="trophyChartTitle">
+        <div><h2 id="trophyChartTitle">גביעים בכל שבוע</h2><p>30 השבועות האחרונים · כל נקודה היא מספר גביעים שהושגו</p></div>
+        <p class="weekly-chart-summary" id="trophyChartSummary" aria-live="polite"></p>
+        <div class="weekly-line-chart" id="trophyChart" aria-label="גרף גביעים בכל שבוע ב־30 השבועות האחרונים"></div>
+        <p class="weekly-chart-detail" id="trophyChartDetail" aria-live="polite"></p>
+      </section>
       <section class="weekly-chart-panel" aria-labelledby="weeklyChartTitle">
         <div><h2 id="weeklyChartTitle">משחקים בכל שבוע</h2><p>30 השבועות האחרונים · כל נקודה היא מספר התחלות משחק</p></div>
         <p class="weekly-chart-summary" id="weeklyChartSummary" aria-live="polite"></p>
         <div class="weekly-line-chart" id="weeklyChart" aria-label="גרף משחקים בכל שבוע ב־30 השבועות האחרונים"></div>
         <p class="weekly-chart-detail" id="weeklyChartDetail" aria-live="polite"></p>
       </section>
+      <div class="metric-grid">
+        <article><span class="metric-title">היום</span><dl class="metric-values"><div><dt>משחקים</dt><dd id="metricToday">—</dd></div><div class="trophy-metric"><dt>גביעים</dt><dd id="trophyMetricToday">—</dd></div></dl></article>
+        <article><span class="metric-title">אתמול</span><dl class="metric-values"><div><dt>משחקים</dt><dd id="metricYesterday">—</dd></div><div class="trophy-metric"><dt>גביעים</dt><dd id="trophyMetricYesterday">—</dd></div></dl></article>
+        <article><span class="metric-title">7 הימים האחרונים</span><dl class="metric-values"><div><dt>משחקים</dt><dd id="metricWeek">—</dd></div><div class="trophy-metric"><dt>גביעים</dt><dd id="trophyMetricWeek">—</dd></div></dl></article>
+        <article><span class="metric-title">סך הכול</span><dl class="metric-values"><div><dt>משחקים</dt><dd id="metricTotal">—</dd></div><div class="trophy-metric"><dt>גביעים</dt><dd id="trophyMetricTotal">—</dd></div></dl></article>
+      </div>
+      <p class="reset-status" id="trophyResetStatus" aria-live="polite"></p>
+      <p class="last-reset" id="lastTrophyReset">טרם נטענו נתונים.</p>
       <p class="reset-status" id="resetStatus" aria-live="polite"></p>
       <p class="last-reset" id="lastReset">טרם נטענו נתונים.</p>
       <p class="updated" id="statsUpdated">טרם נטענו נתונים.</p>
     </section>
   </main>
-  <script type="module" src="admin-stats.js?build=reset-1"></script>
+  <script type="module" src="admin-stats.js?build=trophies-1"></script>
 </body>
 </html>

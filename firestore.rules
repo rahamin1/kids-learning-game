@@ -5,36 +5,54 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.admin == true;
     }
 
-    function isNewCounter() {
-      return request.resource.data.keys().hasOnly(['gamesStarted', 'updatedAt'])
-        && request.resource.data.gamesStarted == 1
+    function isNewCounter(field) {
+      return request.resource.data.keys().hasOnly([field, 'updatedAt'])
+        && request.resource.data[field] == 1
         && request.resource.data.updatedAt == request.time;
     }
 
-    function isSingleIncrement() {
+    function isSingleIncrement(field) {
       return request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['gamesStarted', 'updatedAt'])
-        && request.resource.data.gamesStarted == resource.data.gamesStarted + 1
+          .hasOnly([field, 'updatedAt'])
+        && request.resource.data[field] == resource.data[field] + 1
         && request.resource.data.updatedAt == request.time;
     }
 
     match /statsDays/{day} {
       allow read: if isAdmin();
-      allow create: if isNewCounter();
-      allow update: if isSingleIncrement();
+      allow create: if isNewCounter('gamesStarted');
+      allow update: if isSingleIncrement('gamesStarted');
       allow delete: if isAdmin();
     }
 
     match /statsTotals/games {
       allow read: if isAdmin();
-      allow create: if isNewCounter();
-      allow update: if isSingleIncrement();
+      allow create: if isNewCounter('gamesStarted');
+      allow update: if isSingleIncrement('gamesStarted');
+      allow delete: if isAdmin();
+    }
+
+    match /trophyStatsDays/{day} {
+      allow read: if isAdmin();
+      allow create: if isNewCounter('trophiesEarned');
+      allow update: if isSingleIncrement('trophiesEarned');
+      allow delete: if isAdmin();
+    }
+
+    match /statsTotals/trophies {
+      allow read: if isAdmin();
+      allow create: if isNewCounter('trophiesEarned');
+      allow update: if isSingleIncrement('trophiesEarned');
       allow delete: if isAdmin();
     }
 
     // Only an admin may record when anonymous counters were last reset.
     // No player, browser, device or game data is stored here.
     match /statsMeta/reset {
+      allow read, write: if isAdmin();
+    }
+
+    match /statsMeta/trophyReset {
       allow read, write: if isAdmin();
     }
 

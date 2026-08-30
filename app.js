@@ -1,4 +1,4 @@
-const APP_VERSION = "0.2.7";
+const APP_VERSION = "0.2.8";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -761,6 +761,34 @@ function closeModal(id){ $("#"+id).classList.remove("open"); }
 
 const SHARE_URL="https://brightforest.co.il";
 
+function gameShareData(){
+  return {
+    text:"משחקים, חושבים ולומדים יחד ביער הזוהר — משחקי למידה כיפיים לילדים בגילאי 4–7.",
+    url:SHARE_URL
+  };
+}
+
+function setSettingsShareStatus(message){
+  const status=$("#settingsShareStatus");
+  if(status)status.textContent=message;
+}
+
+async function shareGameFromSettings(){
+  const share=gameShareData();
+  setSettingsShareStatus("");
+  if(typeof navigator.share!=="function"){
+    try{await copyFinishedGameShareText(`${share.text}\n${share.url}`);setSettingsShareStatus("ההודעה הועתקה. אפשר להדביק אותה ב־WhatsApp או בכל מקום אחר.")}catch{setSettingsShareStatus("לא הצלחנו להעתיק. אפשר לשתף את BrightForest.co.il ידנית.")}
+    return;
+  }
+  try{
+    await navigator.share({title:"היער הזוהר",text:share.text,url:share.url});
+    setSettingsShareStatus("תודה ששיתפתם את המשחק!");
+  }catch(error){
+    if(error?.name==="AbortError")return;
+    try{await copyFinishedGameShareText(`${share.text}\n${share.url}`);setSettingsShareStatus("ההודעה הועתקה. אפשר להדביק אותה ב־WhatsApp או בכל מקום אחר.")}catch{setSettingsShareStatus("לא הצלחנו לפתוח את השיתוף. אפשר לשתף את BrightForest.co.il ידנית.")}
+  }
+}
+
 function finishedGameShareData(){
   const headline="אנחנו משחקים במשחק לימודי כיפי בשם היער הזוהר. כרגע זכינו במדליה! ממליצים לנסות!";
   // navigator.share sends `url` as its own link. Keeping it out of the text
@@ -774,9 +802,12 @@ function shouldShowFinishedGameShare(){
 
 function shouldOfferShareOptOut(){
   const medalNumber=session?.shareMedalNumber||0;
-  // After an actual native share, the next medal may offer a permanent
-  // opt-out. If nobody shared, the fourth medal is the first opt-out chance.
-  return medalNumber>=4||state.shareHasSharedAchievement===true;
+  // Sharing belongs to the current player. A share by a sibling must not add
+  // a permanent opt-out to this player's first medal.
+  const playerHasShared=activeProfile()?.shareHasSharedAchievement===true;
+  // After this player shares, the next medal may offer a permanent opt-out.
+  // If they have not shared, the fourth medal is the first opt-out chance.
+  return medalNumber>=4||playerHasShared;
 }
 
 function renderFinishedGameShare(){
@@ -847,7 +878,8 @@ async function shareFinishedGameAchievement(){
     await navigator.share(data);
     // A resolved native-share request is the closest privacy-preserving signal
     // available. Copying text is intentionally not treated as a share.
-    state.shareHasSharedAchievement=true;
+    const p=activeProfile();
+    if(p)p.shareHasSharedAchievement=true;
     if(session)session.pendingSharePrompt=false;
     save();
     hideFinishedGameShare();
@@ -1645,20 +1677,23 @@ function renderQuestionInteraction(q){
     grid.insertAdjacentHTML("afterbegin",`<div class="correct-build-answer" id="correctBuildAnswer" hidden></div>`);
     return;
   }
+  const hasOutlineShapeAnswers=session.gameId==="odd-one-out"&&q.a.every(answer=>Boolean(renderOutlineShape("",answer)));
   grid.innerHTML=q.a.map(a=>{
     const scale=q.answerScales?.[a];
     const answerClass=answerIsIconOnly(a)?"icon-answer":"text-answer";
-    const content=scale?`<span class="scaled-answer-icon" style="font-size:${Math.round(76*scale)}px">${escapeHtml(a)}</span>`:escapeHtml(a);
+    const outlinedShape=hasOutlineShapeAnswers?renderOutlineShape("",a).replace('class="outline-shape"','class="outline-shape answer-outline-shape"'):"";
+    const content=outlinedShape||(scale?`<span class="scaled-answer-icon" style="font-size:${Math.round(76*scale)}px">${escapeHtml(a)}</span>`:escapeHtml(a));
     return `<button class="answer-btn ${answerClass}" data-answer="${escapeHtml(a)}">${content}</button>`;
   }).join("");
   const answersAreIconOnly=q.a.every(answerIsIconOnly);
   // Icon-only choices need their own generous sizing even outside the youngest
   // nature games.  Keep shape, scaled, and object-grid activities in control
   // of their specialised layouts.
-  const iconOnlyImageAnswers=answersAreIconOnly&&!q.shapeAnswers&&!q.answerObjectGrid&&!q.answerScales;
+  const iconOnlyImageAnswers=answersAreIconOnly&&!q.shapeAnswers&&!q.answerObjectGrid&&!q.answerScales&&!hasOutlineShapeAnswers;
   const youngNatureImageAnswers=session.subject==="nature"&&activeProfile().age<=4&&answersAreIconOnly;
   grid.classList.toggle("object-grid-answers",Boolean(q.answerObjectGrid));
   grid.classList.toggle("shape-answers",Boolean(q.shapeAnswers));
+  grid.classList.toggle("outline-shape-answers",hasOutlineShapeAnswers);
   grid.classList.toggle("image-answers",Boolean(q.imageAnswers)||youngNatureImageAnswers||iconOnlyImageAnswers);
   grid.classList.toggle("scaled-image-answers",Boolean(q.answerScales));
   const imageLike=Boolean(q.imageAnswers)||youngNatureImageAnswers||iconOnlyImageAnswers;
@@ -1743,8 +1778,8 @@ function revealMissingLetters(visual,q,correctAnswer=q.correct){
 function renderOutlineShape(name,visual=""){
   const normalizedName=String(name||"").trim().replace(/[\-–—]/g,"־").replace(/\s+/g," ");
   const visualNames={
-    "○":"עיגול","◯":"עיגול","◌":"עיגול","△":"משולש","▽":"משולש","◁":"משולש",
-    "□":"ריבוע","▢":"ריבוע","▣":"ריבוע","▤":"ריבוע","▭":"מלבן","▯":"מלבן","▬":"מלבן","▰":"מלבן",
+    "○":"עיגול","◯":"עיגול","◌":"עיגול","⚪":"עיגול","△":"משולש","▽":"משולש","◁":"משולש","🔺":"משולש",
+    "□":"ריבוע","▢":"ריבוע","▣":"ריבוע","▤":"ריבוע","🟦":"ריבוע","▭":"מלבן","▯":"מלבן","▬":"מלבן","▰":"מלבן",
     "⬠":"מחומש","⬟":"מחומש","⬢":"משושה","⬡":"משושה","⎔":"משושה",
     "☆":"כוכב","✧":"כוכב","✩":"כוכב","✫":"כוכב","♡":"לב","♥":"לב","❤":"לב",
     "♢":"מעוין","◊":"דלתון","⬯":"אליפסה","⏢":"טרפז","▱":"מקבילית",
@@ -1805,6 +1840,7 @@ function answer(value,button,{scoreCorrect=null,awardStar=false,feedbackText=""}
     const previousStars=p.stars||0;
     p.stars++; session.starsEarned++;
     milestone=earnedMilestone(previousStars,p.stars);
+    if(milestone?.newTrophies>milestone.previousTrophies)window.BrightForestStats?.recordTrophyEarned(milestone);
     renderAll();
   }
   if(right){
@@ -2349,6 +2385,7 @@ function bindEvents(){
   $("#helpPrivacyButton").onclick=()=>openPrivacyScreen("helpScreen");
   $("#privacyBack").onclick=()=>showScreen(privacyBackTarget);
   $("#settingsIntro").onclick=openIntro;
+  $("#settingsShareGame").onclick=shareGameFromSettings;
   $("#printReport").onclick=()=>window.print();
   $("#exportReport").onclick=exportProgress;
   $("#importReport").onclick=()=>$("#importReportFile").click();
