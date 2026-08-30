@@ -10,12 +10,12 @@
   <title>ההרפתקה ביער הזוהר</title>
   <link rel="icon" type="image/png" href="assets/app-icon-star-forest.png">
   <link rel="apple-touch-icon" href="assets/app-icon-star-forest.png">
-  <link rel="manifest" href="manifest.webmanifest?v=0.2.6">
+  <link rel="manifest" href="manifest.webmanifest?v=0.2.7">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700;800;900&family=Rubik:wght@600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?build=0.2.6">
-<link rel="stylesheet" href="share.css?build=0.2.6">
+<link rel="stylesheet" href="styles.css?build=0.2.7">
+<link rel="stylesheet" href="share.css?build=0.2.7">
 </head>
 <body>
   <div id="app">
@@ -163,8 +163,8 @@
           </div>
 
           <article class="panel privacy-settings-panel privacy-settings-first">
-            <div><span class="eyebrow blue">פרטיות ונתוני שימוש</span><h2>עוזרים לשפר את היער הזוהר?</h2><p id="analyticsConsentText">נתוני שימוש אינם נאספים. באישור של מבוגר אפשר לאסוף נתונים כלליים בלבד כדי לעזור לשפר את המשחק.</p></div>
-            <div class="settings-data-actions"><button class="outline-btn" id="analyticsConsentButton">בחירה לגבי נתוני שימוש</button><button class="text-btn" id="privacyPolicyButton">מדיניות הפרטיות</button></div>
+            <div><span class="eyebrow blue">פרטיות</span><h2>הפרטיות של הילדים חשובה לנו</h2><p>ההתקדמות נשמרת במכשיר בלבד. אין איסוף נתוני שימוש ב־Google Analytics.</p></div>
+            <div class="settings-data-actions"><button class="text-btn" id="privacyPolicyButton">מדיניות הפרטיות</button></div>
           </article>
 
           <div class="settings-shortcuts">
@@ -184,7 +184,7 @@
           <div class="settings-shortcuts">
             <button class="settings-shortcut" id="settingsSound"><span>🔊</span><b>צלילים</b><small id="settingsSoundLabel">הצלילים פעילים</small></button>
             <button class="settings-shortcut" id="settingsHelp"><span>❓</span><b>עזרה ומידע</b><small>איך משחקים, מתקדמים וזוכים</small></button>
-            <button class="settings-shortcut" id="settingsPrivacy"><span>🔒</span><b>פרטיות</b><small>מדיניות פרטיות ונתוני שימוש</small></button>
+            <button class="settings-shortcut" id="settingsPrivacy"><span>🔒</span><b>פרטיות</b><small>מדיניות הפרטיות</small></button>
             <button class="settings-shortcut" id="settingsIntro"><span>🌟</span><b>הצגה חוזרת של ההסבר</b><small>מסכי פתיחה קצרים של המשחק</small></button>
           </div>
 
@@ -240,7 +240,7 @@
             <article class="panel help-card"><span class="help-icon">🔊</span><div><h2>צלילים</h2><p>אפשר להפעיל או להשתיק את צלילי המשחק באמצעות סמל הרמקול. במשחקי אנגלית מסוימים אפשר ללחוץ על סמל השמע כדי לשמוע מילה או צליל באנגלית.</p></div></article>
 
             <article class="panel help-card install-help-card"><span class="help-icon">📲</span><div><h2>התקנת האפליקציה</h2><p>אפשר להתקין את היער הזוהר במסך הבית ולפתוח אותו כמו אפליקציה רגילה.</p><p>ב־Chrome באנדרואיד, לפעמים אפשר להתקין מיד מתוך האפליקציה, ולפעמים האפשרות מופיעה רק בתפריט ⋮ של הדפדפן. אם האפליקציה הוסרה לאחרונה, ייתכן שהדפדפן עדיין יזכור אותה לזמן קצר. במקרה כזה כדאי לרענן את הדף או לנסות שוב מאוחר יותר.</p><ul class="help-steps"><li><b>ב־Chrome באנדרואיד:</b> לחצו על כפתור „התקנת האפליקציה” למטה. אם הוא אינו מופיע, פתחו את תפריט שלוש הנקודות ⋮ ובחרו „התקנת האפליקציה” או „הוספה למסך הבית”.</li><li><b>ב־Safari באייפון:</b> לחצו על כפתור השיתוף ובחרו „הוספה למסך הבית”.</li></ul><button class="outline-btn install-help-button" data-install-app><span data-install-label>התקנת האפליקציה</span></button></div></article>
-            <article class="panel help-card privacy-help-card"><span class="help-icon">🔒</span><div><h2>פרטיות ונתוני שימוש</h2><p>נתוני שימוש כלליים נאספים רק אם מבוגר אישר זאת בהגדרות. לא נשלחים שמות שחקנים, גיל, תמונות, תשובות או תוכן הודעות.</p><button class="text-btn" id="helpPrivacyButton">למדיניות הפרטיות</button></div></article>
+            <article class="panel help-card privacy-help-card"><span class="help-icon">🔒</span><div><h2>פרטיות</h2><p>המשחק אינו אוסף נתוני שימוש ב־Google Analytics. ההתקדמות נשמרת במכשיר, ונתוני המשחקים בדף הניהול נספרים כמונים מצרפיים ואנונימיים בלבד.</p><button class="text-btn" id="helpPrivacyButton">למדיניות הפרטיות</button></div></article>
           </div>
         </div>
       </section>
@@ -250,7 +250,7 @@
           <div class="dashboard-head"><button class="back-btn" id="privacyBack">→</button><div><span class="eyebrow blue">פרטיות</span><h1>מדיניות הפרטיות</h1><p>עודכן לאחרונה: 18 ביולי 2026</p></div></div>
           <div class="privacy-policy">
             <article class="panel"><h2>מה נשמר במכשיר?</h2><p>המשחק שומר בדפדפן ובמכשיר בלבד את פרטי השחקנים, ההתקדמות, ההגדרות ותמונת שחקן שנבחרה. הנתונים אינם נשלחים אלינו ואינם מסתנכרנים למכשירים אחרים.</p><p>אפשר לייצא גיבוי, לייבא אותו למכשיר אחר, או למחוק את כל הנתונים מהמכשיר בהגדרות.</p></article>
-            <article class="panel"><h2>נתוני שימוש כלליים</h2><p>איסוף נתוני שימוש באמצעות Google Analytics נעשה רק לאחר אישור מפורש של מבוגר בהגדרות. הנתונים עוזרים לאסוף סטטיסטיקה על, למשל, פתיחת האפליקציה, מעבר מסך, התחלת וסיום משחק, לחיצה על התקנה ושליחת פנייה.</p><p>לא נשלחים ל־Google Analytics שמות שחקנים, גיל, תמונות, תשובות, תוכן הודעות או מזהים אישיים של ילדים. אפשר להפסיק את האיסוף בכל עת בהגדרות.</p></article>
+            <article class="panel"><h2>נתוני שימוש</h2><p>המשחק אינו משתמש ב־Google Analytics ואינו שולח נתוני שימוש אישיים. לצורך דף הניהול נספרות רק התחלות משחק כמונים מצרפיים ואנונימיים; לא נשמרים שם שחקן, גיל, מזהה משתמש או מזהה מכשיר.</p></article>
             <article class="panel"><h2>פניות ועדכונים</h2><p>בטופס „כתבו אלינו” אפשר לשלוח שם, כתובת מייל והודעה. הטופס נשלח דרך Formspree, ולכן מידע שתבחרו לשלוח עשוי להיות מעובד גם מחוץ לישראל. אל תשלחו פרטים אישיים על ילדים.</p><p>כתובת מייל תשמש למענה לפנייה, ורק אם תסמנו זאת — גם לעדכונים על המשחק. אפשר לבקש להסיר את הכתובת מרשימת העדכונים בכל עת.</p></article>
           </div>
         </div>
@@ -435,17 +435,6 @@
       </div>
     </div>
 
-    <div class="modal-backdrop" id="analyticsConsentModal">
-      <div class="modal analytics-consent-modal">
-        <span class="eyebrow blue">פרטיות ונתוני שימוש</span>
-        <h2>עוזרים לשפר את היער הזוהר?</h2>
-        <p>באישור של מבוגר אפשר לאסוף נתוני שימוש כלליים כדי שנבין מה עובד טוב באפליקציה ומה כדאי לשפר.</p>
-        <p class="updates-privacy">לא נשלחים שמות שחקנים, גיל, תמונות, תשובות או תוכן הודעות.</p>
-        <button class="primary-btn full" id="analyticsConsentAccept" type="button">מאשר/ת נתוני שימוש כלליים</button>
-        <button class="outline-btn full" id="analyticsConsentDecline" type="button">לא עכשיו</button>
-      </div>
-    </div>
-
     <div class="modal-backdrop" id="installModal">
       <div class="modal install-modal">
         <button class="modal-close" data-close="installModal">×</button>
@@ -469,10 +458,10 @@
       <p>היער הזוהר בנוי למסך עומד (אנכי). כך רואים טוב יותר את השאלות, הכפתורים והחבר למסע.</p>
     </div>
   </div>
-<script type="module" src="stats-client.js?build=0.2.6"></script>
-<script src="games.js?build=0.2.6"></script>
-<script src="difficulty-levels.js?build=0.2.6"></script>
-<script src="expanded-question-banks.js?build=0.2.6"></script>
-<script src="app.js?build=0.2.6"></script>
+<script type="module" src="stats-client.js?build=0.2.7"></script>
+<script src="games.js?build=0.2.7"></script>
+<script src="difficulty-levels.js?build=0.2.7"></script>
+<script src="expanded-question-banks.js?build=0.2.7"></script>
+<script src="app.js?build=0.2.7"></script>
 </body>
 </html>

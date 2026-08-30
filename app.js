@@ -1,4 +1,4 @@
-const APP_VERSION = "0.2.6";
+const APP_VERSION = "0.2.7";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -425,8 +425,6 @@ function buildQuestionPool(subject,level,p){
 
 const storeKey = "brightwood-quest-v1";
 let state = JSON.parse(localStorage.getItem(storeKey) || '{"profiles":[],"activeId":null,"sound":true}');
-if(!Object.prototype.hasOwnProperty.call(state,"analyticsConsent"))state.analyticsConsent=null;
-if(!Object.prototype.hasOwnProperty.call(state,"analyticsConsentAsked"))state.analyticsConsentAsked=false;
 // The sharing policy changed from a fixed fourth-medal opt-out to a policy
 // based on an earlier successful share. Reset only the old policy preference.
 if(state.sharePromptPolicyVersion!==2){
@@ -444,7 +442,6 @@ let pendingProfilePhoto = "";
 let sampleNameIndex = 0;
 let gamePickerBackTarget = "home";
 let privacyBackTarget = "settingsScreen";
-let pendingAnalyticsConsentAction = null;
 let restoringScreenFromHistory = false;
 let introIndex = 0;
 const $ = s => document.querySelector(s);
@@ -452,7 +449,10 @@ const $$ = s => [...document.querySelectorAll(s)];
 const clamp = (n,min,max) => Math.max(min,Math.min(max,n));
 
 function analyticsReady(){
-  return state.analyticsConsent===true && Boolean(GA_MEASUREMENT_ID && /^G-[A-Z0-9]+$/i.test(GA_MEASUREMENT_ID));
+  // Google Analytics is intentionally inactive. The app now uses only its
+  // separate aggregate Firestore game counter, which has no player or device
+  // identifier and does not require a consent prompt.
+  return false;
 }
 
 function initAnalytics(){
@@ -473,33 +473,9 @@ function trackEvent(name,params={}){
   window.gtag("event",name,{app_version:APP_VERSION,...params});
 }
 
-function setAnalyticsConsent(value){
-  state.analyticsConsent=Boolean(value);
-  state.analyticsConsentAsked=true;
-  save();
-  if(state.analyticsConsent){
-    initAnalytics();
-    trackEvent("analytics_consent_granted");
-  }else if(typeof window.gtag==="function"){
-    window.gtag("consent","update",{analytics_storage:"denied"});
-  }
-  renderSettings();
-}
-
 function maybePromptAnalyticsConsent(afterChoice){
-  if(state.analyticsConsentAsked){
-    afterChoice?.();
-    return;
-  }
-  pendingAnalyticsConsentAction=afterChoice || null;
-  setTimeout(()=>openModal("analyticsConsentModal"),180);
-}
-
-function finishAnalyticsConsent(value){
-  setAnalyticsConsent(value);
-  closeModal("analyticsConsentModal");
-  const afterChoice=pendingAnalyticsConsentAction;
-  pendingAnalyticsConsentAction=null;
+  // Kept as a compatibility wrapper for the profile-creation flow. There is
+  // no longer an analytics-consent screen to show.
   afterChoice?.();
 }
 
@@ -522,7 +498,6 @@ const FIVE_LEVEL_GAME_IDS = new Set([
 // A few vocabulary games have eight genuinely different stages.  Do not
 // advertise a ninth stage when it would only repeat the eighth.
 const CUSTOM_MAX_LEVELS = { "count": 5, "number-quantity": 6, "big-small": 7, "more-groups": 6, "visual-pattern": 5, "number-sequence": 5, "picture-subtraction": 6, "number-line": 4, "shapes": 4, "clock": 4, "addition": 6, "multiplication": 6, "multiplication-numbers": 5, "fractions": 8, "letter-picture": 4, "first-letter": 4, "image-word": 4, "drag-word-picture": 4, "missing-letter-en": 4, "build-word-en": 4, "sentence-order-en": 5, "same-picture": 3, "starts-hebrew": 4, "hebrew-word-picture": 3, "alphabet-order": 5, "missing-letter-he": 3, "inference": 4, "word-problems": 6, "word-categories": 6, "story-title": 4, "word-search": 4, "odd-one-out": 3, "habitat": 3, "living-groups": 4, "seasons": 4, "life-cycle": 4, "plant-parts": 4 };
-const DIFFICULTY_PROMPT_COOLDOWN_GAMES = 5;
 function gameMaxLevel(gameId){
   const game=KIDS_GAMES.catalog.find(item=>item.id===gameId);
   return CUSTOM_MAX_LEVELS[gameId] || game?.maxLevel || (EXTENDED_LEVEL_GAME_IDS.has(gameId)?15:FIVE_LEVEL_GAME_IDS.has(gameId)?5:9);
@@ -603,7 +578,8 @@ function renderMilestone(milestone,{continueGame=false}={}){
 function showMidGameMilestone(milestone,onContinue){
   if(!session)return;
   if(milestone.newTrophies>milestone.previousTrophies&&milestone.newTrophies===1&&!activeProfile()?.updatesPromptShown)session.pendingUpdatesPrompt=true;
-  // Sharing is offered only after a medal, and only once this game has ended.
+  // Offer sharing as soon as a medal is awarded, so it is not lost if the
+  // player leaves the game before its final question.
   // No player identity or share preference is sent anywhere.
   if(milestone.newMedals>milestone.previousMedals&&!state.sharePromptDisabled){
     session.pendingSharePrompt=true;
@@ -611,6 +587,7 @@ function showMidGameMilestone(milestone,onContinue){
   }
   session.pendingMilestoneContinue=onContinue;
   renderMilestone(milestone,{continueGame:true});
+  renderFinishedGameShare();
   openModal("milestoneModal");
   playMilestoneMelody();
 }
@@ -870,7 +847,10 @@ async function shareFinishedGameAchievement(){
     await navigator.share(data);
     // A resolved native-share request is the closest privacy-preserving signal
     // available. Copying text is intentionally not treated as a share.
-    state.shareHasSharedAchievement=true; save();
+    state.shareHasSharedAchievement=true;
+    if(session)session.pendingSharePrompt=false;
+    save();
+    hideFinishedGameShare();
     setFinishedGameShareStatus("תודה ששיתפתם את ההישג!");
   }catch(error){
     if(error?.name==="AbortError")return;
@@ -883,10 +863,12 @@ function deferFinishedGameShare(){
   // sharing again; no preference or identifier needs to be stored for it.
   if(session)session.pendingSharePrompt=false;
   hideFinishedGameShare();
+  if(session?.pendingMilestoneContinue)continueAfterMidGameMilestone();
 }
 
 function disableFinishedGameShare(){
   state.sharePromptDisabled=true; save(); hideFinishedGameShare();
+  if(session?.pendingMilestoneContinue)continueAfterMidGameMilestone();
 }
 function isAppInstalled(){
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
@@ -1378,7 +1360,7 @@ function startGame(gameId){
   p.recentGames[gameId]=[...(p.recentGames[gameId]||[]),...questions.map(questionSignature)].slice(-Math.min(40,Math.max(12,pool.length-5)));
   p.lastGameQuestionSignatures=questions.map(questionSignature);
   save();
-  session={subject,gameId,game,level,questions,index:0,correct:0,starsBeforeGame:p.stars||0,start:Date.now(),locked:false,results:{},memoryRoundOutcomes:[]};
+  session={subject,gameId,game,level,questions,index:0,correct:0,starsEarned:0,starsBeforeGame:p.stars||0,start:Date.now(),locked:false,results:{},memoryRoundOutcomes:[]};
   // This aggregate-only metric is deliberately independent of the optional
   // analytics consent flow. It contains no player, device or browser data.
   // The session object is kept only in page memory to suppress duplicate
@@ -1433,10 +1415,9 @@ function renderDifficultyPrompt(){
   const promptGameName=String(prompt.gameName||"").replace(/[?？]+$/u,"");
   $("#difficultyPromptIcon").textContent=prompt.direction==="up"?"🚀":"🌱";
   $("#difficultyPromptEyebrow").textContent=prompt.direction==="up"?"מוכנים לאתגר חדש?":"משחקים בקצב שמתאים לכם";
-  const testBuild=document.body.classList.contains("test-build");
   $("#difficultyPromptTitle").textContent=prompt.direction==="up"
-    ?(testBuild?"שיחקת מצוין במשחק אחד!":"שיחקת מצוין בשני משחקים רצופים!")
-    :(testBuild?"נראה שהמשחק מאתגר עכשיו.":"נראה שהמשחק קצת מאתגר עכשיו.");
+    ?"שיחקת מצוין במשחק מושלם!"
+    :"נראה שהמשחק קצת מאתגר עכשיו.";
   const rtlQuestionMark="\u200F?";
   $("#difficultyPromptText").textContent=prompt.direction==="up"
     ? `רוצה לעלות לרמה ${nextLevel} במשחק „${promptGameName}”${rtlQuestionMark}`
@@ -1464,7 +1445,11 @@ function resolveDifficultyPrompt(accept){
   }else{
     const declinesKey=`${directionKey}Declines`,cooldownKey=`${directionKey}CooldownUntil`,disabledKey=`${directionKey}AutoPromptDisabled`;
     gameProg[declinesKey]=(gameProg[declinesKey]||0)+1;
-    gameProg[cooldownKey]=(gameProg.completed||0)+DIFFICULTY_PROMPT_COOLDOWN_GAMES;
+    // A declined offer returns after the very next qualifying game.  Only a
+    // second decline silences automatic offers for this direction and game.
+    delete gameProg[cooldownKey];
+    if(prompt.direction==="up")delete gameProg.lastPromotionPrompt;
+    else delete gameProg.lastEasierPrompt;
     if(gameProg[declinesKey]>=2)gameProg[disabledKey]=true;
   }
   p.gameProgress[prompt.gameId]=gameProg;
@@ -1804,7 +1789,7 @@ function answerMatchesQuestion(value,q){
   return response===String(q.correct)||Boolean(q.acceptedAnswers?.includes(response));
 }
 
-function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
+function answer(value,button,{scoreCorrect=null,awardStar=false,feedbackText=""}={}){
   if(session.locked)return; session.locked=true;
   const q=session.questions[session.index], right=answerMatchesQuestion(value,q), p=activeProfile();
   const countsAsCorrect=scoreCorrect===null?right:scoreCorrect;
@@ -1813,10 +1798,12 @@ function answer(value,button,{scoreCorrect=null,feedbackText=""}={}){
   p.answered++;
   if(countsAsCorrect){
     p.correct++; session.correct++; session.results[q.skill].correct++;
+  }
+  if(countsAsCorrect||awardStar){
     // A star belongs to each correct answer, not to completing a full game.
     // This makes the reward visible and durable even if the player leaves early.
     const previousStars=p.stars||0;
-    p.stars++;
+    p.stars++; session.starsEarned++;
     milestone=earnedMilestone(previousStars,p.stars);
     renderAll();
   }
@@ -1919,7 +1906,7 @@ function revealCorrectBuildAnswer(q){
 }
 
 function finishGame(){
-  const p=activeProfile(), key=session.subject, now=new Date().toDateString(), earned=session.correct;
+  const p=activeProfile(), key=session.subject, now=new Date().toDateString(), earned=session.starsEarned??session.correct;
   trackEvent("game_finished",{subject:key,game_id:session.gameId,game_level:session.level,questions_total:session.questions.length,correct_total:session.correct,stars_earned:earned});
   // Stars were already awarded question by question while this game was played.
   p.progress[key] ||= {completed:0,level:1,correct:0,total:0};
@@ -1929,19 +1916,16 @@ function finishGame(){
   const memoryOutcomes=session.memoryRoundOutcomes||[];
   const isMemoryGame=session.game?.kind==="memoryEnglish";
   const strongGame=isMemoryGame
-    ? memoryOutcomes.filter(outcome=>outcome.success).length>=4
-    : session.correct>=4;
+    ? memoryOutcomes.length===session.questions.length&&memoryOutcomes.every(outcome=>outcome.success)
+    : session.correct===session.questions.length;
   const challengingGame=isMemoryGame
-    ? memoryOutcomes.filter(outcome=>outcome.failed).length>=4
-    : session.correct<=1;
+    ? memoryOutcomes.filter(outcome=>outcome.success).length<=2
+    : session.correct<=2;
   gameProg.perfectStreak=strongGame?(gameProg.perfectStreak||0)+1:0;
   gameProg.challengeStreak=challengingGame?(gameProg.challengeStreak||0)+1:0;
   const currentLevel=p.gameLevels[session.gameId]||session.level;
-  const testBuild=document.body.classList.contains("test-build");
-  const promotionThreshold=testBuild?1:2;
-  const easierThreshold=testBuild?1:2;
-  const promotionDue=gameProg.perfectStreak>0&&gameProg.perfectStreak%promotionThreshold===0&&gameProg.lastPromotionPrompt!==gameProg.perfectStreak&&currentLevel<gameMaxLevel(session.gameId)&&!gameProg.promotionAutoPromptDisabled&&(gameProg.promotionCooldownUntil||0)<gameProg.completed;
-  const easierLevelDue=gameProg.challengeStreak>0&&gameProg.challengeStreak%easierThreshold===0&&gameProg.lastEasierPrompt!==gameProg.challengeStreak&&currentLevel>1&&!gameProg.easierAutoPromptDisabled&&(gameProg.easierCooldownUntil||0)<gameProg.completed;
+  const promotionDue=strongGame&&currentLevel<gameMaxLevel(session.gameId)&&!gameProg.promotionAutoPromptDisabled;
+  const easierLevelDue=challengingGame&&currentLevel>1&&!gameProg.easierAutoPromptDisabled;
   if(promotionDue){
     gameProg.lastPromotionPrompt=gameProg.perfectStreak;
     session.pendingDifficultyPrompt={direction:"up",gameId:session.gameId,gameName:session.game.name,currentLevel};
@@ -2012,16 +1996,6 @@ function renderSettings(){
   $("#settingsUsersText").textContent=`השחקן הנוכחי: ${p.name}. אפשר להוסיף שחקן, לעבור בין שחקנים, או למחוק שחקן שלא משחק יותר.`;
   $("#settingsSound span").textContent=state.sound?"🔊":"🔇";
   $("#settingsSoundLabel").textContent=state.sound?"הצלילים פעילים":"הצלילים כבויים";
-  const analyticsText=$("#analyticsConsentText"),analyticsButton=$("#analyticsConsentButton");
-  if(analyticsText&&analyticsButton){
-    if(state.analyticsConsent===true){
-      analyticsText.textContent="איסוף נתוני שימוש כלליים פעיל. לא נשלחים שמות, גיל, תמונות, תשובות או תוכן הודעות.";
-      analyticsButton.textContent="הפסקת איסוף נתוני שימוש";
-    }else{
-      analyticsText.textContent="נתוני שימוש אינם נאספים. אפשר לאשר איסוף נתונים כלליים בלבד כדי לעזור לשפר את המשחק.";
-      analyticsButton.textContent="בחירה לגבי נתוני שימוש";
-    }
-  }
   renderDifficulty(p);
 }
 
@@ -2089,8 +2063,6 @@ function adjustDifficulty(data){
 function exportProgress(){
   const p=activeProfile(); if(!p)return;
   const backupState={...state};
-  delete backupState.analyticsConsent;
-  delete backupState.analyticsConsentAsked;
   const report={
     app:"brightwood-quest",
     exportType:"backup",
@@ -2122,9 +2094,7 @@ function importProgressFile(file){
         profiles:importedState.profiles,
         activeId:importedState.activeId || importedState.profiles[0]?.id || null,
         sound:typeof importedState.sound==="boolean" ? importedState.sound : state.sound,
-        introSeen:Boolean(importedState.introSeen),
-        analyticsConsent:null,
-        analyticsConsentAsked:false
+        introSeen:Boolean(importedState.introSeen)
       };
       state.profiles.forEach(prepareProfile);
       save();
@@ -2230,14 +2200,16 @@ function chooseMemoryCard(button){
       const pairCount=session.questions[session.index].pairs.length;
       const mistakes=session.memoryMistakes||0;
       const success=mistakes<=Math.floor(pairCount/2);
-      const failed=mistakes>=pairCount;
+      const failed=mistakes>pairCount;
+      const middleResult=!success&&!failed;
       session.memoryRoundOutcomes.push({pairCount,mistakes,success,failed});
-      answer("הושלם",button,{scoreCorrect:success,feedbackText:success?"מצוין! מצאתם את כל הזוגות.":"השלמתם את הלוח!"});
+      answer("הושלם",button,{scoreCorrect:success,awardStar:middleResult,feedbackText:success?"מצוין! מצאתם את כל הזוגות.":middleResult?"השלמתם את הלוח וקיבלתם כוכב!":"השלמתם את הלוח!"});
     }
   }else{
     session.memoryMistakes=(session.memoryMistakes||0)+1;
     const pairCount=session.questions[session.index].pairs.length;
-    // A round with X pairs permits up to X mistakes. The next mistake fails it.
+    // A round with X pairs fails only on mistake X+1. This leaves a middle
+    // result: it earns a star but does not count as success or failure.
     if(session.memoryMistakes>pairCount){
       setTimeout(()=>failMemoryRound(a.button),700);
     }else{
@@ -2373,11 +2345,6 @@ function bindEvents(){
   $("#settingsSound").onclick=()=>{$(".sound-toggle").click();renderSettings()};
   $("#settingsHelp").onclick=()=>showScreen("helpScreen");
   $("#settingsPrivacy").onclick=()=>openPrivacyScreen("settingsScreen");
-  $("#analyticsConsentButton").onclick=()=>{
-    if(state.analyticsConsent===true){
-      if(confirm("להפסיק את איסוף נתוני השימוש הכלליים?"))setAnalyticsConsent(false);
-    }else openModal("analyticsConsentModal");
-  };
   $("#privacyPolicyButton").onclick=()=>openPrivacyScreen("settingsScreen");
   $("#helpPrivacyButton").onclick=()=>openPrivacyScreen("helpScreen");
   $("#privacyBack").onclick=()=>showScreen(privacyBackTarget);
@@ -2388,8 +2355,6 @@ function bindEvents(){
   $("#importReportFile").onchange=e=>importProgressFile(e.target.files?.[0]);
   $("#resetProgress").onclick=resetProgress;
   $("#deleteAllData").onclick=clearAllLocalData;
-  $("#analyticsConsentAccept").onclick=()=>finishAnalyticsConsent(true);
-  $("#analyticsConsentDecline").onclick=()=>finishAnalyticsConsent(false);
   $(".sound-toggle").onclick=()=>{state.sound=!state.sound;renderSoundToggle();save();if(state.sound)chime(true)};
   $("#continueButton").onclick=openAdventureFlow;
   $("#randomButton").onclick=()=>{const p=activeProfile();if(!p)return openCreate();const games=p.subjects.flatMap(subject=>availableGames(p,subject));if(games.length)startGame(games[Math.floor(Math.random()*games.length)].id)};
@@ -2456,7 +2421,7 @@ function bindEvents(){
   $("#milestoneUpdatesButton").onclick=openUpdatesFromAchievement;
   $("#celebrationUpdatesButton").onclick=openUpdatesFromAchievement;
   $("#updatesSignupButton").onclick=()=>{window.location.href=UPDATES_SIGNUP_PAGE};
-  $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&m.id!=="introModal"&&m.id!=="analyticsConsentModal"&&!(m.id==="milestoneModal"&&session?.pendingMilestoneContinue)&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
+  $$(".modal-backdrop").forEach(m=>m.addEventListener("click",e=>{if(e.target===m&&m.id!=="createModal"&&m.id!=="introModal"&&!(m.id==="milestoneModal"&&session?.pendingMilestoneContinue)&&!(!activeProfile()&&m.id==="profileModal"))closeModal(m.id)}));
 }
 
 init();
