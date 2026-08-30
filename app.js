@@ -1,4 +1,4 @@
-const APP_VERSION = "0.2.8";
+const APP_VERSION = "0.2.9";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -1840,7 +1840,7 @@ function answer(value,button,{scoreCorrect=null,awardStar=false,feedbackText=""}
     const previousStars=p.stars||0;
     p.stars++; session.starsEarned++;
     milestone=earnedMilestone(previousStars,p.stars);
-    if(milestone?.newTrophies>milestone.previousTrophies)window.BrightForestStats?.recordTrophyEarned(milestone);
+    if(milestone&&milestone.newTrophies>milestone.previousTrophies)window.BrightForestStats?.recordTrophyEarned(milestone);
     renderAll();
   }
   if(right){
