@@ -33,7 +33,7 @@
     </section>
 
     <section class="dashboard hidden" id="dashboard" aria-live="polite">
-      <div class="dashboard-top"><p id="adminIdentity"></p><div><button class="secondary" id="refreshStats" type="button">רענון</button><button class="danger" id="resetTrophyStats" type="button">איפוס מוני גביעים</button><button class="danger" id="resetStats" type="button">איפוס מוני משחקים</button><button class="link-button" id="adminSignOut" type="button">יציאה</button></div></div>
+      <div class="dashboard-top"><p id="adminIdentity"></p><div class="dashboard-actions" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%"><button class="secondary" id="refreshStats" type="button" style="padding:10px 5px;font-size:13px;white-space:nowrap">רענון</button><button class="danger" id="resetTrophyStats" type="button" aria-label="איפוס מוני גביעים" style="padding:10px 5px;font-size:13px;white-space:nowrap">איפוס גביעים</button><button class="danger" id="resetStats" type="button" aria-label="איפוס מוני משחקים" style="padding:10px 5px;font-size:13px;white-space:nowrap">איפוס משחקים</button></div><button class="link-button" id="adminSignOut" type="button">יציאה</button></div>
       <section class="weekly-chart-panel trophy-chart-panel" aria-labelledby="trophyChartTitle">
         <div><h2 id="trophyChartTitle">גביעים בכל שבוע</h2><p>30 השבועות האחרונים · כל נקודה היא מספר גביעים שהושגו</p></div>
         <p class="weekly-chart-summary" id="trophyChartSummary" aria-live="polite"></p>
