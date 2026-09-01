@@ -1,4 +1,4 @@
-const APP_VERSION = "0.2.9";
+const APP_VERSION = "0.2.10";
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgojggkr";
 const UPDATES_SIGNUP_PAGE = "updates.html";
 const GA_MEASUREMENT_ID = "G-GYG1ZSCPN6";
@@ -425,13 +425,9 @@ function buildQuestionPool(subject,level,p){
 
 const storeKey = "brightwood-quest-v1";
 let state = JSON.parse(localStorage.getItem(storeKey) || '{"profiles":[],"activeId":null,"sound":true}');
-// The sharing policy changed from a fixed fourth-medal opt-out to a policy
-// based on an earlier successful share. Reset only the old policy preference.
-if(state.sharePromptPolicyVersion!==2){
-  state.sharePromptDisabled=false;
-  state.shareHasSharedAchievement=false;
-  state.sharePromptPolicyVersion=2;
-}
+// The permanent opt-out is offered from the fourth medal onward. Keep any
+// existing choice so a parent who already opted out is not asked again.
+if(state.sharePromptPolicyVersion!==3)state.sharePromptPolicyVersion=3;
 let session = null;
 let sharedAudioContext = null;
 let deferredInstallPrompt = null;
@@ -790,7 +786,15 @@ async function shareGameFromSettings(){
 }
 
 function finishedGameShareData(){
-  const headline="אנחנו משחקים במשחק לימודי כיפי בשם היער הזוהר. כרגע זכינו במדליה! ממליצים לנסות!";
+  const p=activeProfile();
+  const medalNumber=session?.shareMedalNumber||medalCount(p);
+  const trophyNumber=trophyCount(p);
+  const feminineOrdinals=["","ראשונה","שנייה","שלישית","רביעית","חמישית","שישית","שביעית","שמינית","תשיעית","עשירית"];
+  const masculineOrdinals=["","ראשון","שני","שלישי","רביעי","חמישי","שישי","שביעי","שמיני","תשיעי","עשירי"];
+  const medalText=medalNumber<=10?`במדליה ה${feminineOrdinals[medalNumber]}`:`במדליה מספר ${medalNumber}`;
+  const trophyText=trophyNumber?(trophyNumber<=10?` ובגביע ה${masculineOrdinals[trophyNumber]}`:` ובגביע מספר ${trophyNumber}`):"";
+  const buddyName=BUDDY_PROFILES[p?.buddy]?.name||"חבר המסע";
+  const headline=`אנחנו משחקים במשחק לימודי כיפי בשם היער הזוהר. בחרנו להיות ${buddyName}. כרגע זכינו ${medalText}${trophyText} שלנו! ממליצים לנסות!`;
   // navigator.share sends `url` as its own link. Keeping it out of the text
   // prevents WhatsApp from rendering the same address twice.
   return {headline,text:headline,url:SHARE_URL};
@@ -801,13 +805,9 @@ function shouldShowFinishedGameShare(){
 }
 
 function shouldOfferShareOptOut(){
-  const medalNumber=session?.shareMedalNumber||0;
-  // Sharing belongs to the current player. A share by a sibling must not add
-  // a permanent opt-out to this player's first medal.
-  const playerHasShared=activeProfile()?.shareHasSharedAchievement===true;
-  // After this player shares, the next medal may offer a permanent opt-out.
-  // If they have not shared, the fourth medal is the first opt-out chance.
-  return medalNumber>=4||playerHasShared;
+  // The parent can stop future prompts only from 100 stars (the fourth medal),
+  // regardless of whether an earlier achievement was shared.
+  return (session?.shareMedalNumber||0)>=4;
 }
 
 function renderFinishedGameShare(){
@@ -840,29 +840,13 @@ function copyFinishedGameShareText(text){
   return copied?Promise.resolve():Promise.reject(new Error("copy unavailable"));
 }
 
-function createFinishedGameShareImage(){
-  return new Promise(resolve=>{
-    const canvas=document.createElement("canvas"); canvas.width=1200; canvas.height=630;
-    const ctx=canvas.getContext("2d"); if(!ctx){resolve(null);return}
-    const sky=ctx.createLinearGradient(0,0,1200,630); sky.addColorStop(0,"#dff7ff"); sky.addColorStop(1,"#fff3bd");
-    ctx.fillStyle=sky; ctx.fillRect(0,0,1200,630);
-    const circle=(x,y,r,color)=>{ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();};
-    const star=(x,y,outer,inner,color)=>{ctx.fillStyle=color;ctx.beginPath();for(let point=0;point<10;point++){const angle=-Math.PI/2+point*Math.PI/5,r=point%2?inner:outer;const px=x+Math.cos(angle)*r,py=y+Math.sin(angle)*r;point?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill();};
-    // The share card is deliberately illustration-only. The separate share
-    // text carries the achievement and the link, so no message is duplicated.
-    circle(150,120,32,"rgba(255,255,255,.72)"); circle(196,108,45,"rgba(255,255,255,.72)"); circle(248,126,28,"rgba(255,255,255,.72)");
-    ctx.fillStyle="#c9efcf";ctx.beginPath();ctx.ellipse(230,680,470,210,0,Math.PI,0);ctx.fill();
-    ctx.fillStyle="#9de0aa";ctx.beginPath();ctx.ellipse(940,660,500,235,0,Math.PI,0);ctx.fill();
-    // Tree
-    ctx.fillStyle="#85512f";ctx.fillRect(968,320,48,190);ctx.fillStyle="#5faa5b";circle(990,265,105,"#5faa5b");circle(920,310,74,"#64ba65");circle(1060,310,78,"#4f9f55");
-    // Medal card
-    ctx.fillStyle="rgba(255,255,255,.94)";ctx.roundRect(246,76,560,470,48);ctx.fill();
-    ctx.fillStyle="#ec6b50";ctx.beginPath();ctx.moveTo(455,112);ctx.lineTo(548,112);ctx.lineTo(520,300);ctx.lineTo(465,300);ctx.closePath();ctx.fill();
-    ctx.fillStyle="#2d8bc7";ctx.beginPath();ctx.moveTo(548,112);ctx.lineTo(640,112);ctx.lineTo(625,300);ctx.lineTo(520,300);ctx.closePath();ctx.fill();
-    circle(545,355,128,"#efb942");circle(545,355,99,"#ffd96b");circle(545,355,74,"#f6a82f");star(545,355,52,23,"#fff6ca");
-    star(330,185,30,13,"#f0b948");star(740,210,24,10,"#ef8b4d");star(350,455,22,9,"#48b890");star(735,450,31,13,"#398fca");
-    canvas.toBlob(blob=>resolve(blob?new File([blob],"brightforest-achievement.png",{type:"image/png"}):null),"image/png");
-  });
+async function createFinishedGameShareImage(){
+  try{
+    const response=await fetch("assets/brightforest-share-card.png");
+    if(!response.ok)return null;
+    const blob=await response.blob();
+    return new File([blob],"brightforest-share-card.png",{type:"image/png"});
+  }catch{return null}
 }
 
 async function shareFinishedGameAchievement(){
