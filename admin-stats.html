@@ -34,6 +34,12 @@
 
     <section class="dashboard hidden" id="dashboard" aria-live="polite">
       <div class="dashboard-top"><p id="adminIdentity"></p><div class="dashboard-actions" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%"><button class="secondary" id="refreshStats" type="button" style="padding:10px 5px;font-size:13px;white-space:nowrap">רענון</button><button class="danger" id="resetTrophyStats" type="button" aria-label="איפוס מוני גביעים" style="padding:10px 5px;font-size:13px;white-space:nowrap">איפוס גביעים</button><button class="danger" id="resetStats" type="button" aria-label="איפוס מוני משחקים" style="padding:10px 5px;font-size:13px;white-space:nowrap">איפוס משחקים</button></div><button class="link-button" id="adminSignOut" type="button">יציאה</button></div>
+      <div class="metric-grid">
+        <article><span class="metric-title">היום</span><dl class="metric-values"><div><dt>משחקים</dt><dd id="metricToday">—</dd></div><div class="trophy-metric"><dt>גביעים</dt><dd id="trophyMetricToday">—</dd></div></dl></article>
+        <article><span class="metric-title">אתמול</span><dl class="metric-values"><div><dt>משחקים</dt><dd id="metricYesterday">—</dd></div><div class="trophy-metric"><dt>גביעים</dt><dd id="trophyMetricYesterday">—</dd></div></dl></article>
+        <article><span class="metric-title">7 הימים האחרונים</span><dl class="metric-values"><div><dt>משחקים</dt><dd id="metricWeek">—</dd></div><div class="trophy-metric"><dt>גביעים</dt><dd id="trophyMetricWeek">—</dd></div></dl></article>
+        <article><span class="metric-title">סך הכול</span><dl class="metric-values"><div><dt>משחקים</dt><dd id="metricTotal">—</dd></div><div class="trophy-metric"><dt>גביעים</dt><dd id="trophyMetricTotal">—</dd></div></dl></article>
+      </div>
       <section class="weekly-chart-panel trophy-chart-panel" aria-labelledby="trophyChartTitle">
         <div><h2 id="trophyChartTitle">גביעים בכל שבוע</h2><p>30 השבועות האחרונים · כל נקודה היא מספר גביעים שהושגו</p></div>
         <p class="weekly-chart-summary" id="trophyChartSummary" aria-live="polite"></p>
@@ -46,12 +52,6 @@
         <div class="weekly-line-chart" id="weeklyChart" aria-label="גרף משחקים בכל שבוע ב־30 השבועות האחרונים"></div>
         <p class="weekly-chart-detail" id="weeklyChartDetail" aria-live="polite"></p>
       </section>
-      <div class="metric-grid">
-        <article><span class="metric-title">היום</span><dl class="metric-values"><div><dt>משחקים</dt><dd id="metricToday">—</dd></div><div class="trophy-metric"><dt>גביעים</dt><dd id="trophyMetricToday">—</dd></div></dl></article>
-        <article><span class="metric-title">אתמול</span><dl class="metric-values"><div><dt>משחקים</dt><dd id="metricYesterday">—</dd></div><div class="trophy-metric"><dt>גביעים</dt><dd id="trophyMetricYesterday">—</dd></div></dl></article>
-        <article><span class="metric-title">7 הימים האחרונים</span><dl class="metric-values"><div><dt>משחקים</dt><dd id="metricWeek">—</dd></div><div class="trophy-metric"><dt>גביעים</dt><dd id="trophyMetricWeek">—</dd></div></dl></article>
-        <article><span class="metric-title">סך הכול</span><dl class="metric-values"><div><dt>משחקים</dt><dd id="metricTotal">—</dd></div><div class="trophy-metric"><dt>גביעים</dt><dd id="trophyMetricTotal">—</dd></div></dl></article>
-      </div>
       <p class="reset-status" id="trophyResetStatus" aria-live="polite"></p>
       <p class="last-reset" id="lastTrophyReset">טרם נטענו נתונים.</p>
       <p class="reset-status" id="resetStatus" aria-live="polite"></p>
